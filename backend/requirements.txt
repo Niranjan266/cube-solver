@@ -11,4 +11,4 @@ scipy>=1.11            # optimal balanced colour assignment (pure-python fallbac
 
 # --- optional: YOLO sticker detection ---------------------------------------
 # ultralytics>=8.1
-# huggingface-hub>=0.23
+# huggingface-hub>=0.23  # also used by tools/train_yolo.py --prepare-hf (dataset download)

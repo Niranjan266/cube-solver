@@ -6,3 +6,4 @@ backend/cube/_tables/
 runs/
 *.pt
 node_modules/
+backend/data/
