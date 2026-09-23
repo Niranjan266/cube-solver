@@ -223,12 +223,33 @@ in:
   browser's reading and the server's disagree, the app says so instead of
   solving.
 
-Measured on 400 simulated scans (random cube, per-side exposure and colour
-cast, noise, shadows, random order and rotation): sides named right 99.5%,
-whole cube right from the browser alone 98.5%. Run through the server
-classifier, the end-to-end figure is 98.5%. In a real browser fed a fake camera,
-each side was captured in about 0.3 s, and a black frame and a plain desk were
-correctly ignored.
+**Red and orange** are the pair cameras mix up most. Warm light pushes red
+towards orange, and an over-exposed orange clips its red channel and looks
+yellow. Three things deal with that:
+
+- Colour ratios are taken in *linear light*: the camera's sRGB tone curve
+  is undone first, which roughly doubles the gap between red and orange.
+- Side names are decided *jointly*: all captured centres are matched to
+  colours together, with one shared room cast. They are re-checked after
+  every capture, so a side briefly called "orange" is renamed as soon as the
+  real orange side appears. The camera is asked for slightly darker exposure
+  where it allows it.
+- The piece check requires every piece exactly once. Red and orange sit on
+  opposite sides, so misreading one red sticker as orange produces another
+  *real* piece (white-orange instead of white-red), just a duplicate one. A
+  check that did not look for duplicates could never catch that mistake.
+
+`node frontend/test/scanner.test.mjs` measures this under three lighting
+models, 400 random cubes each (random order, rotation, noise and shadows):
+
+| light | cubes with a red/orange mix-up | whole cube right |
+|---|---|---|
+| simple casts | 0% | 99% |
+| realistic camera (tone curve, warm/cool light, half-working white balance, some clipping) | 0% | 99.5% |
+| harsh (warm bulb, heavy over-exposure) | 0.5% (was 19%) | 99% (was 72.5%) |
+
+In a real browser fed that harsh-light scene, the old version got 34 of 54
+stickers wrong and could not solve. The new one read every sticker right.
 
 **On the server:**
 

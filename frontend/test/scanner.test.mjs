@@ -40,38 +40,100 @@ function shoot(state, face, light){
   });
 }
 
-const TRIALS = +(process.env.TRIALS || 400);
-let idOk = 0, rotOk = 0, cubeOk = 0, allOk = 0, ambiguous = 0;
-const misses = [];
-for (let t = 0; t < TRIALS; t++) {
+/*
+ * A more honest camera. Stickers reflect light (linear values); the room light
+ * is warm or cool and differs a little from side to side; the camera's
+ * automatic white balance only half-corrects it; auto-exposure sometimes
+ * over-exposes, so bright channels clip; then the sensor applies the sRGB
+ * tone curve and adds noise. Red and orange are squeezed together by exactly
+ * these steps - warm light and a clipped red channel both push red towards
+ * orange - which is where real scans mix them up.
+ */
+const toLin = (v) => ((v /= 255) <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+const toSrgb = (v) => { v = Math.max(0, Math.min(1, v));
+  return 255 * (v <= 0.0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - 0.055); };
+function cameraShot(state, face, scene){
+  const w = scene.warmth + between(-0.25, 0.25);
+  const illum = [1 + 0.35 * w, 1, 1 - 0.45 * w];                  // R, G, B
+  const awb = between(0, 0.6);                                   // how much the camera corrects
+  const eff = illum.map((v) => v ** (1 - awb));
+  const gain = between(0.8, scene.harsh ? 3.4 : 2.6);            // sometimes over-exposed
+  const base = [..."URFDLB"].indexOf(face) * 9;
+  return [...state.slice(base, base + 9)].map((c) => {
+    const shade = rnd() < 0.08 ? 0.5 : 1;
+    const rgb = SC.REF_RGB[c].map(toLin).map((v, i) => v * eff[i] * gain * shade);
+    const out = rgb.map((v) => toSrgb(v * (1 + between(-0.03, 0.03))) + between(-4, 4));
+    return [out[2], out[1], out[0]].map((v) => Math.max(0, Math.min(255, v)));   // B, G, R
+  });
+}
+
+function trial(model){
   const state = E.applyAll(E.SOLVED, E.randomScramble(30));
-  const captured = {}, centres = {};
-  let ids = true;
+  // indoor light is often warm; "harsh" = a cheap webcam under a warm bulb
+  const scene = model === "harsh" ? { warmth: between(0.5, 1.3), harsh: true }
+                                  : { warmth: between(-0.2, 0.9) };
+  const captured = {}, centres = {}, truthOf = {};
+  const out = { ids: true, chips: 0, chipRO: 0, names: 0, namesRight: 0 };
   for (const f of shuffle([..."URFDLB"])) {
-    const light = { gain: between(0.62, 1.2),
-                    cast: [between(0.88, 1.12), between(0.9, 1.08), between(0.86, 1.14)] };
-    const truth = shoot(state, f, light);
+    const truth = model !== "simple" ? cameraShot(state, f, scene)
+      : shoot(state, f, { gain: between(0.62, 1.2),
+                          cast: [between(0.88, 1.12), between(0.9, 1.08), between(0.86, 1.14)] });
     const k = Math.floor(rnd() * 4);
     const shown = SC.rotate9(truth, (4 - k) % 4);      // held at a random rotation
     const id = SC.identifyFace(shown[4], centres);
-    if (id.face !== f) { ids = false; misses.push(`live: ${f} named ${id.face}`); }
+    // the live preview dots, with whatever centres are known at this moment
+    const base = [..."URFDLB"].indexOf(f) * 9;
+    const want = SC.rotate9([...state.slice(base, base + 9)], (4 - k) % 4);
+    SC.classifyLive(shown, centres).forEach((x, i) => {
+      if (want[i] === "R" || want[i] === "L") { out.chips++; if (x.face !== want[i]) out.chipRO++; }
+    });
     captured[id.face] = shown; centres[id.face] = shown[4];
+    truthOf[id.face] = f;
+    // as the page does: re-name every side captured so far, together
+    const rename = SC.settlePairs(captured);
+    const moved = {}, movedTruth = {}, movedCentres = {};
+    for (const [from, to] of Object.entries(rename)) if (captured[from]) {
+      moved[to] = captured[from]; movedTruth[to] = truthOf[from]; movedCentres[to] = centres[from];
+    }
+    for (const key of Object.keys(captured)) { delete captured[key]; delete centres[key]; delete truthOf[key]; }
+    Object.assign(captured, moved); Object.assign(centres, movedCentres); Object.assign(truthOf, movedTruth);
+    out.names++;
+    if (Object.entries(truthOf).every(([name, real]) => name === real)) out.namesRight++;
   }
-  if (ids) idOk++;
-  if (Object.keys(captured).length !== 6) continue;     // two faces took one name
+  out.ids = Object.entries(truthOf).every(([name, real]) => name === real) && out.namesRight === out.names;
+  if (Object.keys(captured).length !== 6) return { ...out, ok: false, ro: 0 };
   const r = SC.resolveRotations(captured);
-  if (r.ambiguous) ambiguous++;
-  if (r.labels === state) { rotOk++; allOk++; }
-  else if (misses.length < 12) misses.push(`final: score ${r.score}, ${[...r.labels].filter((c, i) => c !== state[i]).length} stickers off`);
-  if (SC.classifyOffline(r.samples) === state) cubeOk++;
+  out.ok = r.labels === state;
+  out.ro = [...r.labels].filter((c, i) => c !== state[i] && "RL".includes(c) && "RL".includes(state[i])).length;
+  out.off = [...r.labels].filter((c, i) => c !== state[i]).length;
+  out.samples = r.samples; out.state = state; out.labels = r.labels;
+  return out;
 }
 
-const pct = (n) => `${n}/${TRIALS} (${(100 * n / TRIALS).toFixed(1)}%)`;
-console.log(`  faces named right while scanning     ${pct(idOk)}`);
-console.log(`  WHOLE CUBE RIGHT (after the fixes)   ${pct(allOk)}`);
-console.log(`  ...without the one-swap repair       ${pct(cubeOk)}`);
-console.log(`  more than one possible way-up        ${ambiguous}`);
-if (misses.length) console.log("  e.g. " + misses.slice(0, 6).join("; "));
+const TRIALS = +(process.env.TRIALS || 400);
+const results = {};
+const DUMP = [];
+for (const model of ["simple", "camera", "harsh"]) {
+  const s = { ids: 0, ok: 0, roCubes: 0, chips: 0, chipRO: 0, names: 0, namesRight: 0 };
+  for (let t = 0; t < TRIALS; t++) {
+    const r = trial(model);
+    s.ids += r.ids; s.ok += r.ok; s.names += r.names; s.namesRight += r.namesRight; s.roCubes += r.ro > 0; s.chips += r.chips; s.chipRO += r.chipRO;
+    if (model !== "simple" && r.samples) DUMP.push({ state: r.state, samples: r.samples, browser: r.labels });
+  }
+  results[model] = s;
+}
+if (process.env.DUMP_TO) fs.writeFileSync(process.env.DUMP_TO, JSON.stringify(DUMP));
+
+const pct = (n, of = TRIALS) => `${String(n).padStart(3)}/${of} (${(100 * n / of).toFixed(1)}%)`;
+for (const [model, s] of Object.entries(results)) {
+  console.log(`  [${model} light]`);
+  console.log(`    names shown right after a capture  ${pct(s.namesRight, s.names)}`);
+  console.log(`    every name right throughout        ${pct(s.ids)}`);
+  console.log(`    live dots: red/orange shown wrong  ${pct(s.chipRO, s.chips)}`);
+  console.log(`    cubes with a red/orange mix-up     ${pct(s.roCubes)}`);
+  console.log(`    WHOLE CUBE RIGHT                   ${pct(s.ok)}`);
+}
+const allOk = results.simple.ok;
 
 /* ---- sampling: a drawn face with black gaps and a glare spot ---------- */
 function drawFace(colours, W = 300){

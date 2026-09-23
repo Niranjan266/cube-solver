@@ -82,7 +82,8 @@ test("CFOP solver: 150 random cubes, all verified, four named stages", () => {
     const t = E.solveCfop(c);
     if (!E.isSolved(E.applyAll(c, t.map(([m]) => m)))) throw new Error("does not solve " + c);
     const stages = new Set(t.map(([, s]) => s.replace(/-\d$/, "")));
-    for (const s of ["cfop-cross", "cfop-f2l", "cfop-pll"])
+    // cross and F2L always have work; OLL or PLL can be a lucky "skip"
+    for (const s of ["cfop-cross", "cfop-f2l"])
       if (![...stages].some((x) => x.startsWith(s))) throw new Error("missing stage " + s);
     return t.length;
   });

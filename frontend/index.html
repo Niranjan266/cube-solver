@@ -1295,6 +1295,15 @@ function lockWhiteBalance(){
       if (caps.whiteBalanceMode && caps.whiteBalanceMode.includes("manual"))
         await track.applyConstraints({advanced: [{whiteBalanceMode: "manual"}]});
     } catch { /* not supported here - fine */ }
+    // A touch darker than the camera would choose. Stickers are bright, and
+    // an over-exposed orange clips its red channel and starts to look yellow
+    // (a clipped red looks orange). Slightly dark keeps them apart.
+    try {
+      const caps = track.getCapabilities();
+      const ev = caps.exposureCompensation;
+      if (ev && typeof ev.min === "number")
+        await track.applyConstraints({advanced: [{exposureCompensation: Math.max(ev.min, -0.7)}]});
+    } catch { /* not supported here - fine */ }
   }, 1500);
 }
 
@@ -1423,8 +1432,29 @@ async function storeFace(face, samples, hex, quality){
   $("flash").classList.remove("go"); void $("flash").offsetWidth;
   $("flash").classList.add("go");
   if (navigator.vibrate) try { navigator.vibrate(30); } catch {}
+
+  // Re-name every side captured so far, together. A bright orange that
+  // looked yellow, or a red that looked orange under a warm bulb, gets its
+  // right name as soon as the side it was confused with turns up.
+  const rename = SC.settlePairs(S.scanSamples);
+  const fixes = Object.entries(rename).filter(([a, b]) => a !== b && S.scanSamples[a]);
+  if (fixes.length){
+    const moved = {samples: {}, hex: {}, quality: {}};
+    for (const [a, b] of fixes){
+      moved.samples[b] = S.scanSamples[a]; moved.hex[b] = S.scanHex[a]; moved.quality[b] = S.scanQuality[a];
+    }
+    for (const [a] of fixes){ delete S.scanSamples[a]; delete S.scanHex[a]; delete S.scanQuality[a]; }
+    Object.assign(S.scanSamples, moved.samples); Object.assign(S.scanHex, moved.hex);
+    Object.assign(S.scanQuality, moved.quality);
+    face = rename[face];
+    showScanProgress();
+  }
+
   const done = Object.keys(S.scanSamples).length;
+  const renamed = fixes.filter(([a]) => a !== Object.keys(rename).find(k => rename[k] === face));
   note("scanMsg","ok", `Read the <b>${sideName(face)}</b>. `
+    + (renamed.length ? `<small>(Now that I can compare them: ${renamed.map(([a, b]) =>
+        `the side I called ${SC.SCHEME[a].toLowerCase()} is ${SC.SCHEME[b].toLowerCase()}`).join(", ")}.)</small> ` : "")
     + (done < 6 ? `${6 - done} to go — show another side.` : ""));
   renderFaceRow(); updateTip();
   $("stageBadge").textContent = done + " of 6 sides read";
@@ -1504,6 +1534,15 @@ async function classifyAll(){
     d = {facelets: res.labels, valid, problem, agreed: true, repairedSwaps: res.repaired,
          palette: null, offline: true};
   }
+  // When the two readings differ, prefer the browser's if it is a possible
+  // cube: it reads colour in linear light, which keeps red and orange
+  // further apart, and on hard simulated scans it is the more accurate.
+  let usedBrowser = false;
+  if (!d.offline && d.facelets !== res.labels){
+    try { E.solveShortest(res.labels); d = {...d, facelets: res.labels, valid: true, problem: null};
+          usedBrowser = true; }
+    catch { /* the browser's reading is not a real cube - keep the server's */ }
+  }
   if (d.palette) palette = {...DEFAULT_COLOURS, ...d.palette};
   buildSwatches();
   setFacelets(d.facelets);
@@ -1515,7 +1554,7 @@ async function classifyAll(){
       + "stickers do not match — then press <b>Solve it</b>.");
     return switchTab("hand");
   }
-  const browserAgrees = d.facelets === res.labels;
+  const browserAgrees = d.facelets === res.labels && !usedBrowser;
   const turned = Object.values(res.rotations).filter(k => k).length;
   const how = turned ? ` (${turned} side${turned > 1 ? "s were" : " was"} held turned — sorted that out)` : "";
   if (!browserAgrees || !d.agreed || d.repairedSwaps > 0 || res.ambiguous){
