@@ -380,7 +380,9 @@ check("manual opens", () => {
 });
 check("hand-editing a sticker works", () => {
   const before = G("S.facelets");
-  G("S.paint = 'R'");
+  // the first editable sticker is U0 (index 0); paint it a colour it is not
+  // already, or on a random cube this "changes nothing" about 1 time in 6
+  G(`S.paint = ${JSON.stringify(before[0] === "R" ? "B" : "R")}`);
   $("net").querySelectorAll(".cell.edit")[0].dispatchEvent(
     new win.MouseEvent("click", { bubbles: true }));
   if (G("S.facelets") === before)
