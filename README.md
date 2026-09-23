@@ -39,6 +39,13 @@ cube, and moves on to the next one. The green bar shows how close it is to
 locking on. Pick one face to be the "front" and **keep that grip the whole
 time**; the app tells you which face to show next and which way up to hold it.
 
+**Photos** — no webcam, or the laptop camera is switched off? Press *Upload
+photos* and pick pictures of the faces (a phone camera is ideal). They go
+through the same scanner, one face per photo, in the order the app shows. Pick
+several at once and it reads them in turn. If the camera will not start, the
+message says why: no camera found (on laptops, usually the camera key or a
+privacy shutter), permission blocked, or the camera busy in another app.
+
 **By hand** — the *Enter by hand* tab shows a flat map of the cube. Click a
 colour, then click stickers. The centre squares are fixed, because on a real
 cube centres never move — they are what makes a face "the red face".

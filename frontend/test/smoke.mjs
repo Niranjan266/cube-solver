@@ -286,6 +286,37 @@ check("cubing.js view switches without breaking the page", () => {
 });
 await withTimeout(G("setView('classic')"), 2000, "switching back");
 
+// no webcam: the reason must be one a person can act on
+G("S.streaming = false");
+Object.defineProperty(win, "isSecureContext", { value: true, configurable: true });
+Object.defineProperty(win.navigator, "mediaDevices", { configurable: true, value: {
+  getUserMedia: async () => {
+    throw Object.assign(new Error("Requested device not found"), { name: "NotFoundError" });
+  } } });
+await withTimeout(G("startCamera()"), 3000, "starting a missing camera");
+check("a missing camera explains what to do", () => {
+  const msg = $("scanMsg").textContent;
+  if (!/No camera found/.test(msg) || !/Upload photos/.test(msg))
+    throw new Error(JSON.stringify(msg.slice(0, 90)));
+  return "names the camera key and offers photos";
+});
+
+// ...and photos can stand in for it
+if (OFFLINE) {
+  G("S.scanSamples = {}; S.scanHex = {}; S.scanQuality = {}; S.scanFace = 0; S.solution = null");
+  G("setMode('quick')");
+  const files = "[...'URFDLB'].map(f => new File(['x'], f + '.jpg', {type: 'image/jpeg'}))";
+  await withTimeout(G(`uploadPhotos(${files})`), 8000, "reading six photos");
+  for (let i = 0; i < 60 && !G("S.solution && S.solution.moveCount"); i++) await sleep(100);
+  check("six uploaded photos are read and solved", () => {
+    const n = G("Object.keys(S.scanSamples).length");
+    if (n !== 6) throw new Error(`${n} faces read`);
+    const t = G("S.solution && S.solution.moveCount");
+    if (!t) throw new Error("no solution after reading photos");
+    return `6 faces, ${t} turns`;
+  });
+}
+
 check("manual opens", () => {
   $("btnManual").click();
   if (!$("sheet").className.includes("open")) throw new Error("sheet did not open");
