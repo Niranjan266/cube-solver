@@ -232,7 +232,7 @@ G(`for (const [f, s] of Object.entries(${JSON.stringify(faceSamples)})) {
    }`);
 let classifyErr = null;
 try {
-  await withTimeout(G("classifyAll()"), OFFLINE ? 8000 : 20000, "classifying")   // a cold server start can take ~10 s;
+  await withTimeout(G("classifyAll()"), OFFLINE ? 8000 : 20000, "classifying");   // a cold server start can take ~10 s
 } catch (e) {
   classifyErr = e;
 }
