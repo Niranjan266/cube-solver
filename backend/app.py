@@ -114,18 +114,6 @@ def health() -> Dict:
     }
 
 
-@app.get("/api/_where")
-def _where() -> Dict:
-    """Temporary deployment diagnostic: where the function runs, what it sees."""
-    here = os.path.dirname(os.path.abspath(__file__))
-    up = os.path.dirname(here)
-    return {
-        "file": os.path.abspath(__file__), "cwd": os.getcwd(),
-        "here": sorted(os.listdir(here))[:40],
-        "up": sorted(os.listdir(up))[:40],
-        "frontend": FRONTEND, "frontendExists": os.path.isdir(FRONTEND),
-    }
-
 
 @app.post("/api/scan/live")
 async def scan_live(image: UploadFile = File(...)) -> Dict:
