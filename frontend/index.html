@@ -1058,12 +1058,15 @@ function accentHex(){
  * pulses. Each part has a dark copy behind it so it shows on any colour.
  */
 const ARROW = {R: 1.95, tube: 0.115, segs: 64, radial: 10, cycleMs: 1500};
-// On a phone the cube is small on screen, so the arrow gets a thicker tube,
-// a bigger head, and sits a little further out so it does not cover the stickers.
-const ARROW_PHONE = {R: 2.1, tubeScale: 1.75, headScale: 1.55};
-const arrowSize = () => (typeof isPhone === "function" && isPhone())
-  ? {R: ARROW_PHONE.R, tube: ARROW.tube * ARROW_PHONE.tubeScale, head: ARROW_PHONE.headScale}
-  : {R: ARROW.R, tube: ARROW.tube, head: 1};
+// A thick tube and a big head, sitting a little further out than the cube's
+// edge so it does not cover the stickers. Phones get it a touch bigger still,
+// because the cube itself is small on their screens.
+const ARROW_DESKTOP = {R: 2.05, tubeScale: 1.6, headScale: 1.45};
+const ARROW_PHONE   = {R: 2.1,  tubeScale: 1.75, headScale: 1.55};
+const arrowSize = () => {
+  const a = (typeof isPhone === "function" && isPhone()) ? ARROW_PHONE : ARROW_DESKTOP;
+  return {R: a.R, tube: ARROW.tube * a.tubeScale, head: a.headScale};
+};
 
 function arcCurve(R, sweep){
   const c = new THREE.Curve();
