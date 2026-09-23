@@ -162,31 +162,82 @@ function nearest(lab, refs, faces = FACE_ORDER){
   return {face: best, d: bd, margin: second - bd};
 }
 
-/** A face letter per sticker, for the live preview. */
+/* ------------------------------------------------------------------ colour ratios */
+/**
+ * A sticker's colour as log-chromaticity - log(R/G), log(B/G) - taken in
+ * *linear light*, with the camera's sRGB tone curve undone first.
+ *
+ * Ratios make brightness cancel exactly (a shadow scales all three channels
+ * alike), and a side's colour cast becomes one constant offset for every
+ * sticker on it. Undoing the tone curve matters for red and orange: the
+ * curve compresses exactly the difference between them (their green
+ * channels, 30 vs 118 in sRGB, are 0.012 vs 0.18 in real light), so in
+ * linear light the gap between red and orange roughly doubles.
+ */
+const LIN = new Float64Array(256).map((_, v) =>
+  (v /= 255) <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));
+const lin = v => LIN[Math.max(0, Math.min(255, Math.round(v)))];
+const EPS = 0.004;
+const chroma = s => {
+  const r = lin(s[2]) + EPS, g = lin(s[1]) + EPS, b = lin(s[0]) + EPS;
+  return [Math.log(r / g), Math.log(b / g)];
+};
+const cdist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+const REF_CHROMA = {};
+for (const f of FACE_ORDER) { const [r, g, b] = REF_RGB[f]; REF_CHROMA[f] = chroma([b, g, r]); }
+const SAME_FACE = 0.5;   // ratio distance under which two centres are the same colour
+
+/**
+ * The room's colour cast so far: how far the captured centres sit from their
+ * textbook colours (median per axis). A warm bulb pushes every colour the
+ * same way; knowing by how much keeps yellow from looking orange and orange
+ * from looking red on the sides still to come.
+ */
+function sceneCast(centres){
+  const dx = [], dy = [];
+  for (const f of FACE_ORDER) if (centres[f]) {
+    const c = chroma(centres[f]);
+    dx.push(c[0] - REF_CHROMA[f][0]); dy.push(c[1] - REF_CHROMA[f][1]);
+  }
+  const med = v => { if (!v.length) return 0; v.sort((a, b) => a - b); return v[v.length >> 1]; };
+  return [med(dx), med(dy)];
+}
+
+/** Where colour `f` should appear now: its real centre if seen, else textbook + cast. */
+function refChroma(f, centres, cast){
+  if (centres[f]) return chroma(centres[f]);
+  return [REF_CHROMA[f][0] + cast[0], REF_CHROMA[f][1] + cast[1]];
+}
+
+/**
+ * A face letter per sticker, for the live preview. The side being shown is
+ * calibrated by its own centre: whatever cast makes the centre look off
+ * makes its other eight stickers look off the same way, so it is taken out
+ * before comparing.
+ */
 function classifyLive(samples, centres){
-  const refs = references(centres);
-  return samples.map(s => nearest(bgrToLab(s), refs));
+  const cast = sceneCast(centres);
+  const id = identifyFace(samples[4], centres);
+  const want = refChroma(id.face, centres, cast), got = chroma(samples[4]);
+  const shift = [got[0] - want[0], got[1] - want[1]];            // this side's own cast
+  const refs = {};
+  for (const f of FACE_ORDER) refs[f] = refChroma(f, centres, cast);
+  return samples.map((s, i) => {
+    if (i === 4) return {face: id.face, d: 0};
+    const x = chroma(s), y = [x[0] - shift[0], x[1] - shift[1]];
+    let face = null, d = Infinity;
+    for (const f of FACE_ORDER) { const e = cdist(y, refs[f]); if (e < d) { d = e; face = f; } }
+    return {face, d};
+  });
 }
 
 /* ------------------------------------------------------------------ which face? */
 /**
- * Colour of a sticker as log-chromaticity: log(R/G), log(B/G). Brightness
- * cancels exactly (a shadow multiplies all three channels alike), and a
- * face's colour cast - the phone re-metering between shots - becomes one
- * constant offset for every sticker on that face.
- */
-const chroma = s => [Math.log((s[2] + 4) / (s[1] + 4)), Math.log((s[0] + 4) / (s[1] + 4))];
-const cdist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
-const REF_CHROMA = {};
-for (const f of FACE_ORDER) { const [r, g, b] = REF_RGB[f]; REF_CHROMA[f] = chroma([b, g, r]); }
-const SAME_FACE = 0.22;   // chroma distance under which two centres are one colour
-
-/**
  * Which side is this, from its centre sticker? If it matches a centre already
  * captured, it is that face again. Otherwise it is the nearest colour among
- * the faces not captured yet - so once red is in, an orange that looked a bit
- * red cannot be mistaken for it. Compared as colour ratios, which a change
- * of brightness does not move at all.
+ * the ones not captured yet, allowing for the room's cast measured from the
+ * sides already in - so once red is in, an orange that looked a bit red
+ * cannot be taken for it.
  */
 function identifyFace(centre, centres){
   const x = chroma(centre);
@@ -198,28 +249,61 @@ function identifyFace(centre, centres){
   if (same && sd < SAME_FACE) return {face: same, again: true, d: sd};
   const open = [...FACE_ORDER].filter(f => !centres[f]);
   if (!open.length) return {face: same, again: true, d: sd};
+  const cast = sceneCast(centres);
   let best = null, bd = Infinity;
-  for (const f of open) { const d = cdist(x, REF_CHROMA[f]); if (d < bd) { bd = d; best = f; } }
+  for (const f of open) { const d = cdist(x, refChroma(f, centres, cast)); if (d < bd) { bd = d; best = f; } }
   return {face: best, again: false, d: bd};
 }
 
 /**
- * Settle the look-alike pairs once all six centres are in. Red and orange
- * differ enormously in R/G - far more than any lighting cast - so comparing
- * the two centres with each other is much safer than judging each against a
- * textbook colour. Likewise white/yellow and blue/green on B/G. Checking the
- * pieces cannot do this job: a cube with red and orange exchanged is a mirror
- * image, and a mirror image with two colours exchanged is a valid cube.
+ * Once all six centres are in, name them all together: try every way of
+ * matching the six centres to the six colours (720), let the room's cast be
+ * whatever fits that matching best, and keep the matching with the smallest
+ * error. Judged together, red is simply the centre that is redder than the
+ * other five - much safer than judging each one against a textbook colour,
+ * which is what goes wrong under a warm bulb. (Checking the pieces cannot do
+ * this job: a cube with red and orange exchanged is a mirror image, and a
+ * mirror image with two colours exchanged is a valid cube.)
  * Returns {captured-as -> really}.
  */
-const PAIRS = [["R", "L", 0], ["U", "D", 1], ["B", "F", 1]];   // [larger, smaller, axis]
+const PERMS6 = (() => {
+  const out = [], a = FACE_ORDER.split("");
+  const go = k => {
+    if (k === 6) { out.push(a.slice()); return; }
+    for (let i = k; i < 6; i++) { [a[k], a[i]] = [a[i], a[k]]; go(k + 1); [a[k], a[i]] = [a[i], a[k]]; }
+  };
+  go(0);
+  return out;
+})();
 function settlePairs(faces){
+  const keys = FACE_ORDER.split("").filter(f => faces[f]);
+  const k = keys.length;
   const rename = {};
   for (const f of FACE_ORDER) rename[f] = f;
-  for (const [hi, lo, axis] of PAIRS) {
-    if (!faces[hi] || !faces[lo]) continue;
-    if (chroma(faces[hi][4])[axis] < chroma(faces[lo][4])[axis]) { rename[hi] = lo; rename[lo] = hi; }
+  if (k < 2) return rename;                      // one side alone says nothing about the cast
+  const x = keys.map(f => chroma(faces[f][4]));
+  const cost = p => {
+    let ox = 0, oy = 0;
+    for (let i = 0; i < k; i++) { ox += x[i][0] - REF_CHROMA[p[i]][0]; oy += x[i][1] - REF_CHROMA[p[i]][1]; }
+    ox /= k; oy /= k;
+    let c = 0;
+    for (let i = 0; i < k; i++)
+      c += (x[i][0] - ox - REF_CHROMA[p[i]][0]) ** 2 + (x[i][1] - oy - REF_CHROMA[p[i]][1]) ** 2;
+    return c;
+  };
+  // with fewer than six sides in, the names they have now win ties: only
+  // rename when the evidence is clearly better
+  const current = cost(keys);
+  let best = keys, bestCost = current - (k < 6 ? 0.05 : 0);
+  const seen = new Set();
+  for (const p6 of PERMS6) {
+    const p = p6.slice(0, k), key = p.join("");
+    if (seen.has(key)) continue;
+    seen.add(key);
+    const c = cost(p);
+    if (c < bestCost - 1e-12) { bestCost = c; best = p; }
   }
+  keys.forEach((f, i) => rename[f] = best[i]);
   return rename;
 }
 
@@ -257,12 +341,27 @@ const REAL = (() => {
   return {corners, edges};
 })();
 
-/** How many of the 20 pieces in a 54-letter state are pieces a real cube has. */
+/**
+ * How many of the 20 pieces in a 54-letter state are real, *different*
+ * pieces. Counting each piece only once matters for exactly the colours that
+ * get confused: red and orange sit on opposite sides, so misreading one red
+ * sticker as orange turns, say, white-red into white-orange - a perfectly
+ * real piece, but now there are two of it.
+ */
+const CANON = new Map();
+for (const [a, b, c] of SLOTS.corners) {
+  const s = E.SOLVED, t = [s[a], s[b], s[c]], key = [...t].sort().join("");
+  for (let k = 0; k < 3; k++) CANON.set(t[k] + t[(k + 1) % 3] + t[(k + 2) % 3], key);
+}
+for (const [a, b] of SLOTS.edges) {
+  const s = E.SOLVED, key = [s[a], s[b]].sort().join("");
+  CANON.set(s[a] + s[b], key); CANON.set(s[b] + s[a], key);
+}
 function realPieces(state){
-  let n = 0;
-  for (const [a, b, c] of SLOTS.corners) if (REAL.corners.has(state[a] + state[b] + state[c])) n++;
-  for (const [a, b] of SLOTS.edges) if (REAL.edges.has(state[a] + state[b])) n++;
-  return n;
+  const seen = new Set();
+  for (const [a, b, c] of SLOTS.corners) { const k = CANON.get(state[a] + state[b] + state[c]); if (k) seen.add(k); }
+  for (const [a, b] of SLOTS.edges) { const k = CANON.get(state[a] + state[b]); if (k) seen.add(k); }
+  return seen.size;
 }
 
 /* ------------------------------------------------------------------ labelling */
@@ -439,7 +538,7 @@ function classifyOffline(samples54){
 }
 
 global.CubeScanner = {
-  SCHEME, REF_RGB, FACE_ORDER, sampleGrid, classifyLive, identifyFace,
+  SCHEME, REF_RGB, FACE_ORDER, sampleGrid, classifyLive, identifyFace, sceneCast,
   resolveRotations, settlePairs, classifyOffline, labelFaces, realPieces, rotate9,
   hex, bgrToLab, dist, chroma,
 };
