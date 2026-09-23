@@ -326,6 +326,31 @@ if (OFFLINE) {
   });
 }
 
+check("speed presets: Slow / Normal / Fast", () => {
+  $("speedSeg").querySelector('[data-speed="slow"]').click();
+  const slow = G("speed().turnMs");
+  $("speedSeg").querySelector('[data-speed="fast"]').click();
+  const fast = G("speed().turnMs");
+  const pressed = $("speedSeg").querySelector('[aria-pressed="true"]').dataset.speed;
+  if (!(slow > fast) || pressed !== "fast") throw new Error(`slow ${slow} ms, fast ${fast} ms, pressed ${pressed}`);
+  $("speedSeg").querySelector('[data-speed="normal"]').click();
+  return `slow ${slow} ms, fast ${fast} ms per turn`;
+});
+
+check("phone screens and the turn list", () => {
+  for (const name of ["scan", "check", "solve"]) {
+    win.document.querySelector(`.tabbar [data-go="${name}"]`).click();
+    if (win.document.body.dataset.screen !== name) throw new Error("tab " + name + " did not switch");
+    const cur = win.document.querySelector('.tabbar [aria-current="page"]');
+    if (!cur || cur.dataset.go !== name) throw new Error("tab " + name + " not marked current");
+  }
+  $("btnTurns").click();
+  if (!win.document.body.classList.contains("sheet-open")) throw new Error("turn list did not open");
+  $("scrim").click();
+  if (win.document.body.classList.contains("sheet-open")) throw new Error("turn list did not close");
+  return "scan → check → solve, list opens and closes";
+});
+
 check("manual opens", () => {
   $("btnManual").click();
   if (!$("sheet").className.includes("open")) throw new Error("sheet did not open");
