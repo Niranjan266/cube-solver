@@ -1,7 +1,6 @@
 .venv
 node_modules
 backend/data
-backend/cube/_tables
 runs
 *.pt
 .claude
