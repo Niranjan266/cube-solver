@@ -1,6 +1,6 @@
 """
 Kociemba's two-phase algorithm, implemented here rather than pulled from a
-package, so a fresh checkout gives ~25-move solutions with nothing to install.
+package, so a fresh checkout gives ~21-move solutions with nothing to install.
 
 Phase 1 drives the cube into the subgroup G1 = <U, D, R2, L2, F2, B2>, where
 every corner and edge is the right way up and the four middle-slice edges are
@@ -260,12 +260,31 @@ def warm_up() -> None:
 # search
 # --------------------------------------------------------------------------- #
 
+#: moves that keep a cube inside G1.  A phase-1 path that *ends* on one of
+#: these reached G1 one move earlier, so that shorter path has already been
+#: (or will be) tried - skipping it is the standard Kociemba cut.
+_ENDS_IN_G1 = frozenset(G1_MOVES)
+
+
 class _Search:
-    def __init__(self, cc: CubieCube, max_length: int, timeout: float):
+    """
+    Two-phase search that keeps improving.
+
+    The first solution within ``max_length`` is kept, then the search carries
+    on through longer phase-1 paths looking for a *shorter total*, until
+    ``improve`` seconds have passed since that first answer (or the hard
+    ``timeout``).  A longer phase 1 often buys a much shorter phase 2 - that
+    trade is the whole point of Kociemba's method.
+    """
+
+    def __init__(self, cc: CubieCube, max_length: int, timeout: float,
+                 improve: float = 0.0, target: int = 0):
         self.t = tables()
         self.start = cc
         self.max_length = max_length
         self.deadline = time.time() + timeout
+        self.improve = improve
+        self.target = target
         self.best: Optional[List[int]] = None
         self.phase1_length = 0
 
@@ -285,22 +304,35 @@ class _Search:
         return max(int(self.p_twist[twist * N_SLICE + sl]),
                    int(self.p_flip[flip * N_SLICE + sl]))
 
+    def _limit(self) -> int:
+        """Longest total worth finding now: one shorter than the best so far."""
+        return self.max_length if self.best is None else len(self.best) - 1
+
+    def _stop(self) -> bool:
+        if time.time() > self.deadline:
+            return True
+        if self.best is None:
+            return False
+        return self.improve <= 0 or len(self.best) <= self.target
+
     def run(self) -> Optional[List[int]]:
         cc = self.start
         twist, flip, sl = _twist(cc), _flip(cc), _slice_index(cc)
         if twist == 0 and flip == 0 and sl == SLICE_GOAL:
             self._finish([])
         for depth in range(self._h1(twist, flip, sl), self.max_length + 1):
-            if self.best is not None or time.time() > self.deadline:
+            # a phase 1 this long cannot lead anywhere shorter than what we have
+            if self._stop() or depth > self._limit():
                 break
             self._phase1(twist, flip, sl, depth, [], -1)
         return self.best
 
     def _phase1(self, twist, flip, sl, left, path, last_face) -> None:
-        if self.best is not None or time.time() > self.deadline:
+        if self._stop():
             return
         if left == 0:
-            if twist == 0 and flip == 0 and sl == SLICE_GOAL:
+            if (twist == 0 and flip == 0 and sl == SLICE_GOAL
+                    and path[-1] not in _ENDS_IN_G1):
                 self._finish(path)
             return
         if self._h1(twist, flip, sl) > left:
@@ -317,7 +349,7 @@ class _Search:
                          int(self.slice_mv[sl, m]),
                          left - 1, path, face)
             path.pop()
-            if self.best is not None:
+            if self._stop():
                 return
 
     # -- phase 2 ------------------------------------------------------------ #
@@ -326,11 +358,14 @@ class _Search:
         for m in path1:
             cc = cc.multiply(MOVE_CUBES[m])
         cp, ep, ss = _corner_perm(cc), _edge8_perm(cc), _sslice_perm(cc)
-        budget = self.max_length - len(path1)
+        budget = self._limit() - len(path1)
         last_face = FACE_OF_MOVE[path1[-1]] if path1 else -1
         for depth in range(self._h2(cp, ep, ss), budget + 1):
             found: List[int] = []
             if self._phase2(cp, ep, ss, depth, found, last_face):
+                if self.best is None and self.improve > 0:
+                    # first answer in hand: allow a short window to beat it
+                    self.deadline = min(self.deadline, time.time() + self.improve)
                 self.best = list(path1) + [G1_MOVES[i] for i in found]
                 self.phase1_length = len(path1)
                 return
@@ -366,10 +401,20 @@ class _Search:
 HARD_CAP = 30
 
 
-def solve_split(cube: Cube, max_length: int = 22,
-                timeout: float = 6.0) -> Tuple[List[str], int]:
+#: after the first answer, keep hunting for a shorter one for this long
+IMPROVE_SECONDS = 1.0
+#: stop hunting as soon as we reach this - under 20 is rarely worth the wait
+GOOD_ENOUGH = 19
+
+
+def solve_split(cube: Cube, max_length: int = 22, timeout: float = 6.0,
+                improve: float = IMPROVE_SECONDS,
+                target: int = GOOD_ENOUGH) -> Tuple[List[str], int]:
     """
     Shortest-ish solution, plus how many of the moves belong to phase 1.
+
+    ``improve`` is how long to keep looking for something shorter once a first
+    answer is found (0 = take the first one); ``target`` ends that early.
 
     Raises RuntimeError only if the cube is unsolvable, which callers should
     have ruled out with :func:`cube.validate.validate` first.
@@ -383,7 +428,7 @@ def solve_split(cube: Cube, max_length: int = 22,
     for limit, budget in ((max_length, timeout),
                           (max_length + 2, timeout),
                           (HARD_CAP, timeout * 2)):
-        search = _Search(cc, limit, budget)
+        search = _Search(cc, limit, budget, improve, target)
         found = search.run()
         if found is not None:
             return [MOVE_NAMES[m] for m in found], search.phase1_length
@@ -392,5 +437,7 @@ def solve_split(cube: Cube, max_length: int = 22,
     )
 
 
-def solve(cube: Cube, max_length: int = 22, timeout: float = 6.0) -> List[str]:
-    return solve_split(cube, max_length, timeout)[0]
+def solve(cube: Cube, max_length: int = 22, timeout: float = 6.0,
+          improve: float = IMPROVE_SECONDS,
+          target: int = GOOD_ENOUGH) -> List[str]:
+    return solve_split(cube, max_length, timeout, improve, target)[0]
