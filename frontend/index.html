@@ -170,14 +170,18 @@
   .tip .dia svg{width:62px;height:62px;display:block}
 
   /* ------------------------------------------------------------------ flat map */
-  .net{display:grid;grid-template-columns:repeat(4,var(--fs));grid-auto-rows:var(--fs);
-       gap:6px;justify-content:center;--cs:18px;--fs:calc(3 * var(--cs) + 4px)}
+  /* a face is 3 sticker rows, plus one row for its label when labels show */
+  .net{display:grid;grid-template-columns:repeat(4,var(--fs));grid-auto-rows:var(--fh);
+       gap:6px;justify-content:center;--cs:18px;--fs:calc(3 * var(--cs) + 4px);
+       --fh:calc(3 * var(--cs) + 20px)}   /* 14px label + 3 gaps of 2px */
   .net.big{--cs:23px}
   .net.small{--cs:13px;gap:4px}
   .netface{display:grid;grid-template-columns:repeat(3,var(--cs));
-           grid-template-rows:repeat(3,var(--cs));gap:2px}
+           grid-template-rows:14px repeat(3,var(--cs));gap:2px}
+  .net.small .netface{grid-template-rows:repeat(3,var(--cs))}
   .netface b{grid-column:1/4;font-size:9px;color:var(--faint);font-weight:700;
              letter-spacing:.06em;text-align:center;line-height:1.3}
+  .net.small{--fh:var(--fs)}
   .net.small .netface b{display:none}
   .cell{border-radius:4px;box-shadow:inset 0 0 0 1px var(--sticker-line);transition:transform .08s}
   .net.small .cell{border-radius:2.5px}
@@ -264,7 +268,7 @@
   .steps li .n{color:var(--faint);font-size:11px;min-width:20px;font-variant-numeric:tabular-nums}
   .steps li .m{font-weight:800;min-width:26px}
   .steps li .a{font-size:15px;color:var(--accent);min-width:16px;text-align:center}
-  .steps li .d{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .steps li .d{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
   .steps .head{cursor:default;display:block;padding:14px 10px 4px}
   .steps .head:hover{background:transparent}
   .steps .head b{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);font-weight:800}
@@ -326,7 +330,13 @@
     .topbar{padding:10px 14px;flex-wrap:wrap}
     .brand .sub{display:none}
     .status{display:none}
-    main{grid-template-columns:1fr;overflow:visible;padding:12px;gap:12px}
+    /* minmax(0,..) + min-width:0: long no-wrap text (turn list, tab labels)
+       must truncate inside the screen, not widen the page */
+    main{grid-template-columns:minmax(0,1fr);overflow:visible;padding:12px;gap:12px}
+    .col,.card{min-width:0}
+    .seg button{white-space:normal}
+    .net.big{--cs:clamp(13px, 5.4vw, 23px)}
+    .modes small{font-size:11px}
     .col.right{flex-direction:column}
     .stagecard{height:62vw;min-height:300px;max-height:460px;flex:none}
     .steps{max-height:320px;flex:none}
