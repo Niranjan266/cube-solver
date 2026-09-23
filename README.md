@@ -60,6 +60,21 @@ them by hand.
 
 ### 2. Watch it solve
 
+**On a phone** the app is three screens behind a bottom tab bar: *Scan*,
+*Check* and *Solve*. It moves on by itself: to *Check* once all six sides are
+read, and to *Solve* once there is a solution. On *Solve* the current turn,
+the controls and the speed stay on screen, and *All turns* slides the full
+list up from the bottom. Every control is at least 44 px tall, and the layout
+respects the notch and home bar.
+
+**Speed** is three buttons: *Slow*, *Normal* and *Fast*. They set how quickly
+the 3D cube turns and how long *Play* pauses between turns (Slow leaves time
+to copy each turn by hand). The choice is remembered.
+
+The design for both layouts is kept as a design canvas (phone Scan, Check,
+Solve and turn list, plus the desktop view), and the app follows it.
+
+
 The screen is in three columns: **your cube goes in on the left, the 3D model
 sits in the middle, and the turns you have to make are listed on the right.**
 

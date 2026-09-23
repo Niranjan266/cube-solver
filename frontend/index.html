@@ -6,51 +6,58 @@
 <title>Cube Solver</title>
 <meta name="description" content="Show it your Rubik's cube, follow the arrow, done in about 20 turns.">
 <meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#0e1116" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f3f4f6" media="(prefers-color-scheme: light)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
-  /* ------------------------------------------------------------------ tokens */
+  /* ------------------------------------------------------------------ tokens
+     One accent. The cube's six colours are the only other colour on screen. */
   :root{
-    --bg:#f4f5f7; --surface:#ffffff; --surface-2:#f6f7f9; --surface-3:#eceef2;
+    --bg:#f3f4f6; --surface:#ffffff; --surface-2:#f7f8fa; --surface-3:#eceff3;
     --line:#e3e6eb; --line-strong:#cfd4dc;
-    --ink:#111827; --muted:#5b6474; --faint:#8b93a1;
-    --accent:#2563eb; --accent-2:#1d4ed8; --accent-soft:rgba(37,99,235,.10); --on-accent:#fff;
-    --good:#16a34a; --good-soft:rgba(22,163,74,.10);
-    --warn:#b45309; --warn-soft:rgba(217,119,6,.12);
-    --bad:#dc2626;  --bad-soft:rgba(220,38,38,.09);
-    --stage:#eef1f5; --stage-2:#e2e7ee;
-    --shadow:0 1px 2px rgba(16,24,40,.05), 0 4px 16px rgba(16,24,40,.06);
-    --shadow-lg:0 20px 50px rgba(16,24,40,.18);
-    --r:16px; --r-sm:10px;
+    --ink:#111418; --muted:#5d6673; --faint:#7b8491;
+    --accent:#2459e0; --accent-2:#1d4ac0; --accent-soft:rgba(36,89,224,.09); --accent-ink:#2459e0; --on-accent:#fff;
+    --good:#15803d; --good-soft:rgba(21,128,61,.08);
+    --warn:#a15c07; --warn-soft:rgba(217,119,6,.11);
+    --bad:#c81e1e;  --bad-soft:rgba(220,38,38,.08);
+    --stage:#e9ecf1;
+    --shadow:0 1px 2px rgba(16,24,40,.05);
+    --shadow-lg:0 24px 60px rgba(16,24,40,.2);
     --sticker-line:rgba(0,0,0,.28);
+    --r:20px; --r-md:14px; --r-sm:11px;
+    --font:"DM Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+    --display:"Space Grotesk","DM Sans",ui-sans-serif,system-ui,sans-serif;
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
-      --bg:#0b0d12; --surface:#141820; --surface-2:#1a1f29; --surface-3:#222835;
-      --line:#262c38; --line-strong:#353d4c;
-      --ink:#e9edf3; --muted:#a2acbb; --faint:#6f7a8a;
-      --accent:#5b9bff; --accent-2:#7aaeff; --accent-soft:rgba(91,155,255,.14); --on-accent:#06101f;
-      --good:#34d17a; --good-soft:rgba(52,209,122,.12);
+      --bg:#0e1116; --surface:#161a21; --surface-2:#1d222b; --surface-3:#262c36;
+      --line:#262c36; --line-strong:#353d4c;
+      --ink:#eef1f5; --muted:#9aa4b2; --faint:#7d8795;
+      --accent:#4c8dff; --accent-2:#6ea3ff; --accent-soft:rgba(76,141,255,.14); --accent-ink:#8db4ff; --on-accent:#06101f;
+      --good:#3dd68c; --good-soft:rgba(61,214,140,.12);
       --warn:#f0b54a; --warn-soft:rgba(240,181,74,.13);
       --bad:#ff6b6b;  --bad-soft:rgba(255,107,107,.12);
-      --stage:#10141b; --stage-2:#171c25;
-      --shadow:0 1px 2px rgba(0,0,0,.4), 0 6px 20px rgba(0,0,0,.25);
-      --shadow-lg:0 24px 60px rgba(0,0,0,.55);
+      --stage:#151a22;
+      --shadow:0 1px 2px rgba(0,0,0,.35);
+      --shadow-lg:0 24px 60px rgba(0,0,0,.6);
       --sticker-line:rgba(0,0,0,.55);
     }
   }
   :root[data-theme="dark"]{
-    --bg:#0b0d12; --surface:#141820; --surface-2:#1a1f29; --surface-3:#222835;
-    --line:#262c38; --line-strong:#353d4c;
-    --ink:#e9edf3; --muted:#a2acbb; --faint:#6f7a8a;
-    --accent:#5b9bff; --accent-2:#7aaeff; --accent-soft:rgba(91,155,255,.14); --on-accent:#06101f;
-    --good:#34d17a; --good-soft:rgba(52,209,122,.12);
+    --bg:#0e1116; --surface:#161a21; --surface-2:#1d222b; --surface-3:#262c36;
+    --line:#262c36; --line-strong:#353d4c;
+    --ink:#eef1f5; --muted:#9aa4b2; --faint:#7d8795;
+    --accent:#4c8dff; --accent-2:#6ea3ff; --accent-soft:rgba(76,141,255,.14); --accent-ink:#8db4ff; --on-accent:#06101f;
+    --good:#3dd68c; --good-soft:rgba(61,214,140,.12);
     --warn:#f0b54a; --warn-soft:rgba(240,181,74,.13);
     --bad:#ff6b6b;  --bad-soft:rgba(255,107,107,.12);
-    --stage:#10141b; --stage-2:#171c25;
-    --shadow:0 1px 2px rgba(0,0,0,.4), 0 6px 20px rgba(0,0,0,.25);
-    --shadow-lg:0 24px 60px rgba(0,0,0,.55);
+    --stage:#151a22;
+    --shadow:0 1px 2px rgba(0,0,0,.35);
+    --shadow-lg:0 24px 60px rgba(0,0,0,.6);
     --sticker-line:rgba(0,0,0,.55);
   }
 
@@ -59,99 +66,99 @@
   html,body{margin:0;height:100%}
   body{
     background:var(--bg); color:var(--ink); overflow:hidden;
-    font:14.5px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-    -webkit-font-smoothing:antialiased; font-feature-settings:"cv11","ss01";
+    font:15px/1.5 var(--font); -webkit-font-smoothing:antialiased;
+    -webkit-tap-highlight-color:transparent;
   }
-  h1,h2,h3{margin:0;font-weight:700;letter-spacing:-.015em}
+  h1,h2,h3{margin:0;font-family:var(--display);font-weight:700;letter-spacing:-.015em}
   button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
   :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:8px}
-  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  svg.i{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2;
+        stroke-linecap:round;stroke-linejoin:round}
 
-  .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;
-       padding:10px 16px;border-radius:12px;background:var(--surface);
-       border:1px solid var(--line);font-weight:600;font-size:14px;
-       transition:background .15s,border-color .15s,transform .08s,box-shadow .15s;white-space:nowrap}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
+       min-height:44px;padding:0 16px;border-radius:var(--r-md);background:var(--surface);
+       border:1px solid var(--line);font-weight:600;font-size:14.5px;
+       transition:background .15s,border-color .15s,transform .08s;white-space:nowrap}
   .btn:hover:not(:disabled){background:var(--surface-2);border-color:var(--line-strong)}
   .btn:active:not(:disabled){transform:translateY(1px)}
   .btn:disabled{opacity:.4;cursor:not-allowed}
-  .btn.primary{background:var(--accent);border-color:transparent;color:var(--on-accent);
-               box-shadow:0 1px 0 rgba(255,255,255,.15) inset, 0 6px 16px -6px var(--accent)}
+  .btn.primary{background:var(--accent);border-color:transparent;color:var(--on-accent)}
   .btn.primary:hover:not(:disabled){background:var(--accent-2)}
-  .btn.big{padding:14px 18px;font-size:15.5px;border-radius:14px}
-  .btn.sm{padding:7px 11px;font-size:13px;border-radius:10px}
-  .btn.icon{padding:0;width:40px;height:40px;border-radius:12px;font-size:16px}
+  .btn.big{min-height:52px;font-size:16px;border-radius:16px}
+  .btn.icon{padding:0;width:46px;min-width:46px;border-radius:var(--r-md)}
   .btn.ghost{background:transparent;border-color:transparent;color:var(--muted)}
   .btn.ghost:hover:not(:disabled){background:var(--surface-2);color:var(--ink)}
 
-  .app{display:grid;grid-template-rows:auto 1fr;height:100vh;height:100dvh}
+  .app{display:grid;grid-template-rows:auto 1fr auto;height:100vh;height:100dvh}
 
   /* ------------------------------------------------------------------ top bar */
-  .topbar{display:flex;align-items:center;gap:14px;padding:12px 20px;
+  .topbar{display:flex;align-items:center;gap:14px;height:68px;padding:0 24px;
           background:var(--surface);border-bottom:1px solid var(--line)}
-  .brand{display:flex;align-items:center;gap:11px;min-width:0}
-  .logo{width:32px;height:32px;flex:none;display:grid;grid-template-columns:repeat(3,1fr);gap:2px;
-        padding:3px;border-radius:9px;background:#15181e}
-  .logo i{border-radius:2.5px}
-  .brand h1{font-size:16.5px}
-  .brand .sub{color:var(--muted);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .stepper{display:flex;align-items:center;gap:6px;margin:0 auto;padding:4px;
-           background:var(--surface-2);border:1px solid var(--line);border-radius:999px}
-  .stepper span{display:flex;align-items:center;gap:7px;padding:6px 13px 6px 7px;border-radius:999px;
-                font-size:13px;font-weight:600;color:var(--faint);transition:.2s}
-  .stepper b{width:21px;height:21px;border-radius:50%;display:grid;place-items:center;font-size:11px;
+  .brand{display:flex;align-items:center;gap:12px;min-width:0;width:320px}
+  .logo{width:34px;height:34px;flex:none;display:grid;grid-template-columns:repeat(3,1fr);gap:2px;
+        padding:4px;border-radius:9px;background:#15181e}
+  .logo i{border-radius:2px}
+  .brand h1{font-size:19px}
+  .brand .sub{color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .stepper{display:flex;align-items:center;gap:4px;margin:0 auto;padding:4px;
+           background:var(--bg);border:1px solid var(--line);border-radius:999px}
+  .stepper span{display:flex;align-items:center;gap:8px;padding:7px 14px 7px 8px;border-radius:999px;
+                font-size:14px;font-weight:600;color:var(--faint);transition:.2s}
+  .stepper b{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:12px;
              background:var(--surface-3);color:var(--muted)}
-  .stepper span[data-state=active]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+  .stepper span[data-state=active]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(16,24,40,.12)}
   .stepper span[data-state=active] b{background:var(--accent);color:var(--on-accent)}
   .stepper span[data-state=done]{color:var(--muted)}
   .stepper span[data-state=done] b{background:var(--good);color:#fff}
-  .topbar .tools{display:flex;align-items:center;gap:8px}
-  .status{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--muted);
-          padding:6px 11px;border-radius:999px;border:1px solid var(--line);white-space:nowrap}
+  .tools{display:flex;align-items:center;justify-content:flex-end;gap:10px;width:320px}
+  .status{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--muted);
+          padding:7px 12px;border-radius:999px;border:1px solid var(--line);white-space:nowrap}
   .status i{width:8px;height:8px;border-radius:50%;background:var(--faint)}
-  .status[data-kind=ok] i{background:var(--good);box-shadow:0 0 0 3px var(--good-soft)}
-  .status[data-kind=warn] i{background:var(--warn);box-shadow:0 0 0 3px var(--warn-soft)}
+  .status[data-kind=ok] i{background:var(--good)}
+  .status[data-kind=warn] i{background:var(--warn)}
+  .short{display:none}
 
   /* ------------------------------------------------------------------ layout */
-  main{display:grid;grid-template-columns:minmax(330px,370px) minmax(0,1fr) minmax(330px,370px);
-       gap:16px;padding:16px;min-height:0;overflow:hidden}
-  .col{display:flex;flex-direction:column;gap:16px;min-height:0}
+  main{display:grid;grid-template-columns:360px minmax(0,1fr) 380px;gap:20px;
+       padding:20px 24px 24px;min-height:0;overflow:hidden}
+  .col{display:flex;flex-direction:column;gap:20px;min-height:0;min-width:0}
   .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
-        box-shadow:var(--shadow);display:flex;flex-direction:column;min-height:0}
-  .card-h{display:flex;align-items:center;gap:10px;padding:15px 18px 0;flex:none}
-  .card-h h2{font-size:15px}
-  .card-h .num{width:24px;height:24px;border-radius:8px;display:grid;place-items:center;
-               background:var(--accent-soft);color:var(--accent);font-size:12px;font-weight:800;flex:none}
-  .card-h .right{margin-left:auto;font-size:12.5px;color:var(--muted);font-weight:500}
-  .body{padding:15px 18px 18px;min-height:0;overflow:auto}
+        box-shadow:var(--shadow);display:flex;flex-direction:column;min-height:0;min-width:0}
+  .card-h{display:flex;align-items:center;gap:10px;padding:18px 18px 0;flex:none}
+  .card-h h2{font-size:18px}
+  .card-h .right{margin-left:auto;font-size:13px;color:var(--muted);font-weight:500}
+  .body{padding:14px 18px 18px;min-height:0;overflow:auto}
+  .screenhead,.tabbar,.sheetgrip,.onlyphone{display:none}
 
-  .seg{display:flex;gap:3px;padding:4px;background:var(--surface-2);border:1px solid var(--line);
-       border-radius:13px;flex:none}
-  .seg button{flex:1;padding:8px 10px;border-radius:9px;font-size:13px;font-weight:600;color:var(--muted);
-              transition:.15s;white-space:nowrap}
+  .seg{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:3px;padding:3px;
+       background:var(--bg);border:1px solid var(--line);border-radius:12px;flex:none}
+  .seg button{min-height:36px;padding:0 12px;border-radius:9px;font-size:14px;font-weight:600;color:var(--muted);
+              transition:.15s;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:7px}
   .seg button:hover{color:var(--ink)}
   .seg button[aria-selected=true],.seg button[aria-pressed=true]{background:var(--surface);color:var(--ink);
-              box-shadow:0 1px 2px rgba(0,0,0,.08),0 0 0 1px var(--line)}
+              box-shadow:0 1px 2px rgba(16,24,40,.12),0 0 0 1px var(--line)}
 
   /* ------------------------------------------------------------------ scanner */
-  .videowrap{position:relative;background:#07090d;border-radius:14px;overflow:hidden;
+  .videowrap{position:relative;background:#07090d;border-radius:16px;overflow:hidden;
              aspect-ratio:1;display:grid;place-items:center;margin-top:14px}
   .videowrap video{width:100%;height:100%;object-fit:cover;display:block}
   #overlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-  .ph{color:#aab3c2;font-size:13px;text-align:center;padding:26px;line-height:1.65}
-  .ph .cam{width:52px;height:52px;border-radius:16px;margin:0 auto 12px;display:grid;place-items:center;
-           background:rgba(255,255,255,.07);font-size:24px}
+  .ph{color:#aab3c2;font-size:14px;text-align:center;padding:26px;line-height:1.6}
+  .ph .cam{width:54px;height:54px;border-radius:16px;margin:0 auto 12px;display:grid;place-items:center;
+           background:rgba(255,255,255,.07);color:#dfe5ee}
+  .ph .cam svg.i{width:26px;height:26px}
   .ph b{color:#fff}
   .flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
   .flash.go{animation:flash .45s ease-out}
   @keyframes flash{0%{opacity:.7}100%{opacity:0}}
-  .lockwrap{display:flex;align-items:center;gap:10px;margin-top:12px;flex:none}
-  .bar{height:6px;flex:1;background:var(--surface-3);border-radius:99px;overflow:hidden}
+  .lockwrap{display:flex;align-items:center;gap:12px;margin-top:12px;flex:none}
+  .bar{height:8px;flex:1;background:var(--surface-3);border-radius:99px;overflow:hidden}
   .bar i{display:block;height:100%;background:var(--good);width:0;transition:width .15s;border-radius:99px}
-  .lockwrap span{font-size:12px;color:var(--muted);min-width:78px;text-align:right}
+  .lockwrap span{font-size:13px;color:var(--muted);min-width:96px;text-align:right}
 
-  .facerow{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:12px;flex:none}
-  .facebtn{border:1px solid var(--line);border-radius:12px;padding:7px 2px 5px;text-align:center;
-           background:var(--surface-2);font-size:11.5px;font-weight:600;color:var(--muted);transition:.15s}
+  .facerow{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;margin-top:12px;flex:none}
+  .facebtn{border:1px solid var(--line);border-radius:12px;padding:8px 0 6px;text-align:center;min-height:56px;
+           background:var(--surface-2);font-size:11px;font-weight:600;color:var(--muted);transition:.15s}
   .facebtn:hover{border-color:var(--line-strong)}
   .facebtn[data-done=true]{border-color:var(--good);color:var(--ink);background:var(--good-soft)}
   .facebtn[data-shaky=true]{border-color:var(--warn);background:var(--warn-soft)}
@@ -160,14 +167,18 @@
                  width:26px;height:26px}
   .facebtn .mini span{background:var(--surface-3);border-radius:2px}
 
-  .tip{display:flex;gap:11px;align-items:flex-start;margin-top:12px;padding:12px 13px;
-       background:var(--surface-2);border-radius:13px;border:1px solid var(--line);
-       font-size:13px;color:var(--muted);flex:none;line-height:1.5}
+  .tip{display:flex;gap:12px;align-items:flex-start;margin-top:12px;padding:12px 14px;
+       background:var(--surface-2);border-radius:var(--r-md);border:1px solid var(--line);
+       font-size:13.5px;color:var(--muted);flex:none;line-height:1.5}
   .tip b{color:var(--ink)}
   .tip .num{flex:none;width:24px;height:24px;border-radius:50%;background:var(--accent);
-            color:var(--on-accent);display:grid;place-items:center;font-size:12px;font-weight:800}
+            color:var(--on-accent);display:grid;place-items:center;font-size:12px;font-weight:700}
   .tip .dia{flex:none;width:62px;margin-left:auto;color:var(--ink)}
   .tip .dia svg{width:62px;height:62px;display:block}
+  .actions{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin-top:12px}
+  .actions .wide{grid-column:1 / -1}
+  .actions2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:8px;margin-top:8px}
+  .actions2 .btn{padding:0 12px}
 
   /* ------------------------------------------------------------------ flat map */
   /* a face is 3 sticker rows, plus one row for its label when labels show */
@@ -188,96 +199,99 @@
   .cell.edit{cursor:pointer}
   .cell.edit:hover{transform:scale(1.18);position:relative;z-index:2}
   .cell.centre{box-shadow:inset 0 0 0 2px var(--sticker-line)}
-  .swatches{display:flex;gap:8px;justify-content:center;margin-top:14px;flex-wrap:wrap}
-  .swatches button{width:34px;height:34px;border-radius:11px;box-shadow:inset 0 0 0 1px var(--sticker-line);
+  .swatches{display:grid;grid-template-columns:repeat(6,44px);gap:8px;justify-content:center;margin-top:14px}
+  .swatches button{width:44px;height:44px;border-radius:12px;box-shadow:inset 0 0 0 1px var(--sticker-line);
                    transition:transform .1s}
-  .swatches button[aria-pressed=true]{outline:3px solid var(--accent);outline-offset:2px;transform:scale(1.08)}
+  .swatches button[aria-pressed=true]{outline:3px solid var(--accent);outline-offset:2px}
 
-  /* ------------------------------------------------------------------ solve box */
-  .modes{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px}
-  .mode{display:flex;flex-direction:column;align-items:flex-start;gap:1px;text-align:left;
-        padding:10px 11px;border-radius:13px;border:1px solid var(--line);background:var(--surface-2);
+  /* ------------------------------------------------------------------ method */
+  .modes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:12px}
+  .mode{display:flex;flex-direction:column;align-items:flex-start;gap:1px;text-align:left;min-height:56px;
+        padding:9px 11px;border-radius:12px;border:1px solid var(--line);background:var(--surface-2);
         transition:.15s}
   .mode:hover{border-color:var(--line-strong)}
-  .mode b{font-size:13.5px}
-  .mode small{font-size:11.5px;color:var(--muted);line-height:1.35}
+  .mode b{font-size:14px}
+  .mode small{font-size:12px;color:var(--muted);line-height:1.35}
   .mode[aria-pressed=true]{border-color:var(--accent);background:var(--accent-soft);
                            box-shadow:0 0 0 1px var(--accent) inset}
 
   /* ------------------------------------------------------------------ stage */
-  .stagecard{flex:1;min-height:0;position:relative;overflow:hidden;
-             background:radial-gradient(120% 90% at 50% 35%, var(--stage-2), var(--stage))}
+  .stagecard{flex:1;min-height:0;position:relative;overflow:hidden;background:var(--stage)}
   #stage,#stageCubing{position:absolute;inset:0}
-  #stage canvas{display:block;width:100%;height:100%;cursor:grab}
+  #stage canvas{display:block;width:100%;height:100%;cursor:grab;touch-action:none}
   #stage canvas:active{cursor:grabbing}
   #stageCubing{display:none;place-items:center}
   #stageCubing twisty-player{width:100%;height:100%}
   .stagecard[data-view=cubing] #stage{display:none}
   .stagecard[data-view=cubing] #stageCubing{display:grid}
-  .stage-top{position:absolute;left:14px;right:14px;top:14px;display:flex;gap:10px;align-items:flex-start;
+  .stage-top{position:absolute;left:16px;right:16px;top:16px;display:flex;gap:10px;align-items:flex-start;
              pointer-events:none}
   .stage-top > *{pointer-events:auto}
-  .stage-top .seg{background:color-mix(in srgb, var(--surface) 78%, transparent);backdrop-filter:blur(10px)}
-  .badge{margin-left:auto;font-size:12.5px;font-weight:600;padding:8px 13px;border-radius:999px;
-    background:color-mix(in srgb, var(--surface) 82%, transparent);border:1px solid var(--line);
+  .stage-top .seg{background:color-mix(in srgb, var(--surface) 82%, transparent);backdrop-filter:blur(10px)}
+  .stage-top .seg button{min-height:34px;font-size:13px}
+  .badge{margin-left:auto;font-size:13px;font-weight:600;padding:8px 14px;border-radius:999px;
+    background:color-mix(in srgb, var(--surface) 88%, transparent);border:1px solid var(--line);
     color:var(--muted);backdrop-filter:blur(10px);max-width:55%;overflow:hidden;
     text-overflow:ellipsis;white-space:nowrap}
-  .stagehint{position:absolute;left:14px;bottom:12px;font-size:12px;color:var(--faint)}
-  .cubing-msg{color:var(--muted);font-size:13px;text-align:center;padding:30px;max-width:340px;line-height:1.6}
+  .stagehint{position:absolute;left:16px;bottom:14px;font-size:12px;color:var(--faint)}
+  .cubing-msg{color:var(--muted);font-size:13.5px;text-align:center;padding:30px;max-width:340px;line-height:1.6}
   .mapcard{flex:none}
-  .mapcard .body{display:flex;align-items:center;gap:16px;padding:12px 18px}
-  .mapcard .lbl{font-size:12.5px;color:var(--muted);line-height:1.45;max-width:180px}
-  .mapcard .lbl b{display:block;color:var(--ink);font-size:13.5px}
-  .mapcard .net{margin-left:auto}
+  .mapcard .body{display:flex;align-items:center;gap:24px;padding:16px 22px}
+  .mapcard .lbl{font-size:13px;color:var(--muted);line-height:1.45;flex:1;min-width:0}
+  .mapcard .lbl b{display:block;color:var(--ink);font-size:15px}
 
   /* ------------------------------------------------------------------ current move */
-  .movecard .hero{display:flex;gap:16px;align-items:center;padding:16px 18px 10px}
-  .arrowtile{font-size:46px;line-height:1;width:84px;height:84px;flex:none;border-radius:22px;
-    background:linear-gradient(160deg,var(--accent),var(--accent-2));color:var(--on-accent);
-    display:grid;place-items:center;font-weight:700;box-shadow:0 12px 26px -12px var(--accent)}
-  .arrowtile.done{background:linear-gradient(160deg,#22c55e,#16a34a);box-shadow:0 12px 26px -12px #16a34a}
-  .movecard .code{display:inline-block;font-size:12px;font-weight:800;letter-spacing:.02em;
-    padding:2px 8px;border-radius:7px;background:var(--surface-3);color:var(--muted);margin-bottom:4px}
-  .movecard .who{font-size:21px;font-weight:800;letter-spacing:-.02em;line-height:1.2}
-  .movecard .motion{font-size:14px;font-weight:600;color:var(--accent);margin-top:2px}
-  .movecard .detail{font-size:12.5px;color:var(--muted);padding:0 18px 12px;line-height:1.5}
-  .progress{padding:0 18px 12px}
-  .progress .row1{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);margin-bottom:7px}
+  .movecard .hero{display:flex;gap:16px;align-items:center;padding:18px 18px 12px}
+  .arrowtile{font-size:44px;line-height:1;width:84px;height:84px;flex:none;border-radius:22px;
+    background:var(--accent);color:var(--on-accent);display:grid;place-items:center;font-weight:700}
+  .arrowtile.done{background:var(--good);color:#fff}
+  .movecard .code{display:inline-block;font:700 13px var(--display);padding:2px 8px;border-radius:7px;
+    background:var(--surface-3);color:var(--muted);margin-bottom:3px}
+  .movecard .who{font:700 24px/1.15 var(--display);letter-spacing:-.02em}
+  .movecard .motion{font-size:15px;font-weight:600;color:var(--accent-ink);margin-top:2px}
+  .movecard .detail{font-size:14px;color:var(--muted);padding:0 18px 14px;line-height:1.5}
+  .progress{padding:0 18px 14px}
+  .progress .row1{display:flex;justify-content:space-between;gap:10px;font-size:13px;color:var(--muted);margin-bottom:7px}
   .progress .row1 b{color:var(--ink)}
-  .ptrack{display:flex;gap:3px;height:7px}
+  .ptrack{display:flex;gap:4px;height:7px}
   .ptrack i{flex:var(--n);background:var(--surface-3);border-radius:99px;overflow:hidden;position:relative}
   .ptrack i::after{content:"";position:absolute;inset:0;width:var(--p,0%);background:var(--accent);
                    border-radius:99px;transition:width .2s}
-  .controls{display:flex;gap:7px;align-items:center;padding:0 18px 12px;flex:none}
+  .controls{display:flex;gap:8px;align-items:center;padding:0 18px 12px;flex:none}
   .controls .grow{flex:1}
-  .opts{display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:10px 18px 14px;
-        border-top:1px solid var(--line);font-size:12.5px;color:var(--muted)}
-  label.check{display:flex;gap:7px;align-items:center;cursor:pointer}
-  input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px}
+  .scrubrow{padding:0 18px 14px}
+  .opts{display:flex;gap:12px;align-items:center;padding:12px 18px 16px;
+        border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+  .opts .seg{flex:1}
+  .opts .seg button{min-height:34px;font-size:13px}
+  .opts .lbl{font-weight:600}
+  .toggles{display:flex;gap:14px;align-items:center;padding:0 18px 16px;font-size:13px;color:var(--muted)}
+  label.check{display:flex;gap:7px;align-items:center;cursor:pointer;min-height:32px}
+  input[type=checkbox]{accent-color:var(--accent);width:17px;height:17px}
   input[type=range]{accent-color:var(--accent)}
   .scrub{width:100%;margin:0}
-  .speedwrap{display:flex;align-items:center;gap:7px;margin-left:auto}
 
   /* ------------------------------------------------------------------ turn list */
-  .steps{list-style:none;margin:0;padding:6px 8px 10px;overflow:auto;flex:1;min-height:0;position:relative}
-  .steps li{display:flex;gap:10px;align-items:center;padding:7px 10px;border-radius:10px;
-            cursor:pointer;font-size:13px}
+  .steps{list-style:none;margin:0;padding:4px 10px 12px;overflow:auto;flex:1;min-height:0;position:relative;
+         overscroll-behavior:contain}
+  .steps li{display:flex;gap:10px;align-items:center;min-height:38px;padding:0 10px;border-radius:10px;
+            cursor:pointer;font-size:13.5px}
   .steps li:hover{background:var(--surface-2)}
   .steps li[aria-current=true]{background:var(--accent-soft);box-shadow:inset 3px 0 0 var(--accent)}
   .steps li.done{opacity:.45}
-  .steps li .n{color:var(--faint);font-size:11px;min-width:20px;font-variant-numeric:tabular-nums}
-  .steps li .m{font-weight:800;min-width:26px}
-  .steps li .a{font-size:15px;color:var(--accent);min-width:16px;text-align:center}
+  .steps li .n{color:var(--faint);font-size:12px;min-width:22px;font-variant-numeric:tabular-nums}
+  .steps li .m{font:700 15px var(--display);min-width:30px}
+  .steps li .a{font-size:15px;color:var(--accent-ink);min-width:18px;text-align:center}
   .steps li .d{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
-  .steps .head{cursor:default;display:block;padding:14px 10px 4px}
+  .steps .head{cursor:default;display:block;min-height:0;padding:14px 10px 4px}
   .steps .head:hover{background:transparent}
-  .steps .head b{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);font-weight:800}
-  .steps .head small{display:block;font-size:12px;color:var(--muted);margin-top:1px;line-height:1.4}
-  .empty{color:var(--muted);font-size:13px;padding:30px 18px;text-align:center;line-height:1.65}
-  .empty .ico{font-size:30px;display:block;margin-bottom:8px;opacity:.7}
+  .steps .head b{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent-ink);font-weight:700}
+  .steps .head small{display:block;font-size:12.5px;color:var(--muted);margin-top:1px;line-height:1.4}
+  .empty{color:var(--muted);font-size:14px;padding:34px 18px;text-align:center;line-height:1.6;cursor:default}
+  .empty svg.i{width:30px;height:30px;display:block;margin:0 auto 10px;color:var(--faint)}
 
   /* ------------------------------------------------------------------ messages */
-  .msg{padding:10px 12px;border-radius:12px;font-size:13px;margin-top:12px;display:none;
+  .msg{padding:11px 13px;border-radius:12px;font-size:13.5px;margin-top:12px;display:none;
        flex:none;line-height:1.5;border:1px solid transparent}
   .msg.show{display:block}
   .msg.err{background:var(--bad-soft);border-color:color-mix(in srgb,var(--bad) 35%,transparent);color:var(--ink)}
@@ -294,9 +308,9 @@
   .diacard{background:var(--surface-2);border:1px solid var(--line);border-radius:14px;
            padding:12px 10px;text-align:center;color:var(--ink)}
   .diacard svg{width:100%;max-width:124px;height:auto;display:block;margin:0 auto 6px}
-  .diacard .code{font-size:18px;font-weight:800;letter-spacing:-.01em}
-  .diacard .say{font-size:12px;color:var(--muted);line-height:1.45;margin-top:3px}
-  .diacard .lead{font-size:12.5px;font-weight:600;margin-top:2px}
+  .diacard .code{font:700 18px var(--display);letter-spacing:-.01em}
+  .diacard .say{font-size:12.5px;color:var(--muted);line-height:1.45;margin-top:3px}
+  .diacard .lead{font-size:13px;font-weight:600;margin-top:2px}
 
   /* ------------------------------------------------------------------ manual sheet */
   .sheet{position:fixed;inset:0;background:rgba(8,11,17,.55);display:none;
@@ -307,54 +321,121 @@
     max-width:780px;width:100%;max-height:88vh;display:flex;flex-direction:column;box-shadow:var(--shadow-lg)}
   .sheet .shead{display:flex;align-items:center;gap:12px;padding:18px 22px;border-bottom:1px solid var(--line)}
   .sheet .shead .sub{color:var(--muted);font-size:13px}
-  .sheet .scroll{overflow:auto;padding:20px 24px 28px}
-  .sheet h3{font-size:15.5px;margin:24px 0 8px}
+  .sheet .scroll{overflow:auto;padding:20px 24px 28px;overscroll-behavior:contain}
+  .sheet h3{font-size:16px;margin:24px 0 8px}
   .sheet h3:first-child{margin-top:0}
-  .sheet p{margin:0 0 10px;color:var(--muted);font-size:14px}
+  .sheet p{margin:0 0 10px;color:var(--muted);font-size:14.5px}
   .sheet p b{color:var(--ink)}
   .facemap{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:10px 0 4px}
   .facemap div{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;
-               padding:10px 12px;font-size:13px;color:var(--muted)}
-  .facemap b{display:block;font-size:14.5px;margin-bottom:1px;color:var(--ink)}
+               padding:10px 12px;font-size:13.5px;color:var(--muted)}
+  .facemap b{display:block;font-size:15px;margin-bottom:1px;color:var(--ink)}
 
-  /* ------------------------------------------------------------------ responsive */
-  @media (max-width:1280px){
-    main{grid-template-columns:minmax(320px,350px) minmax(0,1fr)}
-    .col.right{grid-column:1 / -1;flex-direction:row}
-    .col.right > .card{flex:1;min-width:0}
+  /* ------------------------------------------------------------------ medium screens */
+  @media (max-width:1240px){
+    main{grid-template-columns:340px minmax(0,1fr);overflow:auto}
+    .col.right{grid-column:1 / -1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+    .col.right > .card{min-height:420px}
     .stepper{display:none}
+    .brand,.tools{width:auto}
+    .tools{margin-left:auto}
   }
-  @media (max-width:900px){
-    body{overflow:auto}
-    .app{height:auto;min-height:100dvh}
-    .topbar{padding:10px 14px;flex-wrap:wrap}
-    .brand .sub{display:none}
-    .status{display:none}
-    /* minmax(0,..) + min-width:0: long no-wrap text (turn list, tab labels)
-       must truncate inside the screen, not widen the page */
-    main{grid-template-columns:minmax(0,1fr);overflow:visible;padding:12px;gap:12px}
-    .col,.card{min-width:0}
-    .seg button{white-space:normal}
-    .net.big{--cs:clamp(13px, 5.4vw, 23px)}
-    .modes small{font-size:11px}
-    .col.right{flex-direction:column}
-    .stagecard{height:62vw;min-height:300px;max-height:460px;flex:none}
-    .steps{max-height:320px;flex:none}
-    .mapcard .lbl{display:none}
-    .mapcard .net{margin:0 auto}
+
+  /* ------------------------------------------------------------------ phones
+     One step per screen behind a bottom tab bar: Scan, Check, Solve. The
+     three desktop columns dissolve (display:contents) so each card can be
+     shown on the screen it belongs to, in the order that screen wants. */
+  @media (max-width:760px){
+    body{font-size:15px}
+    .topbar{height:56px;padding:0 12px 0 16px;gap:8px;padding-top:env(safe-area-inset-top);
+            height:calc(56px + env(safe-area-inset-top))}
+    .brand{width:auto;flex:1}
+    .brand h1{font-size:18px}
+    .brand .sub,.stepper,.status,.long{display:none}
+    .short{display:inline}
+    .tools{width:auto;gap:8px}
+    #btnManual{width:44px;min-width:44px;padding:0;font:700 17px var(--display)}
+
+    main{display:flex;flex-direction:column;gap:14px;padding:14px 16px 20px;overflow:auto;
+         overscroll-behavior:contain;grid-template-columns:none}
+    .col,.col.right{display:contents}
+    [data-on]{display:none !important}
+    body[data-screen=scan]  [data-on~=scan],
+    body[data-screen=check] [data-on~=check],
+    body[data-screen=solve] [data-on~=solve]{display:flex !important}
+    .screenhead{flex-direction:column;gap:2px;order:0}
+    .screenhead h1{font-size:26px;letter-spacing:-.02em}
+    .screenhead p{margin:0;color:var(--muted);font-size:15px}
+    .card{border-radius:20px;box-shadow:none;flex:none !important}
+    .card-h{padding:16px 16px 0}
+    .body{padding:12px 16px 16px;overflow:visible}
+    .incard .card-h{display:none}
+    .incard .body{padding-top:14px}
+    .onlyphone{display:flex}
+
+    /* Check: the cube, the map, then how to solve it */
+    .stagecard{order:1;flex:none;height:clamp(250px, 42dvh, 380px);border-radius:22px}
+    .mapcard{order:2}
+    .mapcard .body{padding:14px 16px;gap:14px}
+    .methodcard{order:3}
+    .stage-top{left:12px;right:12px;top:12px}
+    .stagehint{left:12px;bottom:10px}
+    .badge{display:none}
+
+    /* Solve: a smaller cube, the move card, the list as a sheet */
+    body[data-screen=solve] .stagecard{height:clamp(220px, 33dvh, 300px)}
+    body[data-screen=solve] .stage-top,body[data-screen=solve] .stagehint{display:none}
+    .movecard{order:2}
+    .movecard > .card-h{display:none}
+    .movecard .hero{padding:16px 16px 10px}
+    .arrowtile{width:76px;height:76px;font-size:40px;border-radius:20px}
+    .movecard .who{font-size:23px}
+    .movecard .detail{display:none}
+    .progress,.controls,.scrubrow,.toggles{padding-left:16px;padding-right:16px}
+    .controls .btn.icon{width:52px;min-width:52px;min-height:52px}
+    #btnFirst,#btnLast{width:46px;min-width:46px}
+    .controls .btn.primary{min-height:56px;font-size:17px}
+    .opts{padding:12px 16px 14px;gap:10px}
+    .opts .seg button{min-height:40px;font-size:14px}
+
+    .turnscard{position:fixed;left:0;right:0;bottom:0;z-index:40;max-height:74dvh;border-radius:26px 26px 0 0;
+               border-bottom:0;padding-bottom:env(safe-area-inset-bottom);
+               transform:translateY(105%);transition:transform .28s cubic-bezier(.2,.8,.2,1);
+               display:flex !important;box-shadow:var(--shadow-lg)}
+    body.sheet-open .turnscard{transform:none}
+    .sheetgrip{display:flex;justify-content:center;padding:10px 0 2px}
+    .sheetgrip i{width:40px;height:5px;border-radius:99px;background:var(--line-strong)}
+    .turnscard .card-h{padding:6px 16px 8px}
+    .turnscard .card-h h2{font-size:21px}
+    .scrim{position:fixed;inset:0;background:rgba(4,6,9,.55);z-index:39;opacity:0;pointer-events:none;
+           transition:opacity .2s}
+    body.sheet-open .scrim{opacity:1;pointer-events:auto}
+    .steps li{min-height:44px}
+
+    .tabbar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;
+            padding:8px 18px calc(10px + env(safe-area-inset-bottom));
+            background:var(--surface);border-top:1px solid var(--line);z-index:30}
+    .tabbar button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+                   min-height:52px;border-radius:14px;color:var(--muted);font-size:12px;font-weight:600}
+    .tabbar button svg.i{width:24px;height:24px;stroke-width:1.8}
+    .tabbar button[aria-current=page]{background:var(--accent-soft);color:var(--accent-ink)}
+    .tabbar button .dot{width:6px;height:6px;border-radius:50%;background:var(--good);position:absolute;
+                        margin:-18px 0 0 22px}
+    .net.big{--cs:clamp(14px, 5.6vw, 24px)}
+    .swatches{grid-template-columns:repeat(6,minmax(0,44px))}
   }
   @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important} }
 </style>
 </head>
-<body>
+<body data-screen="scan">
 <div class="app">
 
 <header class="topbar">
   <div class="brand">
     <div class="logo" aria-hidden="true">
-      <i style="background:#e03030"></i><i style="background:#f2f4f6"></i><i style="background:#26a844"></i>
-      <i style="background:#ffd400"></i><i style="background:#1668d8"></i><i style="background:#e03030"></i>
-      <i style="background:#f07818"></i><i style="background:#26a844"></i><i style="background:#ffd400"></i>
+      <i style="background:#e5383b"></i><i style="background:#f4f5f7"></i><i style="background:#22b04b"></i>
+      <i style="background:#ffd60a"></i><i style="background:#1e6fe0"></i><i style="background:#e5383b"></i>
+      <i style="background:#ff8a1f"></i><i style="background:#22b04b"></i><i style="background:#ffd60a"></i>
     </div>
     <div style="min-width:0">
       <h1>Cube Solver</h1>
@@ -363,39 +444,40 @@
   </div>
 
   <nav class="stepper" aria-label="Progress">
-    <span id="stp1" data-state="active"><b>1</b>Your cube</span>
+    <span id="stp1" data-state="active"><b>1</b>Scan</span>
     <span id="stp2"><b>2</b>Check</span>
     <span id="stp3"><b>3</b>Solve</span>
   </nav>
 
   <div class="tools">
     <span class="status" id="pillSolver" data-kind=""><i></i><span id="pillText">starting…</span></span>
-    <button class="btn sm" id="btnManual">What do R and U mean?</button>
-    <button class="btn icon ghost" id="btnTheme" title="Light / dark" aria-label="Switch light or dark theme">◐</button>
+    <button class="btn" id="btnManual" aria-label="How to read the turns"><span class="long">What do R and U mean?</span><span class="short" aria-hidden="true">?</span></button>
+    <button class="btn icon" id="btnTheme" title="Light / dark" aria-label="Switch light or dark theme">◐</button>
   </div>
 </header>
 
 <main>
   <!-- ══════════ LEFT: get the cube in ══════════ -->
   <div class="col">
-    <section class="card" style="flex:1">
+    <div class="screenhead" data-on="scan"><h1>Scan your cube</h1><p>Any side, any order, any way up.</p></div>
+    <section class="card incard" data-on="scan" style="flex:1">
       <div class="card-h">
-        <span class="num">1</span><h2>Your cube</h2>
-        <span class="right" id="scanCount">0 of 6 faces</span>
+        <h2>Your cube</h2>
+        <span class="right" id="scanCount">0 of 6 sides</span>
       </div>
       <div class="body" style="padding-top:12px">
         <div class="seg" role="tablist">
-          <button role="tab" data-tab="scan" aria-selected="true">📷 Scan with camera</button>
-          <button role="tab" data-tab="hand" aria-selected="false">✎ Enter by hand</button>
+          <button role="tab" data-tab="scan" aria-selected="true">Scan with camera</button>
+          <button role="tab" data-tab="hand" aria-selected="false">Enter by hand</button>
         </div>
 
         <div id="tab-scan">
           <div class="videowrap">
             <div class="ph" id="camPh">
-              <div class="cam">📷</div>
+              <div class="cam"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2M9 9h6v6H9z"/></svg></div>
               Press <b>Start scanning</b> and show each side in the square —
               any order, any way up. It reads it the moment you hold still.<br>
-              No webcam? <b>Upload photos</b> of the six faces instead.
+              No webcam? <b>Upload photos</b> of the six sides instead.
             </div>
             <video id="video" playsinline muted style="display:none"></video>
             <canvas id="overlay"></canvas>
@@ -407,46 +489,49 @@
             <span id="lockText">camera off</span>
           </div>
 
-          <div class="tip" id="tip">
-            <span class="num">1</span>
-            <div>Pick any face to be the <b>front</b> and keep that grip the whole time.</div>
-          </div>
-
           <div class="facerow" id="facerow"></div>
 
-          <div class="row" style="margin-top:12px">
-            <button class="btn primary grow" id="btnCam">Start scanning</button>
-            <button class="btn" id="btnShot" disabled title="Capture this face now">Snap</button>
-            <button class="btn" id="btnUpload" title="Read faces from photos - one per face, in the order shown">Upload photos</button>
-            <input type="file" id="fileFaces" accept="image/*" capture="environment" multiple hidden>
+          <div class="tip" id="tip">
+            <span class="num">1</span>
+            <div>Fill the square with any side of the cube.</div>
+          </div>
+
+          <div class="actions">
+            <button class="btn primary big" id="btnCam">Start scanning</button>
+            <button class="btn big" id="btnShot" disabled title="Capture this side now">Snap</button>
+          </div>
+          <div class="actions2">
+            <button class="btn" id="btnUpload" title="Read sides from photos, one per side, any order">Upload photos</button>
+            <button class="btn" id="btnToHand" title="Type the colours in instead">By hand</button>
             <button class="btn ghost" id="btnReset">Clear</button>
           </div>
+          <input type="file" id="fileFaces" accept="image/*" capture="environment" multiple hidden>
           <div class="msg" id="scanMsg"></div>
         </div>
 
         <div id="tab-hand" style="display:none">
           <div style="margin-top:16px"><div class="net big" id="net"></div></div>
           <div class="swatches" id="swatches"></div>
-          <div class="tip"><span class="num">✎</span>
-            <div>Pick a colour, then click any sticker to change it. Centres stay
+          <div class="tip"><span class="num">i</span>
+            <div>Pick a colour, then tap any sticker to change it. Centres stay
             fixed — on a real cube they never move.</div></div>
           <div class="row" style="margin-top:12px">
-            <button class="btn sm grow" id="btnSolved">Reset to solved</button>
-            <button class="btn sm grow" id="btnRandom">🎲 Try a random cube</button>
+            <button class="btn grow" id="btnSolved">Reset to solved</button>
+            <button class="btn grow" id="btnRandom">Try a random cube</button>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="card" style="flex:none">
+    <section class="card methodcard" data-on="check" style="flex:none">
       <div class="body">
         <div class="modes" role="group" aria-label="Solving method">
           <button class="mode" data-mode="quick" aria-pressed="true">
-            <b>Shortest</b><small>~20 turns</small></button>
+            <b>Shortest</b><small>about 20 turns</small></button>
           <button class="mode" data-mode="learn" aria-pressed="false">
             <b>Beginner</b><small>layer by layer</small></button>
           <button class="mode" data-mode="cfop" aria-pressed="false">
-            <b>CFOP</b><small>how speedcubers do it</small></button>
+            <b>CFOP</b><small>speedcuber</small></button>
         </div>
         <button class="btn primary big" id="btnSolve" style="width:100%">Solve it</button>
         <div class="msg" id="solveMsg"></div>
@@ -456,7 +541,9 @@
 
   <!-- ══════════ MIDDLE: the cube ══════════ -->
   <div class="col">
-    <section class="card stagecard" id="stageCard" data-view="classic">
+    <div class="screenhead" data-on="check"><h1>Check it matches</h1><p id="checkSub">Compare with the cube in your hands, then solve.</p></div>
+    <div class="screenhead" data-on="solve"><h1 id="solveHead">Solve</h1></div>
+    <section class="card stagecard" id="stageCard" data-on="check solve" data-view="classic">
       <div id="stage"></div>
       <div id="stageCubing"></div>
       <div class="stage-top">
@@ -468,7 +555,7 @@
       </div>
       <div class="stagehint" id="stageHint">drag to spin · space = play · ← → = step</div>
     </section>
-    <section class="card mapcard">
+    <section class="card mapcard" data-on="check">
       <div class="body">
         <div class="lbl"><b>Flattened out</b><span id="netNote">this is where your cube is right now</span></div>
         <div class="net small" id="liveNet"></div>
@@ -478,11 +565,10 @@
 
   <!-- ══════════ RIGHT: the turns ══════════ -->
   <div class="col right">
-    <section class="card movecard" id="moveCard" style="flex:none;display:none">
-      <div class="card-h"><span class="num">3</span><h2>Do this turn</h2>
-        <span class="right" id="mvSource"></span></div>
+    <section class="card movecard" id="moveCard" data-on="solve" style="flex:none;display:none">
+      <div class="card-h"><h2>Do this turn</h2><span class="right" id="mvSource"></span></div>
       <div class="hero">
-        <div class="arrowtile" id="mvArrow">↑</div>
+        <div class="arrowtile" id="mvArrow" aria-hidden="true">↑</div>
         <div style="min-width:0">
           <span class="code" id="mvCode">R</span>
           <div class="who" id="mvWho">Right face</div>
@@ -495,32 +581,54 @@
         <div class="ptrack" id="ptrack"></div>
       </div>
       <div class="controls">
-        <button class="btn icon" id="btnFirst" title="Back to the start" aria-label="Back to the start">⏮</button>
-        <button class="btn icon" id="btnPrev" title="Previous turn" aria-label="Previous turn">◀</button>
-        <button class="btn primary grow" id="btnPlay">▶ Play</button>
-        <button class="btn icon" id="btnNext" title="Next turn" aria-label="Next turn">▶</button>
-        <button class="btn icon" id="btnLast" title="Jump to the end" aria-label="Jump to the end">⏭</button>
+        <button class="btn icon" id="btnFirst" title="Back to the start" aria-label="Back to the start"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5v14M18 6l-8 6 8 6z"/></svg></button>
+        <button class="btn icon" id="btnPrev" title="Previous turn" aria-label="Previous turn"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+        <button class="btn primary big grow" id="btnPlay">▶ Play</button>
+        <button class="btn icon" id="btnNext" title="Next turn" aria-label="Next turn"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+        <button class="btn icon" id="btnLast" title="Jump to the end" aria-label="Jump to the end"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 5v14M6 6l8 6-8 6z"/></svg></button>
       </div>
-      <div class="controls" style="padding-top:0">
+      <div class="scrubrow">
         <input type="range" class="scrub" id="scrub" min="0" max="0" value="0" aria-label="Jump to turn">
       </div>
       <div class="opts">
+        <span class="lbl" id="speedLbl">Speed</span>
+        <div class="seg" role="group" aria-labelledby="speedLbl" id="speedSeg">
+          <button data-speed="slow" aria-pressed="false">Slow</button>
+          <button data-speed="normal" aria-pressed="true">Normal</button>
+          <button data-speed="fast" aria-pressed="false">Fast</button>
+        </div>
+      </div>
+      <div class="toggles">
         <label class="check"><input type="checkbox" id="chkVoice"> Read aloud</label>
         <label class="check"><input type="checkbox" id="chkArrow" checked> 3D arrow</label>
-        <span class="speedwrap">Speed <input type="range" id="speed" min="1" max="10" value="6" style="width:80px" aria-label="Animation speed"></span>
+        <button class="btn onlyphone" id="btnTurns" aria-expanded="false" aria-controls="turnsCard" style="margin-left:auto">
+          <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>
+          <span id="btnTurnsText">All turns</span></button>
       </div>
     </section>
 
-    <section class="card" style="flex:1">
-      <div class="card-h"><h2>Every turn</h2><span class="right" id="turnCount"></span></div>
+    <section class="card turnscard" id="turnsCard" data-on="solve" style="flex:1" aria-label="Every turn">
+      <div class="sheetgrip" aria-hidden="true"><i></i></div>
+      <div class="card-h"><h2>Every turn</h2><span class="right" id="turnCount"></span>
+        <button class="btn icon onlyphone" id="btnTurnsClose" aria-label="Close the turn list" style="margin-left:8px"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
       <ul class="steps" id="steps">
-        <li class="empty"><span class="ico">🧩</span>Scan your cube, then press <b>Solve it</b>.<br>
+        <li class="empty"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3zM12 12l8-4.5M12 12v9M12 12L4 7.5"/></svg>Scan your cube, then press <b>Solve it</b>.<br>
         Each turn will be listed here in order.</li>
       </ul>
     </section>
   </div>
 </main>
+
+<nav class="tabbar" aria-label="Steps">
+  <button data-go="scan" aria-current="page">
+    <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2M9 9h6v6H9z"/></svg>Scan</button>
+  <button data-go="check" aria-current="false">
+    <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3zM12 12l8-4.5M12 12v9M12 12L4 7.5"/></svg>Check</button>
+  <button data-go="solve" aria-current="false">
+    <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM10 8.5l5.5 3.5-5.5 3.5z"/></svg>Solve</button>
+</nav>
 </div>
+<div class="scrim" id="scrim"></div>
 
 <!-- ══════════ manual ══════════ -->
 <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
@@ -710,6 +818,9 @@ function resize(){
   const w = s.clientWidth || 1, h = s.clientHeight || 1;
   renderer.setSize(w, h, false);
   camera.aspect = w/h;
+  // a short stage (phones) needs a wider view, or the turn arrow above
+  // the top layer runs off the edge
+  camera.fov = h < 300 ? 48 : h < 420 ? 42 : 36;
   camera.updateProjectionMatrix();
 }
 
@@ -1062,7 +1173,7 @@ function syncTwisty(move){
                           + "Finish scanning, or switch back to <b>Classic 3D</b>."); return; }
   }
   cubingMessage(null);
-  twisty.tempoScale = 0.5 + $("speed").value / 4;
+  twisty.tempoScale = speed().tempo;
   twisty.experimentalSetupAlg = setup.join(" ");
   twisty.alg = move || "";
   if (move) { twisty.jumpToStart(); setTimeout(() => twisty.play(), 30); }
@@ -1121,6 +1232,42 @@ function renderNet(el, facelets, {editable=false}={}){
   }
 }
 
+/* ---- turn speed: three presets instead of a slider -------------------- */
+const SPEEDS = {
+  slow:   {turnMs: 950, pauseMs: 700, tempo: 0.6},   // time to copy each turn by hand
+  normal: {turnMs: 520, pauseMs: 220, tempo: 1.2},
+  fast:   {turnMs: 230, pauseMs: 60,  tempo: 2.6},
+};
+const speed = () => SPEEDS[S.speed] || SPEEDS.normal;
+function setSpeed(name){
+  S.speed = SPEEDS[name] ? name : "normal";
+  store.set("speed", S.speed);
+  document.querySelectorAll("#speedSeg button").forEach(b =>
+    b.setAttribute("aria-pressed", b.dataset.speed === S.speed));
+}
+
+/* ---- phone screens: Scan, Check, Solve --------------------------------- */
+const isPhone = () => !!(window.matchMedia && matchMedia("(max-width: 760px)").matches);
+function setScreen(name){
+  document.body.dataset.screen = name;
+  document.querySelectorAll(".tabbar button").forEach(b =>
+    b.setAttribute("aria-current", b.dataset.go === name ? "page" : "false"));
+  if (name !== "solve") openTurns(false);
+  if (name === "solve" && !S.solution)
+    $("solveHead").textContent = "Nothing to solve yet";
+  if (typeof resize === "function" && renderer) requestAnimationFrame(resize);
+  if (isPhone()) document.querySelector("main").scrollTop = 0;
+}
+function openTurns(open){
+  document.body.classList.toggle("sheet-open", !!open);
+  $("btnTurns").setAttribute("aria-expanded", !!open);
+  if (open) requestAnimationFrame(() => highlight());
+}
+function showMoveCard(on){
+  $("moveCard").style.display = on ? "" : "none";
+  $("moveCard").classList.toggle("is-empty", !on);
+}
+
 function setStepper(n){
   [1,2,3].forEach(i => $("stp"+i).dataset.state = i < n ? "done" : i === n ? "active" : "");
 }
@@ -1132,9 +1279,11 @@ function setFacelets(f){
   renderNet($("liveNet"), f);
   paintCube(f);
   clearArrow();
-  $("moveCard").style.display = "none";
+  showMoveCard(false);
   $("turnCount").textContent = "";
-  $("steps").innerHTML = '<li class="empty"><span class="ico">✨</span>Press <b>Solve it</b> to work out the turns.</li>';
+  $("btnTurnsText").textContent = "All turns";
+  $("solveHead").textContent = "Nothing to solve yet";
+  $("steps").innerHTML = '<li class="empty"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3zM12 12l8-4.5M12 12v9M12 12L4 7.5"/></svg>Press <b>Solve it</b> to work out the turns.</li>';
   $("scrub").max = 0; $("scrub").value = 0;
   $("stageBadge").textContent = "ready to solve";
   $("netNote").textContent = "check these match your cube";
@@ -1547,6 +1696,7 @@ async function classifyAll(){
   buildSwatches();
   setFacelets(d.facelets);
   $("netNote").textContent = "check these match your cube";
+  if (d.valid) setScreen("check");      // phones: on to the Check screen
 
   if (!d.valid){
     note("scanMsg","err","<b>"+d.problem+"</b><br>That cannot happen on a real cube, "
@@ -1606,6 +1756,7 @@ function showSolution(sol, source){
   S.solution = sol; S.index = 0; S.playing = false;
   renderSolution();
   setStepper(3);
+  if (sol.moveCount) setScreen("solve");
 }
 
 function sourceText(src){
@@ -1684,7 +1835,8 @@ async function solve(){
 
 function renderSolution(){
   const d = S.solution;
-  $("moveCard").style.display = d.moveCount ? "" : "none";
+  showMoveCard(!!d.moveCount);
+  $("btnTurnsText").textContent = d.moveCount ? `All ${d.moveCount} turns` : "All turns";
   $("turnCount").textContent = d.moveCount ? `${d.moveCount} turns · ${MODE_LABEL[d.mode] || ""}` : "";
   $("mvSource").textContent = sourceText(d.source);
   $("scrub").max = d.moveCount; $("scrub").value = 0;
@@ -1692,7 +1844,7 @@ function renderSolution(){
 
   const ul = $("steps"); ul.innerHTML = "";
   if (!d.moveCount){
-    ul.innerHTML = '<li class="empty"><span class="ico">🎉</span>Nothing to do — it is already solved.</li>';
+    ul.innerHTML = '<li class="empty"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>Nothing to do — it is already solved.</li>';
   }
   let stage = null;
   d.steps.forEach((s, i) => {
@@ -1735,6 +1887,8 @@ function highlight(){
   const cur = d.steps[S.index];
   $("scrub").value = S.index;
   $("mvIdx").textContent = `${Math.min(S.index+1, d.moveCount)} / ${d.moveCount}`;
+  $("solveHead").textContent = !d.moveCount ? "Already solved"
+    : S.index >= d.moveCount ? "Solved!" : `Turn ${S.index + 1} of ${d.moveCount}`;
 
   if (cur){
     $("mvArrow").textContent = cur.arrow;
@@ -1755,7 +1909,7 @@ function highlight(){
     $("mvMotion").textContent = "every face is one colour";
     $("mvDetail").textContent = "";
     $("mvStage").textContent = "";
-    $("stageBadge").textContent = "solved 🎉";
+    $("stageBadge").textContent = "solved";
     clearArrow();
   }
 
@@ -1791,7 +1945,7 @@ async function stepForward(){
   const step = d.steps[S.index];
   clearArrow();
   speak(step);
-  const ms = 1050 - $("speed").value*85;
+  const ms = speed().turnMs;
   if (S.view === "cubing" && twisty){
     S.index++;
     syncTwisty(step.move);
@@ -1821,7 +1975,7 @@ async function play(){
   $("btnPlay").textContent = S.playing ? "⏸ Pause" : "▶ Play";
   while (S.playing){
     if (!await stepForward()) break;
-    await new Promise(r => setTimeout(r, 80));
+    await new Promise(r => setTimeout(r, speed().pauseMs));
   }
   S.playing = false; $("btnPlay").textContent = "▶ Play";
 }
@@ -1989,6 +2143,12 @@ function setMode(m){
 }
 
 document.querySelectorAll("[role=tab]").forEach(b => b.onclick = () => switchTab(b.dataset.tab));
+document.querySelectorAll(".tabbar button").forEach(b => b.onclick = () => setScreen(b.dataset.go));
+document.querySelectorAll("#speedSeg button").forEach(b => b.onclick = () => setSpeed(b.dataset.speed));
+$("btnTurns").onclick = () => openTurns(!document.body.classList.contains("sheet-open"));
+$("btnTurnsClose").onclick = () => openTurns(false);
+$("scrim").onclick = () => openTurns(false);
+$("btnToHand").onclick = () => switchTab("hand");
 document.querySelectorAll(".mode").forEach(b => b.onclick = () => {
   setMode(b.dataset.mode);
   if (S.solution || S.facelets !== SOLVED) solve();
@@ -2035,7 +2195,7 @@ $("sheet").onclick = e => { if (e.target === $("sheet")) $("sheet").classList.re
 
 addEventListener("keydown", e => {
   if (e.target.tagName === "INPUT") return;
-  if (e.key === "Escape") $("sheet").classList.remove("open");
+  if (e.key === "Escape"){ $("sheet").classList.remove("open"); openTurns(false); }
   if ($("sheet").classList.contains("open")) return;
   if (e.key === " "){ e.preventDefault(); play(); }
   if (e.key === "ArrowRight"){ e.preventDefault(); S.playing = false; stepForward(); }
@@ -2051,6 +2211,7 @@ function setStatus(kind, text){
   initThree();
   renderFaceRow(); updateTip(); buildSwatches(); buildManual();
   setMode(["quick","learn","cfop"].includes(store.get("mode")) ? store.get("mode") : "quick");
+  setSpeed(store.get("speed") || "normal");
   setFacelets(SOLVED);
   $("stageBadge").textContent = "waiting for your cube";
   if (store.get("view") === "cubing") setView("cubing");
