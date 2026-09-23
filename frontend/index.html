@@ -1938,15 +1938,9 @@ function setStatus(kind, text){
   try{
     const h = await (await fetch("/api/health")).json();
     S.server = h;
-    setStatus(h.solverReady ? "ok" : "warn", h.solverReady ? "ready" : "server warming up…");
-    if (!h.solverReady){
-      const poll = setInterval(async () => {
-        try {
-          const g = await (await fetch("/api/health")).json();
-          if (g.solverReady){ setStatus("ok", "ready"); clearInterval(poll); }
-        } catch {}
-      }, 1500);
-    }
+    // the browser solver is ready either way; a cold server just joins the
+    // Shortest race a little later (and serverless hosts may never say "ready")
+    setStatus("ok", "ready");
   }catch{
     S.server = null;
     setStatus("warn", "offline · browser solving only");
