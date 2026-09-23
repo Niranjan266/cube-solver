@@ -1,0 +1,20 @@
+# Deployment settings (Vercel reads this). Local runs use backend/requirements.txt
+# via run.bat / run.sh - keep the two dependency lists in step.
+[project]
+name = "cube-solver"
+version = "2.0.0"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.27",
+    "python-multipart>=0.0.9",
+    "pydantic>=2.5",
+    "opencv-python-headless>=4.9",
+    "numpy>=1.24",
+    "scipy>=1.11",
+]
+
+[tool.vercel]
+# the app lives in backend/app.py; main.py puts backend/ on the path and
+# re-exports it, so the function's root is the repo and frontend/ ships with it
+entrypoint = "main:app"
