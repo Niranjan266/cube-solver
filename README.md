@@ -130,8 +130,17 @@ coordinate spaces with **exact** pruning tables built by breadth-first search â€
 no heuristics, so a reported distance is a real lower bound.
 
 The tables take about two seconds to build on first run and are cached in
-`cube/_tables` (2.7 MB). After that: **average 21.6 turns on a fully scrambled
-cube, never more than 22 across 250 cubes, median 0.09 s.**
+`cube/_tables` (2.7 MB). After that: **average 20.6 turns on a fully scrambled
+cube, never more than 22, about 1 s per solve.**
+
+The first answer arrives in a median 0.09 s (21.6 turns on average). The search
+then spends up to one more second hunting for a shorter answer, the way
+Kociemba's reference solver does: it tries longer phase-1 paths, because a
+longer phase 1 often buys a much shorter phase 2. It also skips any phase 1 that
+ends on a move already inside G1, since a shorter phase 1 reaches the same
+state. Measured on 60 cubes, that second is worth one turn fewer (21.65 â†’
+20.63). The window is `IMPROVE_SECONDS` in `twophase.py`; set it to 0 to take
+the first answer.
 
 The search asks for a 22-turn answer first and only relaxes if that comes up
 empty. That is counter-intuitively both *shorter and faster* than asking for 24
