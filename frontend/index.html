@@ -384,7 +384,8 @@
             <div class="ph" id="camPh">
               <div class="cam">📷</div>
               Press <b>Start scanning</b> and hold each face up.<br>
-              It captures on its own once it can read all nine stickers.
+              It captures on its own once it can read all nine stickers.<br>
+              No webcam? <b>Upload photos</b> of the six faces instead.
             </div>
             <video id="video" playsinline muted style="display:none"></video>
             <canvas id="overlay"></canvas>
@@ -406,6 +407,8 @@
           <div class="row" style="margin-top:12px">
             <button class="btn primary grow" id="btnCam">Start scanning</button>
             <button class="btn" id="btnShot" disabled title="Capture this face now">Snap</button>
+            <button class="btn" id="btnUpload" title="Read faces from photos - one per face, in the order shown">Upload photos</button>
+            <input type="file" id="fileFaces" accept="image/*" capture="environment" multiple hidden>
             <button class="btn ghost" id="btnReset">Clear</button>
           </div>
           <div class="msg" id="scanMsg"></div>
@@ -1187,22 +1190,54 @@ function updateTip(){
   else if (done === 6) animateScanRotation("F");
 }
 
+/** Why the camera would not open, in words a person can act on. */
+function cameraProblem(e){
+  const name = (e && e.name) || "";
+  const also = "<br>Meanwhile, <b>Upload photos</b> reads the faces from pictures "
+             + "(a phone works well), or use <b>Enter by hand</b>.";
+  if (!window.isSecureContext)
+    return "The browser only allows the camera on <b>localhost</b> or <b>https</b>. "
+         + "Open the app at <b>http://127.0.0.1:8000</b>." + also;
+  if (name === "NotFoundError" || name === "OverconstrainedError" || name === "DevicesNotFoundError")
+    return "<b>No camera found.</b> The browser cannot see any camera. On a laptop, "
+         + "check the camera on/off key (often F8, F9 or F10 with a camera icon) and "
+         + "any privacy shutter or switch above the screen — on many laptops these "
+         + "disconnect the camera completely. Then press <b>Start scanning</b> again." + also;
+  if (name === "NotAllowedError" || name === "SecurityError" || name === "PermissionDeniedError")
+    return "<b>Camera permission was blocked.</b> Click the camera or lock icon in the "
+         + "address bar, allow the camera for this site and try again. On Windows, also "
+         + "check Settings → Privacy &amp; security → Camera." + also;
+  if (name === "NotReadableError" || name === "TrackStartError" || name === "AbortError")
+    return "<b>The camera is busy.</b> Another app (Zoom, Teams, the Camera app, another "
+         + "browser tab) is probably using it. Close that and try again." + also;
+  return "Could not open the camera (" + ((e && e.message) || name || "unknown error") + ")." + also;
+}
+
 async function startCamera(){
   try{
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      throw new Error("Camera API not available. Make sure you are using localhost or HTTPS.");
+      throw Object.assign(new Error("Camera API not available"), {name: "SecurityError"});
     }
-    try {
-      stream = await navigator.mediaDevices.getUserMedia({
-        video:{facingMode:"environment", width:{ideal:1280}, height:{ideal:1280}}, audio:false});
-    } catch(e) {
-      // any camera will do if there is no rear one (common on desktops)
-      stream = await navigator.mediaDevices.getUserMedia({
-        video:{width:{ideal:1280}, height:{ideal:1280}}, audio:false});
+    // best first: the rear camera at a good size; then any camera at a good
+    // size; then any camera at all
+    const tries = [
+      {video:{facingMode:"environment", width:{ideal:1280}, height:{ideal:1280}}, audio:false},
+      {video:{width:{ideal:1280}, height:{ideal:1280}}, audio:false},
+      {video:true, audio:false},
+    ];
+    let lastErr;
+    for (const c of tries){
+      try { stream = await navigator.mediaDevices.getUserMedia(c); lastErr = null; break; }
+      catch (e) {
+        lastErr = e;
+        // a refusal or a busy camera will not change with other settings
+        if (e.name === "NotAllowedError" || e.name === "NotReadableError") break;
+      }
     }
+    if (lastErr) throw lastErr;
   }catch(e){
-    return note("scanMsg","err","Could not open the camera ("+e.message+
-      "). Use <b>Enter by hand</b> instead — it works just as well.");
+    stream = null;
+    return note("scanMsg","err", cameraProblem(e));
   }
   const v = $("video");
   v.srcObject = stream; v.style.display = "block"; await v.play();
@@ -1300,7 +1335,8 @@ function drawOverlay(d){
   });
 }
 
-async function capture(live){
+/** Read the current face from the camera, or from `photo` (a File/Blob) if given. */
+async function capture(live, photo){
   const face = SCAN_ORDER[S.scanFace].f;
   S.armed = false;
   S.capturedSig = live.signature;
@@ -1309,7 +1345,8 @@ async function capture(live){
 
   // full-resolution shot for the real reading, but keep the live frame if the
   // bigger one turns out to be less confident
-  const blob = await grabFrame(0.92);
+  const blob = photo || await grabFrame(0.92);
+  if (!blob) { S.armed = true; return false; }
   const fd = new FormData(); fd.append("image", blob, face+".jpg");
   let d = live;
   try{
@@ -1322,8 +1359,12 @@ async function capture(live){
 
   if (!d.samples){
     S.armed = true;
-    return note("scanMsg","err","Could not make out the nine stickers. Move closer, "
-      + "add light, or use <b>Enter by hand</b>.");
+    note("scanMsg","err", photo
+      ? `Could not find the nine stickers of the <b>${face}</b> face in that photo. `
+        + "Take it straight on, filling most of the picture, in good light."
+      : "Could not make out the nine stickers. Move closer, "
+        + "add light, or use <b>Enter by hand</b>.");
+    return false;
   }
 
   S.scanSamples[face] = d.samples;
@@ -1346,6 +1387,27 @@ async function capture(live){
   $("stageBadge").textContent = done + " of 6 faces read";
 
   if (done === 6){ stopCamera(); await classifyAll(); }
+  return true;
+}
+
+/** Photos instead of a live camera: one per face, in the order the app asks. */
+async function uploadPhotos(files){
+  files = [...files].filter(f => f.type.startsWith("image/"));
+  if (!files.length) return;
+  if (S.streaming) stopCamera();
+  for (const file of files){
+    if (Object.keys(S.scanSamples).length === 6) break;
+    note("scanMsg","info", `Reading the <b>${SCAN_ORDER[S.scanFace].f}</b> face from ${file.name}…`);
+    let ok = false;
+    try { ok = await capture({signature: "", samples: null}, file); }
+    catch { note("scanMsg","err","Reading photos needs the server, and it is not answering. "
+                 + "Use <b>Enter by hand</b> instead."); return; }
+    if (!ok) return;                    // stop at the first photo we could not read
+  }
+  const left = 6 - Object.keys(S.scanSamples).length;
+  if (left) note("scanMsg","ok", `Read ${files.length} photo${files.length > 1 ? "s" : ""}. `
+    + `Now the <b>${SCAN_ORDER[S.scanFace].f}</b> face — ${left} to go. `
+    + "Follow the picture above for which way up to hold it.");
 }
 
 async function classifyAll(){
@@ -1809,6 +1871,13 @@ document.querySelectorAll(".mode").forEach(b => b.onclick = () => {
   if (S.solution || S.facelets !== SOLVED) solve();
 });
 $("btnCam").onclick  = () => stream ? stopCamera() : startCamera();
+$("btnUpload").onclick = () => $("fileFaces").click();
+$("fileFaces").onchange = async e => {
+  const files = e.target.files;
+  if (!files || !files.length || S.busy) return;
+  S.busy = true;
+  try { await uploadPhotos(files); } finally { S.busy = false; e.target.value = ""; }
+};
 $("btnShot").onclick = async () => {
   if (!S.streaming || S.busy) return;
   S.busy = true;
