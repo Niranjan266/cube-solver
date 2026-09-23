@@ -237,7 +237,8 @@
   .cubing-msg{color:var(--muted);font-size:13.5px;text-align:center;padding:30px;max-width:340px;line-height:1.6}
   .mapcard{flex:none}
   .mapcard .body{display:flex;align-items:center;gap:24px;padding:16px 22px}
-  .mapcard .lbl{font-size:13px;color:var(--muted);line-height:1.45;flex:1;min-width:0}
+  .mapcard .lbl{font-size:13px;color:var(--muted);line-height:1.45;flex:1;min-width:0;
+                display:flex;flex-direction:column;align-items:flex-start}
   .mapcard .lbl b{display:block;color:var(--ink);font-size:15px}
 
   /* ------------------------------------------------------------------ current move */
@@ -557,7 +558,8 @@
     </section>
     <section class="card mapcard" data-on="check">
       <div class="body">
-        <div class="lbl"><b>Flattened out</b><span id="netNote">this is where your cube is right now</span></div>
+        <div class="lbl"><b>Flattened out</b><span id="netNote">this is where your cube is right now</span>
+          <button class="btn" id="btnFix" data-on="check" style="margin-top:10px">Fix a colour</button></div>
         <div class="net small" id="liveNet"></div>
       </div>
     </section>
@@ -1570,13 +1572,27 @@ function drawOverlay(d, plausible){
   }
 }
 
+/**
+ * What the captured sides are shown as: always one of the six cube colours,
+ * never the camera's own colour. A phone camera can render a red sticker
+ * dark orange or brown; drawing that raw colour made red and orange look
+ * mixed up on screen even when they were read right. Re-worked for every
+ * side each time, because each new centre sharpens the others.
+ */
+function recolourCaptured(){
+  const centres = capturedCentres();
+  for (const f of FACE_ORDER) if (S.scanSamples[f])
+    S.scanHex[f] = SC.classifyLive(S.scanSamples[f], centres).map(x => DEFAULT_COLOURS[x.face]);
+}
+
 /** Keep one side's nine samples, show them straight away, finish at six. */
 async function storeFace(face, samples, hex, quality){
   S.scanSamples[face] = samples;
   S.scanHex[face] = hex;
   S.scanQuality[face] = quality === undefined ? 1 : quality;
   S.stable = 0;
-  paintFaceRaw(face, hex);
+  recolourCaptured();
+  paintFaceRaw(face, S.scanHex[face]);
   animateScanRotation(face);
   $("flash").classList.remove("go"); void $("flash").offsetWidth;
   $("flash").classList.add("go");
@@ -1596,8 +1612,9 @@ async function storeFace(face, samples, hex, quality){
     Object.assign(S.scanSamples, moved.samples); Object.assign(S.scanHex, moved.hex);
     Object.assign(S.scanQuality, moved.quality);
     face = rename[face];
-    showScanProgress();
   }
+  recolourCaptured();
+  showScanProgress();
 
   const done = Object.keys(S.scanSamples).length;
   const renamed = fixes.filter(([a]) => a !== Object.keys(rename).find(k => rename[k] === face));
@@ -1692,7 +1709,8 @@ async function classifyAll(){
           usedBrowser = true; }
     catch { /* the browser's reading is not a real cube - keep the server's */ }
   }
-  if (d.palette) palette = {...DEFAULT_COLOURS, ...d.palette};
+  // show the six cube colours, never the camera's averages (see recolourCaptured)
+  palette = {...DEFAULT_COLOURS};
   buildSwatches();
   setFacelets(d.facelets);
   $("netNote").textContent = "check these match your cube";
@@ -2149,6 +2167,7 @@ $("btnTurns").onclick = () => openTurns(!document.body.classList.contains("sheet
 $("btnTurnsClose").onclick = () => openTurns(false);
 $("scrim").onclick = () => openTurns(false);
 $("btnToHand").onclick = () => switchTab("hand");
+$("btnFix").onclick = () => { setScreen("scan"); switchTab("hand"); };
 document.querySelectorAll(".mode").forEach(b => b.onclick = () => {
   setMode(b.dataset.mode);
   if (S.solution || S.facelets !== SOLVED) solve();
