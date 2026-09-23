@@ -62,13 +62,15 @@ function fakeThree(win) {
   }
   class Material { constructor() { this.color = { set() {} }; this.opacity = 1; } }
   class Shape { moveTo() {} lineTo() {} quadraticCurveTo() {} }
+  class Curve { getPoint() { return new Vector3(); } }
+  class TubeGeometry { setDrawRange(start, count) { this.drawRange = { start, count }; } }
   return {
     Scene: Obj, Group: Obj, Mesh: Obj, LineSegments: Obj, Object3D: Obj,
     PerspectiveCamera: Obj, AmbientLight: Obj, DirectionalLight: Obj,
     HemisphereLight: Obj,
     BoxGeometry: class {}, TorusGeometry: class {}, ConeGeometry: class {},
     EdgesGeometry: class {}, PlaneGeometry: class {}, ShapeGeometry: class {},
-    CanvasTexture: class {}, Shape, Vector3, Quaternion, Euler,
+    CanvasTexture: class {}, Shape, Vector3, Quaternion, Euler, Curve, TubeGeometry,
     MeshLambertMaterial: Material, MeshBasicMaterial: Material,
     MeshStandardMaterial: Material, LineBasicMaterial: Material,
     DoubleSide: 2,
