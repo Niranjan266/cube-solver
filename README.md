@@ -440,6 +440,24 @@ a trained model against the classical detector with `tools/bench_vision.py`.
 
 ---
 
+## The solving guide
+
+`/guide` (linked from the top bar) teaches four methods step by step, in
+plain words for people who have never held a cube: **Beginner** (layer by
+layer), **CFOP**, **Roux** and **ZZ**. It starts with the pieces and the
+turn letters, and ends with a comparison table, "which should I learn?",
+practice tips and sources. Every move sequence has **Watch** (the cubing.js
+3D player, showing the case and solving it) and **Copy**. The Beginner and
+CFOP sections link straight into the solver in that mode.
+
+The content lives in `frontend/js/guide-data.js`, written in our own words.
+The sequences are the standard ones, and **each one is checked on the app's
+own engine** against what the guide says it does: "leaves the first two
+layers alone", "moves only the top edges", "swaps the front and left edges",
+"six repeats undo it", and so on. Writing that test caught five wrong notes
+on how to hold the cube and one sequence that needed an extra `U`. Deliberate
+one-letter typos fail it.
+
 ## Tests
 
 ```bash
@@ -455,6 +473,7 @@ And the page itself, which is a separate problem:
 npm install jsdom                       # once
 node frontend/test/engine.test.mjs      # the JS engine and both browser solvers
 node frontend/test/scanner.test.mjs     # the live scanner on 400 simulated scans
+node frontend/test/guide.test.mjs       # every sequence in the solving guide, on the engine
 node frontend/test/smoke.mjs --offline  # canned replies, no server needed
 node frontend/test/smoke.mjs            # against a server on :8000
 ```

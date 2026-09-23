@@ -235,3 +235,7 @@ if os.path.isdir(FRONTEND):
     @app.get("/manual")
     def manual():
         return FileResponse(os.path.join(FRONTEND, "index.html"))
+
+    @app.get("/guide")
+    def guide():
+        return FileResponse(os.path.join(FRONTEND, "guide.html"))

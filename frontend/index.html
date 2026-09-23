@@ -117,6 +117,7 @@
   .status[data-kind=ok] i{background:var(--good)}
   .status[data-kind=warn] i{background:var(--warn)}
   .short{display:none}
+  a.btn{text-decoration:none;color:var(--ink)}
 
   /* ------------------------------------------------------------------ layout */
   main{display:grid;grid-template-columns:360px minmax(0,1fr) 380px;gap:20px;
@@ -373,6 +374,7 @@
     .short{display:inline}
     .tools{width:auto;gap:8px}
     #btnManual{width:44px;min-width:44px;padding:0;font:700 17px var(--display)}
+    #lnkGuide{width:44px;min-width:44px;padding:0}
 
     main{display:flex;flex-direction:column;gap:14px;padding:14px 16px 20px;overflow:auto;
          overscroll-behavior:contain;grid-template-columns:none}
@@ -471,6 +473,7 @@
 
   <div class="tools">
     <span class="status" id="pillSolver" data-kind=""><i></i><span id="pillText">starting…</span></span>
+    <a class="btn" id="lnkGuide" href="/guide" title="How to solve a cube: 4 methods, step by step"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2zM4 19V5M8 7h6"/></svg><span class="long">Guide</span></a>
     <button class="btn" id="btnManual" aria-label="How to read the turns"><span class="long">What do R and U mean?</span><span class="short" aria-hidden="true">?</span></button>
     <button class="btn icon" id="btnTheme" title="Light / dark" aria-label="Switch light or dark theme">◐</button>
   </div>
@@ -720,6 +723,9 @@
       <p>Press <b>◀</b> to step back, or drag the slider. The 3D cube in the middle
       always shows exactly what your cube should look like right now — compare it
       with the one in your hands.</p>
+
+      <p style="margin-top:14px"><a href="/guide"><b>Want to solve it yourself? Read the full guide →</b></a>
+      Four methods, step by step, with every move shown on a 3D cube.</p>
 
       <h3>7. Three ways to solve</h3>
       <p><b>Shortest</b> finishes in about 20 turns and never more than 22. Two
@@ -2477,7 +2483,9 @@ function setStatus(kind, text){
 (async function boot(){
   initThree();
   renderFaceRow(); updateTip(); buildSwatches(); buildManual();
-  setMode(["quick","learn","cfop"].includes(store.get("mode")) ? store.get("mode") : "quick");
+  const askedMode = new URLSearchParams(location.search).get("mode");
+  setMode(["quick","learn","cfop"].includes(askedMode) ? askedMode
+        : ["quick","learn","cfop"].includes(store.get("mode")) ? store.get("mode") : "quick");
   setSpeed(store.get("speed") || 1);
   setZoom(parseFloat(store.get("zoom")) || 1); VIEW.zoom = VIEW.zoomTo;
   setFacelets(SOLVED);
