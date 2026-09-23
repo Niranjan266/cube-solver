@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import itertools
 import os
+import tempfile
 import time
 from typing import Dict, List, Optional, Sequence, Tuple
 
@@ -23,8 +24,10 @@ import numpy as np
 from .cubie import MOVE_CUBES, MOVE_NAMES, CubieCube
 from .model import Cube
 
-TABLE_DIR = os.path.join(os.path.dirname(__file__), "_tables")
+TABLE_DIR = os.getenv("CUBE_TABLE_DIR") or os.path.join(os.path.dirname(__file__), "_tables")
 TABLE_FILE = os.path.join(TABLE_DIR, "twophase-v2.npz")
+#: where the cache goes when the code directory is read-only (serverless hosts)
+TMP_TABLE_FILE = os.path.join(tempfile.gettempdir(), "cube-solver", "twophase-v2.npz")
 
 N_TWIST = 2187        # corner orientations
 N_FLIP = 2048         # edge orientations
@@ -234,21 +237,24 @@ def tables(progress=None) -> Dict[str, np.ndarray]:
     global _TABLES
     if _TABLES is not None:
         return _TABLES
-    if os.path.exists(TABLE_FILE):
-        try:
-            with np.load(TABLE_FILE) as z:
-                _TABLES = {k: z[k] for k in z.files}
-            return _TABLES
-        except Exception:
-            pass  # corrupt cache - just rebuild
+    for cached in (TABLE_FILE, TMP_TABLE_FILE):
+        if os.path.exists(cached):
+            try:
+                with np.load(cached) as z:
+                    _TABLES = {k: z[k] for k in z.files}
+                return _TABLES
+            except Exception:
+                pass  # corrupt cache - try the next one, or rebuild
     if progress:
         progress("building solver tables (one time, a few seconds)")
     _TABLES = _build_tables()
-    try:
-        os.makedirs(TABLE_DIR, exist_ok=True)
-        np.savez_compressed(TABLE_FILE, **_TABLES)
-    except OSError:
-        pass  # read-only install: just keep them in memory
+    for target in (TABLE_FILE, TMP_TABLE_FILE):
+        try:
+            os.makedirs(os.path.dirname(target), exist_ok=True)
+            np.savez_compressed(target, **_TABLES)
+            break
+        except OSError:
+            continue  # read-only here: try the temp dir, else keep them in memory
     return _TABLES
 
 
