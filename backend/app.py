@@ -114,7 +114,6 @@ def health() -> Dict:
     }
 
 
-
 @app.post("/api/scan/live")
 async def scan_live(image: UploadFile = File(...)) -> Dict:
     """One preview frame. Deliberately small and fast - called a few times a second."""
