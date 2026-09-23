@@ -1,8 +1,8 @@
 # Cube Solver
 
 Hold your cube up to the camera. It reads each face on its own — no button to
-press — fills the 3D cube in as it goes, and then walks you through **about 21
-turns and never more than 30**, one arrow at a time.
+press — fills the 3D cube in as it goes, and then walks you through **about 20
+turns and never more than 22**, one arrow at a time.
 
 Built for people who have never solved a cube. Nothing here assumes you know
 what "R U R' U'" means. If you want that explained, it is in
@@ -69,33 +69,52 @@ does, the face name, and the same thing spelled out in words:
   cube nearest you and is drawn on top of everything, so it can never end up
   hidden round the back — and its direction is always the direction *you* see.
 - **Read aloud** speaks each move so you can keep both hands on the cube.
+- **Classic 3D / cubing.js** above the cube switches the viewer. *Classic 3D*
+  is the app's own cube, with the arrow and the outlined layer. *cubing.js* is
+  the [twisty-player][cubingjs] used on speedcubing sites, with floating
+  stickers for the hidden faces. It loads on demand from cdn.cubing.net, so it
+  needs an internet connection. The choice is remembered.
+- Light and dark follow your system; the ◐ button in the top bar overrides it.
 - Drag the middle cube to look from any angle. The flat map underneath it always
   shows where your cube should be right now — compare it with the one in your
   hands if you lose your place.
 - The page never scrolls or shifts while you play — the turn list scrolls inside
   its own box.
 
-### 3. Two solving methods
+### 3. Three solving methods
 
-| Method | Turns | Why |
-|---|---|---|
-| **Shortest** (default) | ~21, capped at 30 | Two-phase search, built in, no install. Fewer turns by hand means fewer chances to go wrong. The cube looks scrambled until near the end — that is normal. |
-| **Learn** | ~140 | Layer-by-layer. Every move belongs to a named stage — bottom cross, bottom corners, middle layer, top cross, and so on. Slower, but you can see *why* it works. |
+| Method | Turns | Where it runs | Why |
+|---|---|---|---|
+| **Shortest** (default) | ~20, never over 22 | browser **and** server, shorter wins | Fewer turns by hand means fewer chances to go wrong. The cube looks scrambled until near the end — that is normal. |
+| **Beginner** | ~140 | server | Layer-by-layer. Every move belongs to a named stage — bottom cross, bottom corners, middle layer, top cross, and so on. Slower, but you can see *why* it works. |
+| **CFOP** | ~65 | browser | The speedcuber method: Cross, four F2L pairs, OLL, PLL — each a named stage. You still never rotate the whole cube. |
+
+**Shortest is a race.** The browser solves the cube itself in about 10 ms with
+[min2phase][m2p] and shows that answer at once. Meanwhile the server's own
+two-phase search spends up to a second looking for something shorter. If it
+beats the browser before you have started turning, its answer replaces the
+browser's, and the message says so. Every answer, from either solver, is
+replayed on the app's own cube engine before it is shown. If the server is
+down, Shortest and CFOP still work; only the camera and Beginner need it.
 
 ---
 
 ## How it works
 
 ```
-frontend/index.html      one self-contained page: live scanner, flat-map editor,
-                         Three.js cube, arrows, narration, manual. No build step.
+frontend/index.html      the page: live scanner, flat-map editor, Three.js cube,
+                         cubing.js view, arrows, narration, manual. No build step.
+frontend/js/engine.js    model.py + explain.py ported to JS, plus the glue that
+                         runs and checks the two browser solvers
+frontend/vendor/         min2phase.js and rubiks-cube-solver.js (both MIT, see
+                         vendor/LICENSES.md)
 backend/
   app.py                 FastAPI: /api/scan/live /api/scan/face /api/scan/cube
                          /api/classify /api/solve /api/scramble /api/health
   cube/model.py          the cube itself (facelets + geometry)
   cube/cubie.py          the other view: which piece is where, which way up
-  cube/twophase.py       the built-in ~23-turn solver
-  cube/solver_beginner.py layer-by-layer solver (Learn mode)
+  cube/twophase.py       the built-in ~21-turn solver
+  cube/solver_beginner.py layer-by-layer solver (Beginner mode)
   cube/solver.py         solver front door
   cube/validate.py       "is this cube physically possible?"
   cube/explain.py        move -> arrow, words, per-step cube state
@@ -276,7 +295,8 @@ job a network would genuinely be good at.
 ### YOLO (optional)
 
 There is no ready-made cube-sticker model on the Hugging Face Hub, so YOLO is
-wired in as a *slot* rather than a promise. Point the app at any Ultralytics
+wired in as a *slot* rather than a promise. **No weights ship with this repo**,
+and the classical detector stays the default. Point the app at any Ultralytics
 `.pt` file and it takes over grid detection automatically:
 
 ```bash
@@ -286,9 +306,41 @@ export CUBE_YOLO_MODEL=path/to/best.pt       # macOS/Linux
 export CUBE_YOLO_HF_REPO=you/your-cube-model
 ```
 
-`python tools/train_yolo.py --list-datasets` lists the cube image datasets that
-*do* exist on the Hub and `--write-yaml` scaffolds a training config. The
-header of that file explains the labelling workflow.
+YOLO is only used to *locate* the nine stickers. Colours still come from the
+app's own classifier. If the model finds more than nine boxes (several faces in
+view), `find_grid` keeps the nine that best form one face by position, size and
+box shape.
+
+**Training data, in two commands** (run from `backend/`):
+
+```bash
+pip install huggingface_hub
+python tools/train_yolo.py --prepare-hf   # download + convert -> data/yolo_stickers
+pip install ultralytics
+python tools/train_yolo.py --train        # trains, or prints the exact `yolo` command
+```
+
+`--prepare-hf` fetches
+[`seandavidreed/rubiks_cube_segmentation`](https://huggingface.co/datasets/seandavidreed/rubiks_cube_segmentation):
+197 photos (168 train / 20 valid / 9 test). Each photo shows a cube from a
+corner with 3 faces visible, and all 27 visible stickers are labelled as YOLOv8
+segmentation polygons across 162 classes (`B_1` … `Y_27`, which is the colour
+plus a position number). The script turns every polygon into an axis-aligned box
+and every class into a single `sticker` class, then writes `data.yaml`.
+`--classes colour` keeps the six colours instead. The output goes in
+`backend/data/`, which is git-ignored.
+
+The dataset is by seandavidreed and was exported from
+[Roboflow Universe](https://universe.roboflow.com/seandavidreed/rubiks_cube_segmentation).
+It is Apache-2.0 on the Hub, but the Roboflow export notes say CC BY 4.0, so
+credit the author if you redistribute it or models trained on it.
+
+Caveats: the dataset is small. It has 197 images, and some training images are
+augmented copies of the same photo (random rotation, brightness and noise). The
+photos are also oblique 3-face views, not the app's face-on scans, so a model
+trained on them may not transfer well. Before you switch the default, check
+a trained model against the classical detector with `tools/bench_vision.py`.
+`--list-datasets` lists other cube datasets on the Hub.
 
 ---
 
@@ -305,9 +357,17 @@ And the page itself, which is a separate problem:
 
 ```bash
 npm install jsdom                       # once
+node frontend/test/engine.test.mjs      # the JS engine and both browser solvers
 node frontend/test/smoke.mjs --offline  # canned replies, no server needed
 node frontend/test/smoke.mjs            # against a server on :8000
 ```
+
+`engine.test.mjs` holds `js/engine.js` to the Python engine's own output
+(`engine-fixture.json`: 30 scrambles and all 18 move descriptions). It then
+runs both browser solvers on 150 random cubes and replays every answer. The
+smoke test's offline mode makes the server refuse to solve, so the browser
+solvers have to do the work. It also checks CFOP's named stages, Beginner's
+"needs the server" message, and switching to the cubing.js view.
 
 This loads the real `index.html` in a headless DOM, stubs only what genuinely
 cannot run there (WebGL and the camera), and walks a whole session: boot, finish
@@ -323,6 +383,15 @@ Covers: turn geometry, move inversion, the cubie model against the facelet
 model, the four last-layer algorithms, 300 layer-by-layer solves, two-phase
 solve length and correctness, cube validation (including rejecting impossible
 cubes), and the vision pipeline end to end on rendered cube photos.
+
+The colour classifier is also checked against real scans: twelve 3×3×3 sticker
+readings from actual cubes (solved, checkerboard, cross, tetris, superflip and
+six random scrambles) in `backend/tests/fixtures/rubiks_color_resolver/`, copied
+from [dwalton76/rubiks-color-resolver][dw] under its MIT license (commit and
+licence text in `LICENSE-NOTE.txt` there). `tests/test_fixtures.py` requires
+each to read as a physically valid cube and, where upstream publishes the
+answer, to match it sticker for sticker; it also runs on its own with
+`python tests/test_fixtures.py`.
 
 ---
 
@@ -350,6 +419,22 @@ The colour work stands on two open-source projects, both worth reading:
   real cube can have. This is the idea that made the difference.
 - **[kkoomen/qbr][qbr]** — CIE Lab with a CIEDE2000 distance, and the general
   shape of a webcam cube scanner.
+
+The real-scan test fixtures (and their expected answers) also come from
+[rubiks-color-resolver][dw], © 2019 Daniel Walton, MIT license.
+
+Solving and viewing in the browser:
+
+- **[min2phase][m2p]** by Chen Shuang: the browser's two-phase solver. The
+  copy is the MIT-licensed one vendored in cubing.js.
+- **[rubiks-cube-solver][cfop]** by Scott McKenzie (MIT): the CFOP mode. Its
+  wide and slice turns are rewritten as plain face turns in `js/engine.js`.
+- **[cubing.js][cubingjs]** (MPL-2.0): the twisty-player view, loaded
+  unmodified from its own CDN at runtime.
+
+[m2p]: https://github.com/cs0x7f/min2phase.js
+[cfop]: https://github.com/slammayjammay/rubiks-cube-solver
+[cubingjs]: https://github.com/cubing/cubing.js
 
 What is different here: both assume one fixed lighting setup, so neither has to
 cope with a phone re-metering between six handheld photos. That is what the

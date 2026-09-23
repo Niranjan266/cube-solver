@@ -24,6 +24,8 @@ const OFFLINE = process.argv.includes("--offline");
 const BASE = process.env.CUBE_URL || "http://127.0.0.1:8000";
 
 const SOLVED = [..."URFDLB"].map((f) => f.repeat(9)).join("");
+// R U F D2 L' B, from backend/cube/model.py
+const OFFLINE_CUBE = "BRBFUUULDFBRFRRLLLBFRBFRUBBRDDBDDDFFUDRULRFLFDULDBLUUL";
 const errors = [];
 const steps = [];
 
@@ -32,7 +34,9 @@ const steps = [];
 function fakeThree(win) {
   class Vector3 { constructor(x = 0, y = 0, z = 0) { this.set(x, y, z); }
     set(x, y, z) { this.x = x; this.y = y; this.z = z; return this; } }
-  class Quaternion { identity() { return this; } }
+  class Quaternion {
+    identity() { return this; } setFromEuler() { return this; }
+    clone() { return new Quaternion(); } slerpQuaternions() { return this; } }
   class Euler { constructor() { this.x = this.y = this.z = 0; }
     set(x, y, z) { Object.assign(this, { x, y, z }); return this; } }
   class Obj {
@@ -44,6 +48,7 @@ function fakeThree(win) {
       this.material = arguments[1] !== undefined ? arguments[1]
                     : { color: { set() {} }, opacity: 1 };
       this.renderOrder = 0;
+      this.userData = {};
     }
     add(o) { this.children.push(o); return this; }
     remove(o) { this.children = this.children.filter((c) => c !== o); }
@@ -55,13 +60,16 @@ function fakeThree(win) {
     updateProjectionMatrix() { return this; }
   }
   class Material { constructor() { this.color = { set() {} }; this.opacity = 1; } }
+  class Shape { moveTo() {} lineTo() {} quadraticCurveTo() {} }
   return {
     Scene: Obj, Group: Obj, Mesh: Obj, LineSegments: Obj, Object3D: Obj,
     PerspectiveCamera: Obj, AmbientLight: Obj, DirectionalLight: Obj,
+    HemisphereLight: Obj,
     BoxGeometry: class {}, TorusGeometry: class {}, ConeGeometry: class {},
-    EdgesGeometry: class {}, Vector3, Quaternion,
+    EdgesGeometry: class {}, PlaneGeometry: class {}, ShapeGeometry: class {},
+    CanvasTexture: class {}, Shape, Vector3, Quaternion, Euler,
     MeshLambertMaterial: Material, MeshBasicMaterial: Material,
-    LineBasicMaterial: Material,
+    MeshStandardMaterial: Material, LineBasicMaterial: Material,
     DoubleSide: 2,
     WebGLRenderer: class {
       constructor() { this.domElement = win.document.createElement("canvas"); }
@@ -88,38 +96,22 @@ function offlineApi(url, opts) {
       signature: "WWWWWWWWW",
     };
   if (url.includes("/api/classify"))
-    return { facelets: SOLVED, palette: {}, valid: true, problem: null,
+    return { facelets: OFFLINE_CUBE, palette: {}, valid: true, problem: null,
              badFaces: [], repairedSwaps: 0, agreed: true, method: "both agree" };
-  if (url.includes("/api/solve"))
-    return {
-      ok: true, mode: "quick", note: null, moveCount: 2,
-      moves: ["R", "U'"], notation: "R U'", start: body.facelets || SOLVED,
-      steps: [
-        { move: "R", face: "R", faceName: "right", axis: "x", layer: 2,
-          angle: -90, turns: 1, direction: "clockwise", arrow: "↑",
-          motion: "push the RIGHT column UP", text: "Turn the RIGHT face.",
-          hint: "hint", speech: "right", index: 1, stage: "quick-1",
-          stageName: "Part 1", stageGoal: "goal", stageStep: 1, stageTotal: 1,
-          stateAfter: SOLVED },
-        { move: "U'", face: "U", faceName: "top", axis: "y", layer: 2,
-          angle: 90, turns: 1, direction: "anticlockwise", arrow: "→",
-          motion: "push the TOP layer RIGHT", text: "Turn the TOP face.",
-          hint: "hint", speech: "top", index: 2, stage: "quick-2",
-          stageName: "Part 2", stageGoal: "goal", stageStep: 1, stageTotal: 1,
-          stateAfter: SOLVED },
-      ],
-      stages: [
-        { key: "quick-1", name: "Part 1", goal: "g", from: 0, to: 0, moves: ["R"] },
-        { key: "quick-2", name: "Part 2", goal: "g", from: 1, to: 1, moves: ["U'"] },
-      ],
-    };
+  // offline means offline: solving has to happen in the browser
+  if (url.includes("/api/solve")) throw new TypeError("Failed to fetch");
   throw new Error("no stub for " + url);
 }
 
 /* ---- boot the page ------------------------------------------------------ */
 
 const html = fs.readFileSync(PAGE, "utf8")
-  .replace(/<script src="https:\/\/cdnjs[^"]*"><\/script>/, "");
+  .replace(/<script src="https:\/\/cdnjs[^"]*"><\/script>/, "")
+  .replace(/<link[^>]*fonts[^>]*>/g, "")
+  // our own scripts are served from /static; inline them from disk
+  .replace(/<script src="\/static\/([^"]+)"><\/script>/g, (_, rel) =>
+    "<script>" + fs.readFileSync(path.join(HERE, "..", rel), "utf8")
+      .replace(/<\/script/gi, "<\\/script") + "</script>");
 
 const vc = new VirtualConsole();
 vc.on("jsdomError", (e) => errors.push(e));
@@ -212,7 +204,7 @@ check("scan tip shows a picture", () => {
 // something it can actually read and solve rather than 54 identical greys.
 const PALETTE = { U: [246, 244, 242], D: [0, 212, 255], F: [68, 168, 38],
                   B: [216, 104, 22], R: [48, 48, 224], L: [24, 120, 240] };
-const SCRAMBLED = OFFLINE ? SOLVED
+const SCRAMBLED = OFFLINE ? OFFLINE_CUBE
   : await (await fetch(BASE + "/api/scramble", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ moves: 25 }),
@@ -264,6 +256,35 @@ check("stepping forward works", () => {
 });
 G("jumpTo(0)");
 check("jumping back works", () => `now on turn ${G("S.index")}`);
+
+G("setMode('cfop')");
+await withTimeout(G("solve()"), 8000, "CFOP solving");
+check("CFOP mode solves in the browser, in named stages", () => {
+  const sol = G("S.solution");
+  if (!sol || sol.mode !== "cfop") throw new Error("no CFOP solution");
+  const heads = [...$("steps").querySelectorAll("li.head b")].map((b) => b.textContent);
+  if (!heads.some((h) => h.startsWith("Cross")) || !heads.some((h) => h.startsWith("PLL")))
+    throw new Error("stages: " + heads.join(", "));
+  return `${sol.moveCount} turns, ${heads.length} stages`;
+});
+
+if (OFFLINE) {
+  G("setMode('learn')");
+  await withTimeout(G("solve()"), 8000, "Beginner solving offline");
+  check("Beginner mode explains that it needs the server", () => {
+    const msg = $("solveMsg").textContent;
+    if (!/server/i.test(msg)) throw new Error(JSON.stringify(msg.slice(0, 80)));
+    return "says so";
+  });
+}
+G("setMode('quick')");
+
+await withTimeout(G("setView('cubing')"), 8000, "switching to the cubing.js view");
+check("cubing.js view switches without breaking the page", () => {
+  if ($("stageCard").dataset.view !== "cubing") throw new Error("view did not change");
+  return $("stageCubing").textContent.trim().slice(0, 50) || "player loaded";
+});
+await withTimeout(G("setView('classic')"), 2000, "switching back");
 
 check("manual opens", () => {
   $("btnManual").click();
