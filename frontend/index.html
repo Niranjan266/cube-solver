@@ -1,0 +1,1432 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cube Solver</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --panel-2:#1b222c; --panel-3:#212a35;
+    --line:#293240; --line-soft:#222a35;
+    --ink:#e9eef5; --dim:#8f9dae; --faint:#6b7887;
+    --accent:#4f9cf9; --accent-ink:#06121f;
+    --good:#3fb950; --warn:#d29922; --bad:#f85149;
+    --r:13px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{
+    background:var(--bg); color:var(--ink); overflow:hidden;
+    font:14.5px/1.55 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{margin:0;font-weight:640;letter-spacing:-.01em}
+  button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+
+  .btn{padding:9px 14px;border-radius:9px;background:var(--panel-2);
+       border:1px solid var(--line);font-weight:550;transition:.12s;white-space:nowrap}
+  .btn:hover:not(:disabled){background:var(--panel-3);border-color:#3a4553}
+  .btn:disabled{opacity:.32;cursor:not-allowed}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+  .btn.primary:hover:not(:disabled){background:#6cadfb}
+  .btn.sm{padding:6px 10px;font-size:12.5px;border-radius:8px}
+  .btn.ghost{background:transparent;border-color:transparent;color:var(--dim)}
+  .btn.ghost:hover{background:var(--panel-2);color:var(--ink)}
+
+  .app{display:grid;grid-template-rows:auto 1fr;height:100vh;height:100dvh}
+
+  header{display:flex;align-items:center;gap:12px;padding:10px 18px;
+         border-bottom:1px solid var(--line);background:var(--panel)}
+  header .logo{width:26px;height:26px;border-radius:7px;flex:none;
+    background:linear-gradient(135deg,#e03030 0 33%,#ffd400 33% 66%,#26a844 66%);
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)}
+  header .sub{color:var(--dim);font-size:12px}
+  header .spacer{flex:1}
+  .pill{font-size:11.5px;padding:4px 10px;border-radius:999px;
+        border:1px solid var(--line);color:var(--dim);white-space:nowrap}
+
+  main{display:grid;grid-template-columns:370px minmax(0,1fr) 340px;gap:13px;
+       padding:13px;min-height:0;overflow:hidden}
+  .col{display:flex;flex-direction:column;gap:13px;min-height:0}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
+        display:flex;flex-direction:column;min-height:0}
+  .card > h2{padding:10px 14px;font-size:11px;letter-spacing:.07em;text-transform:uppercase;
+             color:var(--faint);border-bottom:1px solid var(--line-soft);flex:none;
+             display:flex;align-items:center;gap:8px}
+  .card > h2 .step{width:17px;height:17px;border-radius:5px;background:var(--panel-3);
+    color:var(--dim);display:grid;place-items:center;font-size:10px;font-weight:700}
+  .card > h2 .right{margin-left:auto;text-transform:none;letter-spacing:0;font-size:11.5px}
+  .body{padding:13px;min-height:0;overflow:auto}
+  .body.flush{padding:0}
+
+  .tabs{display:flex;gap:4px;padding:5px;background:var(--panel-2);
+        border-bottom:1px solid var(--line-soft);flex:none}
+  .tabs button{flex:1;padding:7px;border-radius:7px;font-size:12.5px;font-weight:550;color:var(--dim)}
+  .tabs button[aria-selected=true]{background:var(--panel);color:var(--ink)}
+
+  /* ---------- scanner ---------- */
+  .videowrap{position:relative;background:#05080c;border-radius:10px;overflow:hidden;
+             aspect-ratio:1;display:grid;place-items:center}
+  .videowrap video{width:100%;height:100%;object-fit:cover;display:block}
+  #overlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+  .ph{color:var(--dim);font-size:12.5px;text-align:center;padding:22px;line-height:1.65}
+  .flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+  .flash.go{animation:flash .45s ease-out}
+  @keyframes flash{0%{opacity:.7}100%{opacity:0}}
+  .lockwrap{display:flex;align-items:center;gap:9px;margin-top:10px;flex:none}
+  .bar{height:5px;flex:1;background:var(--panel-3);border-radius:99px;overflow:hidden}
+  .bar i{display:block;height:100%;background:var(--good);width:0;transition:width .12s}
+  .lockwrap span{font-size:11px;color:var(--faint);min-width:62px;text-align:right}
+
+  .facerow{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-top:11px;flex:none}
+  .facebtn{border:1px solid var(--line);border-radius:9px;padding:6px 2px 4px;text-align:center;
+           background:var(--panel-2);font-size:10.5px;color:var(--dim);transition:.12s}
+  .facebtn[data-done=true]{border-color:var(--good);color:var(--ink)}
+  .facebtn[data-shaky=true]{border-color:var(--warn)}
+  .facebtn[aria-current=true]{outline:2px solid var(--accent);outline-offset:1px;color:var(--ink)}
+  .facebtn .mini{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin:0 auto 4px;
+                 width:23px;height:23px}
+  .facebtn .mini span{background:#2b333d;border-radius:1.5px}
+
+  .tip{display:flex;gap:9px;align-items:flex-start;margin-top:11px;padding:9px 11px;
+       background:var(--panel-2);border-radius:10px;border:1px solid var(--line-soft);
+       font-size:12.5px;color:var(--dim);flex:none;line-height:1.5}
+  .tip b{color:var(--ink)}
+  .tip .num{flex:none;width:20px;height:20px;border-radius:50%;background:var(--accent);
+            color:var(--accent-ink);display:grid;place-items:center;font-size:11px;font-weight:700}
+
+  /* ---------- flat map ---------- */
+  .net{display:grid;grid-template-columns:repeat(4,var(--fs));grid-auto-rows:var(--fs);
+       gap:5px;justify-content:center;--cs:17px;--fs:calc(3 * var(--cs) + 4px)}
+  .net.big{--cs:21px}
+  .netface{display:grid;grid-template-columns:repeat(3,var(--cs));
+           grid-template-rows:repeat(3,var(--cs));gap:2px}
+  .netface b{grid-column:1/4;font-size:8.5px;color:var(--faint);font-weight:600;
+             letter-spacing:.06em;text-align:center;line-height:1.3}
+  .cell{border-radius:3px;border:1px solid rgba(0,0,0,.45);transition:transform .08s}
+  .cell.edit{cursor:pointer}
+  .cell.edit:hover{transform:scale(1.2);position:relative;z-index:2}
+  .cell.centre{box-shadow:inset 0 0 0 2px rgba(0,0,0,.35)}
+  .swatches{display:flex;gap:6px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+  .swatches button{width:27px;height:27px;border-radius:8px;border:2px solid transparent}
+  .swatches button[aria-pressed=true]{border-color:var(--ink);transform:scale(1.12)}
+
+  /* ---------- 3D ---------- */
+  .stagecard{flex:1;min-height:0;position:relative;overflow:hidden}
+  #stage{position:absolute;inset:0}
+  #stage canvas{display:block;width:100%;height:100%}
+  .badge{position:absolute;right:12px;top:11px;font-size:11.5px;padding:5px 11px;border-radius:99px;
+    background:rgba(13,17,23,.78);border:1px solid var(--line);color:var(--dim);
+    backdrop-filter:blur(6px);max-width:70%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .stagehint{position:absolute;left:12px;bottom:10px;font-size:11px;color:var(--faint);
+    background:rgba(13,17,23,.7);padding:4px 9px;border-radius:8px;backdrop-filter:blur(6px)}
+
+  /* ---------- current move ---------- */
+  .move{padding:14px;display:flex;gap:13px;align-items:center;flex:none}
+  .move .arrow{font-size:44px;line-height:1;width:68px;height:68px;flex:none;border-radius:15px;
+    background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-weight:700}
+  .move .arrow.done{background:var(--good)}
+  .move .who{font-size:21px;font-weight:700;letter-spacing:-.02em}
+  .move .motion{font-size:13.5px;font-weight:600;color:var(--accent);margin-top:1px}
+  .move .detail{font-size:12px;color:var(--dim);margin-top:4px;line-height:1.45}
+  .movemeta{display:flex;justify-content:space-between;gap:10px;padding:0 14px 10px;
+            font-size:12px;color:var(--faint);flex:none}
+  .movemeta b{color:var(--ink)}
+  .controls{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:0 13px 11px;flex:none}
+  .controls .grow{flex:1;min-width:74px}
+  label.check{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--dim);cursor:pointer}
+  input[type=range]{accent-color:var(--accent)}
+  .scrub{width:100%}
+
+  /* ---------- turn list ---------- */
+  .steps{list-style:none;margin:0;padding:5px;overflow:auto;flex:1;min-height:0}
+  .steps li{display:flex;gap:8px;align-items:center;padding:6px 8px;border-radius:8px;
+            cursor:pointer;font-size:12.5px}
+  .steps li:hover{background:var(--panel-2)}
+  .steps li[aria-current=true]{background:rgba(79,156,249,.16);box-shadow:inset 2px 0 0 var(--accent)}
+  .steps li.done{opacity:.45}
+  .steps li .n{color:var(--faint);font-size:10.5px;min-width:20px;font-variant-numeric:tabular-nums}
+  .steps li .m{font-weight:700;min-width:24px}
+  .steps li .a{font-size:14px;color:var(--accent);min-width:15px;text-align:center}
+  .steps li .d{color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .steps .head{cursor:default;font-size:10px;text-transform:uppercase;letter-spacing:.07em;
+    color:var(--accent);font-weight:650;padding:10px 8px 3px}
+  .steps .head:hover{background:transparent}
+  .empty{color:var(--faint);font-size:12.5px;padding:22px 16px;text-align:center;line-height:1.6}
+
+  .msg{padding:9px 11px;border-radius:9px;font-size:12.5px;margin-top:10px;display:none;
+       flex:none;line-height:1.5}
+  .msg.show{display:block}
+  .msg.err{background:rgba(248,81,73,.12);border:1px solid rgba(248,81,73,.38);color:#ffb3ae}
+  .msg.ok{background:rgba(63,185,80,.12);border:1px solid rgba(63,185,80,.38);color:#a5e6ac}
+  .msg.warn{background:rgba(210,153,34,.12);border:1px solid rgba(210,153,34,.38);color:#f0d08a}
+
+  .row{display:flex;gap:7px;flex-wrap:wrap}
+  .row > .grow{flex:1}
+
+  /* ---------- example diagrams ---------- */
+  .diagrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:9px;
+           margin:10px 0 4px}
+  .diacard{background:var(--panel-2);border:1px solid var(--line-soft);border-radius:11px;
+           padding:10px 9px;text-align:center}
+  .diacard svg{width:100%;max-width:124px;height:auto;display:block;margin:0 auto 5px}
+  .diacard .code{font-size:17px;font-weight:700;letter-spacing:-.01em}
+  .diacard .say{font-size:11.5px;color:var(--dim);line-height:1.45;margin-top:3px}
+  .diacard .lead{font-size:12px;color:var(--ink);font-weight:600;margin-top:2px}
+  .tip .dia{flex:none;width:58px}
+  .tip .dia svg{width:58px;height:58px;display:block}
+
+  /* ---------- manual ---------- */
+  .sheet{position:fixed;inset:0;background:rgba(4,7,11,.74);display:none;
+         place-items:center;padding:20px;z-index:50;backdrop-filter:blur(3px)}
+  .sheet.open{display:grid}
+  .sheet .inner{background:var(--panel);border:1px solid var(--line);border-radius:15px;
+    max-width:740px;width:100%;max-height:86vh;display:flex;flex-direction:column}
+  .sheet header{border-radius:15px 15px 0 0}
+  .sheet .scroll{overflow:auto;padding:18px 22px 24px}
+  .sheet h3{font-size:14.5px;margin:20px 0 7px}
+  .sheet h3:first-child{margin-top:0}
+  .sheet p{margin:0 0 9px;color:var(--dim);font-size:13.5px}
+  .mtable{width:100%;border-collapse:collapse;font-size:13px;margin:6px 0 4px}
+  .mtable th,.mtable td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line-soft)}
+  .mtable th{color:var(--faint);font-weight:600;font-size:11px;text-transform:uppercase;
+             letter-spacing:.05em}
+  .mtable .code{font-weight:700;font-size:14.5px;width:48px}
+  .mtable .arr{font-size:18px;color:var(--accent);width:32px;text-align:center}
+  .facemap{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px;
+           margin:9px 0 4px}
+  .facemap div{background:var(--panel-2);border:1px solid var(--line-soft);border-radius:9px;
+               padding:8px 10px;font-size:12.5px;color:var(--dim)}
+  .facemap b{display:block;font-size:14px;margin-bottom:1px;color:var(--ink)}
+
+  @media (max-width:1240px){
+    main{grid-template-columns:340px minmax(0,1fr)}
+    .col.right{grid-column:1 / -1;flex-direction:row;gap:13px}
+    .col.right > .card{flex:1}
+  }
+  @media (max-width:900px){
+    body{overflow:auto}
+    .app{height:auto}
+    main{grid-template-columns:1fr;overflow:visible}
+    .col.right{flex-direction:column}
+    .stagecard{height:52vh;flex:none}
+    .steps{max-height:280px;flex:none}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+<header>
+  <div class="logo"></div>
+  <div>
+    <h1 style="font-size:16px">Cube Solver</h1>
+    <div class="sub">Show it your cube. Follow the arrow. Done in about 23 turns.</div>
+  </div>
+  <div class="spacer"></div>
+  <button class="btn sm" id="btnManual">What do R and U mean?</button>
+  <span class="pill" id="pillSolver">solver…</span>
+</header>
+
+<main>
+  <!-- ══════════ LEFT: get the cube in ══════════ -->
+  <div class="col">
+    <div class="card" style="flex:1">
+      <h2><span class="step">1</span> Your cube
+        <span class="right" id="scanCount">0 of 6 faces</span></h2>
+
+      <div class="tabs" role="tablist">
+        <button role="tab" data-tab="scan" aria-selected="true">Scan with camera</button>
+        <button role="tab" data-tab="hand" aria-selected="false">Enter by hand</button>
+      </div>
+
+      <div class="body" id="tab-scan">
+        <div class="videowrap">
+          <div class="ph" id="camPh">
+            Press <b>Start scanning</b> and hold each face up.<br>
+            It captures on its own once it can read all nine stickers.
+          </div>
+          <video id="video" playsinline muted style="display:none"></video>
+          <canvas id="overlay"></canvas>
+          <div class="flash" id="flash"></div>
+        </div>
+
+        <div class="lockwrap">
+          <div class="bar"><i id="lockBar"></i></div>
+          <span id="lockText">camera off</span>
+        </div>
+
+        <div class="tip" id="tip">
+          <span class="num">1</span>
+          <div>Pick any face to be the <b>front</b> and keep that grip the whole time.</div>
+        </div>
+
+        <div class="facerow" id="facerow"></div>
+
+        <div class="row" style="margin-top:11px">
+          <button class="btn primary grow" id="btnCam">Start scanning</button>
+          <button class="btn" id="btnShot" disabled title="Capture this face now">Snap</button>
+          <button class="btn ghost sm" id="btnReset">Clear</button>
+        </div>
+        <div class="msg" id="scanMsg"></div>
+      </div>
+
+      <div class="body" id="tab-hand" style="display:none">
+        <div class="net big" id="net"></div>
+        <div class="swatches" id="swatches"></div>
+        <div class="tip"><span class="num">✎</span>
+          <div>Pick a colour, then click any sticker to change it. Centres stay
+          fixed — on a real cube they never move.</div></div>
+        <div class="row" style="margin-top:11px">
+          <button class="btn sm grow" id="btnSolved">Reset to solved</button>
+          <button class="btn sm grow" id="btnRandom">Try a random cube</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="flex:none">
+      <div class="body">
+        <div class="row">
+          <button class="btn primary grow" id="btnSolve">Solve it</button>
+          <button class="btn" id="btnMode"
+                  title="Swap between the short solution and the teaching method">Shortest</button>
+        </div>
+        <div class="msg" id="solveMsg"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ MIDDLE: the cube ══════════ -->
+  <div class="col">
+    <div class="card stagecard">
+      <div id="stage"></div>
+      <div class="badge" id="stageBadge">waiting for your cube</div>
+      <div class="stagehint">drag to spin · space = play · ← → = step</div>
+    </div>
+    <div class="card" style="flex:none">
+      <h2><span class="step">2</span> Flattened out
+        <span class="right" id="netNote">this is where your cube is right now</span></h2>
+      <div class="body"><div class="net" id="liveNet"></div></div>
+    </div>
+  </div>
+
+  <!-- ══════════ RIGHT: the turns ══════════ -->
+  <div class="col right">
+    <div class="card" id="moveCard" style="flex:none;display:none">
+      <h2><span class="step">3</span> Do this turn</h2>
+      <div class="move">
+        <div class="arrow" id="mvArrow">↑</div>
+        <div style="min-width:0">
+          <div class="who" id="mvWho">Right face</div>
+          <div class="motion" id="mvMotion">push the RIGHT column UP</div>
+          <div class="detail" id="mvDetail"></div>
+        </div>
+      </div>
+      <div class="movemeta">
+        <span>Turn <b id="mvIdx">1 / 23</b></span>
+        <span id="mvStage"></span>
+      </div>
+      <div class="controls">
+        <button class="btn sm" id="btnFirst" title="Back to the start">⏮</button>
+        <button class="btn sm" id="btnPrev">◀</button>
+        <button class="btn primary grow" id="btnPlay">▶ Play</button>
+        <button class="btn sm" id="btnNext">▶</button>
+        <button class="btn sm" id="btnLast" title="Jump to the end">⏭</button>
+      </div>
+      <div class="controls" style="padding-top:0">
+        <input type="range" class="scrub" id="scrub" min="0" max="0" value="0">
+      </div>
+      <div class="controls" style="padding-top:0">
+        <label class="check"><input type="checkbox" id="chkVoice"> Read aloud</label>
+        <label class="check"><input type="checkbox" id="chkArrow" checked> 3D arrow</label>
+        <span style="font-size:11.5px;color:var(--faint);margin-left:auto">Speed</span>
+        <input type="range" id="speed" min="1" max="10" value="6" style="width:74px">
+      </div>
+    </div>
+
+    <div class="card" style="flex:1">
+      <h2>Every turn <span class="right" id="turnCount"></span></h2>
+      <ul class="steps" id="steps">
+        <li class="empty">Scan your cube, then press <b>Solve it</b>.<br>
+        Each turn will be listed here in order.</li>
+      </ul>
+    </div>
+  </div>
+</main>
+</div>
+
+<!-- ══════════ manual ══════════ -->
+<div class="sheet" id="sheet">
+  <div class="inner">
+    <header>
+      <div class="logo"></div>
+      <div><h1 style="font-size:15px">How to read the turns</h1>
+      <div class="sub">Two minutes and you will never need this page again.</div></div>
+      <div class="spacer"></div>
+      <button class="btn sm" id="btnCloseManual">Close</button>
+    </header>
+    <div class="scroll">
+      <h3>1. Hold the cube the same way all the way through</h3>
+      <p>Pick one face to be the <b>front</b> and keep it facing you for the whole
+      solve. Never turn the whole cube — only the layers. Every instruction below
+      assumes that grip.</p>
+      <div class="facemap">
+        <div><b>Front</b> the side facing you</div>
+        <div><b>Back</b> the side facing away</div>
+        <div><b>Up</b> the top layer</div>
+        <div><b>Down</b> the bottom layer</div>
+        <div><b>Right</b> the right-hand column</div>
+        <div><b>Left</b> the left-hand column</div>
+      </div>
+
+      <h3>2. Scanning: which face to show, and which way up</h3>
+      <p>The app asks for the six faces in this order. The picture shows the face
+      to point at the camera, and the arrow shows which side of the cube must be
+      pointing upwards while you do it.</p>
+      <div class="diagrid" id="holdGrid"></div>
+
+      <h3>3. Every turn, with a picture</h3>
+      <p>A letter on its own means turn that side a quarter turn <b>clockwise</b>,
+      as if you were looking straight at it. The blue squares are the pieces that
+      move, and the arrow is the way they go.</p>
+      <div class="diagrid" id="moveGrid"></div>
+
+      <h3>4. The mark after a letter</h3>
+      <p><b>R</b> turns the right side one way, <b>R\'</b> (say "R prime") turns it
+      the other way — those are the twelve pictures above. <b>R2</b> means turn it
+      <b>twice</b>, half a turn, and for that one the direction does not matter:</p>
+      <div class="diagrid" style="max-width:320px" id="halfGrid"></div>
+
+      <h3>5. The bit that trips everyone up</h3>
+      <p>"Clockwise" always means <em>looking straight at that face</em>. So for the
+      <b>back</b> face a clockwise turn looks anti-clockwise from where you sit,
+      and for the <b>left</b> face the column comes down at the front rather than
+      up. That is exactly why the pictures above are drawn the way <b>you</b> see
+      the cube, and why the app puts a live arrow on the 3D model. Follow the
+      arrow and you cannot get this backwards.</p>
+
+      <h3>6. If you lose your place</h3>
+      <p>Press <b>◀</b> to step back, or drag the slider. The 3D cube in the middle
+      always shows exactly what your cube should look like right now — compare it
+      with the one in your hands.</p>
+
+      <h3>7. Why so few turns?</h3>
+      <p><b>Shortest</b> finishes in about 21 turns and never more than 30. The
+      cube looks scrambled almost to the end — that is normal, everything falls
+      into place at once. Switch to <b>Learn</b> to watch it solve layer by layer
+      instead: many more turns, but every stage has a goal you can see.</p>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* =========================================================================
+   Cube geometry - mirrors backend/cube/model.py exactly (verified in tests).
+   ========================================================================= */
+const FACE_ORDER = "URFDLB";
+const NORMAL = {U:[0,1,0], R:[1,0,0], F:[0,0,1], D:[0,-1,0], L:[-1,0,0], B:[0,0,-1]};
+const AXES = {
+  U:[[1,0,0],[0,0,1]],  R:[[0,0,-1],[0,-1,0]], F:[[1,0,0],[0,-1,0]],
+  D:[[1,0,0],[0,0,-1]], L:[[0,0,1],[0,-1,0]],  B:[[-1,0,0],[0,-1,0]],
+};
+const sgn = v => (v>0) - (v<0);
+
+const FACELET = (() => {
+  const out = [];
+  for (const f of FACE_ORDER) {
+    const n = NORMAL[f], [u,v] = AXES[f];
+    for (let row=0; row<3; row++) for (let col=0; col<3; col++) {
+      const p = [0,1,2].map(i => n[i]*3 + u[i]*(col-1)*2 + v[i]*(row-1)*2);
+      out.push({face:f, cubie:p.map(sgn), dir:n});
+    }
+  }
+  return out;
+})();
+
+const DEFAULT_COLOURS = {U:"#f2f4f6", D:"#ffd400", F:"#26a844",
+                         B:"#1668d8", R:"#e03030", L:"#f07818"};
+const COLOUR_NAME = {U:"White", D:"Yellow", F:"Green", B:"Blue", R:"Red", L:"Orange"};
+let palette = {...DEFAULT_COLOURS};
+const SOLVED = [...FACE_ORDER].map(f => f.repeat(9)).join("");
+
+/* =========================================================================
+   State
+   ========================================================================= */
+const S = {
+  facelets: SOLVED, solution: null, index: 0, playing: false, mode: "quick",
+  scanFace: 0, scanSamples: {}, scanHex: {}, scanQuality: {},
+  paint: "U", arrowStep: null,
+  streaming: false, armed: true, lastSig: "", stable: 0, busy: false, misses: 0,
+};
+const $ = id => document.getElementById(id);
+const STABLE_NEEDED = 4;
+
+/* =========================================================================
+   Three.js
+   ========================================================================= */
+let renderer, scene, camera, cubeRoot, cubies = [], arrowGroup = null, layerBox = null;
+const CUBIE = 0.96, GAP = 1.0;
+
+function initThree(){
+  const stage = $("stage");
+  renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  stage.appendChild(renderer.domElement);
+
+  scene = new THREE.Scene();
+  camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
+  scene.add(new THREE.AmbientLight(0xffffff, 0.75));
+  const key = new THREE.DirectionalLight(0xffffff, 0.58); key.position.set(6,9,7);
+  scene.add(key);
+  const fill = new THREE.DirectionalLight(0xffffff, 0.24); fill.position.set(-6,-3,-5);
+  scene.add(fill);
+
+  cubeRoot = new THREE.Group();
+  scene.add(cubeRoot);
+  buildCube();
+  enableDrag(stage);
+  resize();
+  new ResizeObserver(resize).observe(stage);
+  (function loop(){ requestAnimationFrame(loop); placeArrow(); renderer.render(scene, camera); })();
+}
+
+function resize(){
+  const s = $("stage");
+  const w = s.clientWidth || 1, h = s.clientHeight || 1;
+  renderer.setSize(w, h, false);
+  camera.aspect = w/h;
+  camera.updateProjectionMatrix();
+}
+
+function enableDrag(el){
+  let down=false, lx=0, ly=0, ry=0.66, rx=0.44;
+  const apply = () => {
+    const r = 8.3;
+    camera.position.set(r*Math.cos(rx)*Math.sin(ry), r*Math.sin(rx), r*Math.cos(rx)*Math.cos(ry));
+    camera.lookAt(0,0,0);
+  };
+  apply();
+  const pt = e => e.touches ? {x:e.touches[0].clientX, y:e.touches[0].clientY}
+                            : {x:e.clientX, y:e.clientY};
+  const start = e => { down=true; const p=pt(e); lx=p.x; ly=p.y; };
+  const move  = e => {
+    if(!down) return;
+    const p = pt(e);
+    ry -= (p.x-lx)*0.008; rx += (p.y-ly)*0.008;
+    rx = Math.max(-1.35, Math.min(1.35, rx));
+    lx=p.x; ly=p.y; apply();
+  };
+  el.addEventListener("mousedown", start); el.addEventListener("touchstart", start, {passive:true});
+  addEventListener("mousemove", move);     el.addEventListener("touchmove", move, {passive:true});
+  addEventListener("mouseup", ()=>down=false); addEventListener("touchend", ()=>down=false);
+}
+
+function buildCube(){
+  cubies.forEach(c => cubeRoot.remove(c));
+  cubies = [];
+  const geo = new THREE.BoxGeometry(CUBIE, CUBIE, CUBIE);
+  for (let x=-1;x<=1;x++) for (let y=-1;y<=1;y++) for (let z=-1;z<=1;z++){
+    if (!x && !y && !z) continue;
+    const mats = [0,1,2,3,4,5].map(() => new THREE.MeshLambertMaterial({color:0x12161b}));
+    const m = new THREE.Mesh(geo, mats);
+    m.position.set(x*GAP, y*GAP, z*GAP);
+    cubeRoot.add(m); cubies.push(m);
+  }
+  paintCube(S.facelets);
+}
+
+/* BoxGeometry material order: +x, -x, +y, -y, +z, -z */
+function matIndex(dir){
+  const [x,y,z] = dir;
+  if (x ===  1) return 0;
+  if (x === -1) return 1;
+  if (y ===  1) return 2;
+  if (y === -1) return 3;
+  if (z ===  1) return 4;
+  return 5;
+}
+function cubieAt(x,y,z){
+  return cubies.find(c => Math.round(c.position.x/GAP)===x
+                       && Math.round(c.position.y/GAP)===y
+                       && Math.round(c.position.z/GAP)===z);
+}
+function paintCube(facelets){
+  cubies.forEach(c => c.material.forEach(m => m.color.set(0x12161b)));
+  for (let i=0;i<54;i++){
+    const {cubie, dir} = FACELET[i];
+    const mesh = cubieAt(cubie[0], cubie[1], cubie[2]);
+    if (!mesh) continue;
+    mesh.material[matIndex(dir)].color.set(palette[facelets[i]] || "#4a5560");
+  }
+}
+/** Paint one face with the exact colours just read off the camera. */
+function paintFaceRaw(face, hexes){
+  const base = FACE_ORDER.indexOf(face)*9;
+  for (let i=0;i<9;i++){
+    const {cubie, dir} = FACELET[base+i];
+    const mesh = cubieAt(cubie[0], cubie[1], cubie[2]);
+    if (mesh) mesh.material[matIndex(dir)].color.set(hexes[i]);
+  }
+}
+/** Grey out the faces we have not read yet, so progress is obvious. */
+function showScanProgress(){
+  cubies.forEach(c => c.material.forEach(m => m.color.set(0x12161b)));
+  for (const f of FACE_ORDER){
+    if (S.scanHex[f]) paintFaceRaw(f, S.scanHex[f]);
+  }
+}
+
+/* ---- animation ---- */
+const AXIS_VEC = {x:new THREE.Vector3(1,0,0), y:new THREE.Vector3(0,1,0),
+                  z:new THREE.Vector3(0,0,1)};
+const TARGET_QUATERNIONS = {
+  U: new THREE.Quaternion().setFromEuler(new THREE.Euler( Math.PI/2, 0, 0 )),
+  R: new THREE.Quaternion().setFromEuler(new THREE.Euler( 0, -Math.PI/2, 0 )),
+  F: new THREE.Quaternion().setFromEuler(new THREE.Euler( 0, 0, 0 )),
+  D: new THREE.Quaternion().setFromEuler(new THREE.Euler( -Math.PI/2, 0, 0 )),
+  L: new THREE.Quaternion().setFromEuler(new THREE.Euler( 0, Math.PI/2, 0 )),
+  B: new THREE.Quaternion().setFromEuler(new THREE.Euler( 0, Math.PI, 0 ))
+};
+
+let scanAnimTimer = null;
+function animateScanRotation(targetFace) {
+  if (scanAnimTimer) cancelAnimationFrame(scanAnimTimer);
+  const targetQ = TARGET_QUATERNIONS[targetFace];
+  if (!targetQ || !cubeRoot) return;
+  const startQ = cubeRoot.quaternion.clone();
+  const t0 = performance.now();
+  const duration = 600;
+  
+  function tick(now) {
+    const elapsed = now - t0;
+    let t = Math.min(1, elapsed / duration);
+    t = 1 - Math.pow(1 - t, 3);
+    cubeRoot.quaternion.slerpQuaternions(startQ, targetQ, t);
+    
+    if (t < 1) {
+      scanAnimTimer = requestAnimationFrame(tick);
+    } else {
+      scanAnimTimer = null;
+    }
+  }
+  scanAnimTimer = requestAnimationFrame(tick);
+}
+
+let animating = false;
+
+function animateMove(step, ms){
+  return new Promise(resolve => {
+    if (animating) return resolve();
+    animating = true;
+    const group = new THREE.Group();
+    scene.add(group);
+    const want = step.layer === 2 ? 1 : -1;
+    const members = cubies.filter(c => Math.round(c.position[step.axis]/GAP) === want);
+    members.forEach(c => group.attach(c));
+    const axis = AXIS_VEC[step.axis];
+    const total = step.angle * Math.PI / 180;
+    const t0 = performance.now();
+    (function tick(now){
+      const t = Math.min(1, (now - t0) / ms);
+      const e = t<.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2;
+      group.setRotationFromAxisAngle(axis, total*e);
+      if (t < 1) return requestAnimationFrame(tick);
+      group.setRotationFromAxisAngle(axis, total);
+      group.updateMatrixWorld(true);
+      members.forEach(c => {
+        cubeRoot.attach(c);
+        c.position.set(Math.round(c.position.x/GAP)*GAP,
+                       Math.round(c.position.y/GAP)*GAP,
+                       Math.round(c.position.z/GAP)*GAP);
+        c.quaternion.identity();   // stickers get repainted from the new state
+      });
+      scene.remove(group);
+      animating = false;
+      resolve();
+    })(t0);
+  });
+}
+
+function clearArrow(){
+  if (arrowGroup){ scene.remove(arrowGroup); arrowGroup = null; }
+  if (layerBox){ scene.remove(layerBox); layerBox = null; }
+  S.arrowStep = null;
+}
+
+/** One curved arrow, plus a dark copy behind it so it reads on any colour. */
+function buildArrowMesh(step){
+  const g = new THREE.Group();
+  const sweep = step.turns === 2 ? Math.PI*0.95 : Math.PI*0.66;
+  const R = 1.95, tube = 0.115;
+
+  for (const [colour, grow, order] of [[0x05080c, 1.55, 998], [0x62b0ff, 1.0, 999]]){
+    const mat = new THREE.MeshBasicMaterial({
+      color: colour, side: THREE.DoubleSide,
+      depthTest: false, depthWrite: false, transparent: true,
+      opacity: colour === 0x05080c ? 0.85 : 1,
+    });
+    const part = new THREE.Group();
+    part.add(new THREE.Mesh(
+      new THREE.TorusGeometry(R, tube*grow, 12, 56, sweep), mat));
+    const head = new THREE.Mesh(
+      new THREE.ConeGeometry(0.30*grow, 0.62*grow, 20), mat);
+    head.position.set(Math.cos(sweep)*R, Math.sin(sweep)*R, 0);
+    head.rotation.z = sweep;
+    part.add(head);
+    if (step.turns === 2){
+      const tail = new THREE.Mesh(
+        new THREE.ConeGeometry(0.30*grow, 0.62*grow, 20), mat);
+      tail.position.set(R, 0, 0); tail.rotation.z = Math.PI;
+      part.add(tail);
+    }
+    part.traverse(o => { o.renderOrder = order; });
+    g.add(part);
+  }
+  return g;
+}
+
+/** A bright outline around the layer that is about to move. */
+function buildLayerBox(step){
+  const t = 1.06 * GAP, s = 3.18 * GAP;
+  const size = step.axis === "x" ? [t,s,s] : step.axis === "y" ? [s,t,s] : [s,s,t];
+  const geo = new THREE.EdgesGeometry(new THREE.BoxGeometry(...size));
+  const line = new THREE.LineSegments(geo, new THREE.LineBasicMaterial({
+    color:0x62b0ff, transparent:true, opacity:0.9,
+    depthTest:false, depthWrite:false }));
+  const at = (step.layer === 2 ? 1 : -1) * GAP;
+  line.position.set(step.axis === "x" ? at : 0,
+                    step.axis === "y" ? at : 0,
+                    step.axis === "z" ? at : 0);
+  line.renderOrder = 997;
+  return line;
+}
+
+function showArrow(step){
+  clearArrow();
+  if (!$("chkArrow").checked || !step) return;
+  S.arrowStep = step;
+  arrowGroup = new THREE.Group();
+  arrowGroup.add(buildArrowMesh(step));
+  scene.add(arrowGroup);
+  layerBox = buildLayerBox(step);
+  scene.add(layerBox);
+  placeArrow();
+}
+
+/**
+ * Put the arrow on whichever end of the turning axis is facing the camera.
+ *
+ * The old version always drew it on the layer's own outer face, so a B, L or D
+ * turn put the arrow round the back of the cube where you could not see it -
+ * and if you did catch a glimpse, you were looking at its far side, which
+ * shows the rotation the wrong way round. Sitting it on the near end fixes
+ * both: it is never hidden, and the direction is always the direction you see.
+ * The outlined slab says which layer actually moves.
+ */
+function placeArrow(){
+  if (!arrowGroup || !S.arrowStep) return;
+  const step = S.arrowStep;
+  const axis = step.axis;
+  const camAt = axis === "x" ? camera.position.x
+              : axis === "y" ? camera.position.y : camera.position.z;
+  const near = camAt >= 0 ? 1 : -1;
+
+  arrowGroup.rotation.set(0,0,0);
+  if (axis === "x") arrowGroup.rotation.y = near * Math.PI/2;
+  if (axis === "y") arrowGroup.rotation.x = -near * Math.PI/2;
+  if (axis === "z" && near < 0) arrowGroup.rotation.y = Math.PI;
+  arrowGroup.position.set(axis === "x" ? near*2.6 : 0,
+                          axis === "y" ? near*2.6 : 0,
+                          axis === "z" ? near*2.6 : 0);
+  // a turn of +angle about the positive axis looks anticlockwise from the
+  // positive end and clockwise from the other, so flip when we swap ends
+  const child = arrowGroup.children[0];
+  child.scale.y = (step.angle * near) >= 0 ? 1 : -1;
+
+  const pulse = 1 + 0.055 * Math.sin(performance.now() / 260);
+  arrowGroup.scale.setScalar(pulse);
+  if (layerBox) layerBox.material.opacity = 0.55 + 0.35 * (pulse - 1) / 0.055 * 0.5;
+}
+
+/* =========================================================================
+   Flat map
+   ========================================================================= */
+const NET_LAYOUT = [["","U","",""],["L","F","R","B"],["","D","",""]];
+
+function renderNet(el, facelets, {editable=false}={}){
+  el.innerHTML = "";
+  for (const row of NET_LAYOUT) for (const f of row){
+    const d = document.createElement("div");
+    if (!f){ el.appendChild(d); continue; }
+    d.className = "netface";
+    const label = document.createElement("b");
+    label.textContent = editable ? f + " · " + (COLOUR_NAME[f]||"") : f;
+    d.appendChild(label);
+    const base = FACE_ORDER.indexOf(f)*9;
+    for (let i=0;i<9;i++){
+      const idx = base+i;
+      const c = document.createElement("div");
+      c.className = "cell" + (i===4?" centre":"") + (editable && i!==4 ? " edit":"");
+      c.style.background = palette[facelets[idx]] || "#4a5560";
+      c.title = `${f}${i} · ${COLOUR_NAME[facelets[idx]]||facelets[idx]}`;
+      if (editable && i!==4) c.addEventListener("click", () => {
+        const a = S.facelets.split(""); a[idx] = S.paint;
+        setFacelets(a.join(""));
+      });
+      d.appendChild(c);
+    }
+    el.appendChild(d);
+  }
+}
+
+function setFacelets(f){
+  S.facelets = f;
+  S.solution = null; S.index = 0; S.playing = false;
+  renderNet($("net"), f, {editable:true});
+  renderNet($("liveNet"), f);
+  paintCube(f);
+  clearArrow();
+  $("moveCard").style.display = "none";
+  $("turnCount").textContent = "";
+  $("steps").innerHTML = '<li class="empty">Press <b>Solve it</b> to work out the turns.</li>';
+  $("scrub").max = 0; $("scrub").value = 0;
+  $("stageBadge").textContent = "ready to solve";
+  $("netNote").textContent = "check these match your cube";
+  if (typeof cubeRoot !== "undefined" && cubeRoot) animateScanRotation("F");
+}
+
+/* =========================================================================
+   Scanning
+   ========================================================================= */
+const SCAN_ORDER = [
+  {f:"U", name:"Top",    up:"BACK",
+   tip:"Tilt the cube forward and show the <b>TOP</b> face, with the BACK of the cube pointing up."},
+  {f:"R", name:"Right",  up:"TOP",
+   tip:"Now the <b>RIGHT</b> face. Keep the top of the cube up."},
+  {f:"F", name:"Front",  up:"TOP",
+   tip:"Now the <b>FRONT</b> face — the one you chose. Top still up."},
+  {f:"D", name:"Bottom", up:"FRONT",
+   tip:"Tilt back and show the <b>BOTTOM</b> face, with the FRONT of the cube pointing up."},
+  {f:"L", name:"Left",   up:"TOP",
+   tip:"Now the <b>LEFT</b> face. Top still up."},
+  {f:"B", name:"Back",   up:"TOP",
+   tip:"Last one — the <b>BACK</b> face. Top still up."},
+];
+let stream = null, liveTimer = null;
+
+function renderFaceRow(){
+  const row = $("facerow"); row.innerHTML = "";
+  SCAN_ORDER.forEach((o, i) => {
+    const b = document.createElement("button");
+    b.className = "facebtn";
+    b.dataset.done = !!S.scanSamples[o.f];
+    b.dataset.shaky = S.scanQuality[o.f] !== undefined && S.scanQuality[o.f] < 0.45;
+    b.setAttribute("aria-current", i === S.scanFace);
+    b.title = S.scanSamples[o.f]
+      ? (b.dataset.shaky === "true"
+          ? "Read, but two colours here looked alike — worth doing again"
+          : "Read cleanly. Click to do this face again.")
+      : "Not read yet";
+    const mini = document.createElement("div"); mini.className = "mini";
+    const hexes = S.scanHex[o.f] || [];
+    for (let k=0;k<9;k++){
+      const s = document.createElement("span");
+      if (hexes[k]) s.style.background = hexes[k];
+      mini.appendChild(s);
+    }
+    b.appendChild(mini);
+    b.appendChild(document.createTextNode(o.f));
+    b.onclick = () => { S.scanFace = i; S.stable = 0; S.armed = true;
+                        renderFaceRow(); updateTip(); };
+    row.appendChild(b);
+  });
+  const done = Object.keys(S.scanSamples).length;
+  $("scanCount").textContent = done + " of 6 faces";
+}
+
+function updateTip(){
+  const o = SCAN_ORDER[S.scanFace];
+  const done = Object.keys(S.scanSamples).length;
+  $("tip").innerHTML = done === 6
+    ? `<span class="num">✓</span><div>All six faces read. Check the flat map in the
+       middle, then press <b>Solve it</b>.</div>`
+    : `<span class="num">${S.scanFace+1}</span><div>${o.tip}</div>`
+      + `<div class="dia" title="${o.name} face towards the camera, `
+      + `${o.up.toLowerCase()} of the cube pointing up">`
+      + holdDiagram(o.f, o.up, o.name) + `</div>`;
+
+  if (done < 6 && $("tab-scan").style.display !== "none") {
+    animateScanRotation(o.f);
+  } else if (done === 6) {
+    animateScanRotation("F");
+  }
+}
+
+async function startCamera(){
+  try{
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      throw new Error("Camera API not available. Make sure you are using localhost or HTTPS.");
+    }
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        video:{facingMode:"environment", width:{ideal:1280}, height:{ideal:1280}}, audio:false});
+    } catch(e) {
+      // Fallback to any available camera if 'environment' fails (common on desktops)
+      stream = await navigator.mediaDevices.getUserMedia({
+        video:{width:{ideal:1280}, height:{ideal:1280}}, audio:false});
+    }
+  }catch(e){
+    return note("scanMsg","err","Could not open the camera ("+e.message+
+      "). Use <b>Enter by hand</b> instead — it works just as well.");
+  }
+  const v = $("video");
+  v.srcObject = stream; v.style.display = "block"; await v.play();
+  $("camPh").style.display = "none";
+  $("btnShot").disabled = false;
+  $("btnCam").textContent = "Stop scanning";
+  S.streaming = true; S.stable = 0; S.armed = true; S.misses = 0;
+  note("scanMsg","warn","Hold a face up and keep still — it captures on its own.");
+  liveTimer = setInterval(tickLive, 230);
+}
+
+function stopCamera(){
+  clearInterval(liveTimer); liveTimer = null;
+  if (stream) stream.getTracks().forEach(t => t.stop());
+  stream = null; S.streaming = false;
+  $("video").style.display = "none";
+  $("camPh").style.display = "block";
+  $("btnShot").disabled = true;
+  $("btnCam").textContent = "Start scanning";
+  $("lockBar").style.width = "0%";
+  $("lockText").textContent = "camera off";
+  const ov = $("overlay"); ov.getContext("2d").clearRect(0,0,ov.width,ov.height);
+}
+
+function grabFrame(quality){
+  const v = $("video");
+  const side = Math.min(v.videoWidth, v.videoHeight);
+  if (!side) return null;
+  const cv = document.createElement("canvas");
+  cv.width = cv.height = side;
+  cv.getContext("2d").drawImage(v, (v.videoWidth-side)/2, (v.videoHeight-side)/2,
+                                side, side, 0, 0, side, side);
+  return new Promise(r => cv.toBlob(r, "image/jpeg", quality));
+}
+
+async function tickLive(){
+  if (!S.streaming || S.busy || Object.keys(S.scanSamples).length === 6) return;
+  S.busy = true;
+  try{
+    const blob = await grabFrame(0.7);
+    if (!blob) return;
+    const fd = new FormData(); fd.append("image", blob, "f.jpg");
+    const r = await fetch("/api/scan/live", {method:"POST", body:fd});
+    if (!r.ok) return;
+    const d = await r.json();
+    drawOverlay(d);
+
+    // capture only when the grid is properly located AND the nine colours
+    // separate cleanly. A guessed frame is worse than no frame.
+    const good = d.found && d.confidence >= 0.75;
+    if (!good){ S.stable = 0; S.armed = true; }
+    else if (d.signature === S.lastSig){ S.stable++; }
+    else { S.stable = 1; if (d.signature !== S.capturedSig) S.armed = true; }
+    S.lastSig = d.signature;
+
+    $("lockBar").style.width = Math.min(100, 100*S.stable/STABLE_NEEDED) + "%";
+    $("lockBar").style.background = good ? "var(--good)" : "var(--warn)";
+    $("lockText").textContent = good ? (S.stable >= STABLE_NEEDED ? "capturing…" : "hold still")
+                 : d.gridFound ? "colours unclear" : "looking for stickers";
+
+    S.misses = good ? 0 : S.misses + 1;
+    if (S.misses === 14)
+      note("scanMsg","warn","Cannot read nine stickers yet — add light, hold the "
+        + "face flat to the camera, and keep the background plain.");
+
+    if (good && S.armed && S.stable >= STABLE_NEEDED) await capture(d);
+  } finally { S.busy = false; }
+}
+
+function drawOverlay(d){
+  const ov = $("overlay"), v = $("video");
+  const w = v.clientWidth, h = v.clientHeight;
+  if (ov.width !== w || ov.height !== h){ ov.width = w; ov.height = h; }
+  const g = ov.getContext("2d");
+  g.clearRect(0,0,w,h);
+  if (!d.gridFound || !d.cellsNorm){
+    g.strokeStyle = "rgba(255,255,255,.45)"; g.lineWidth = 2;
+    g.setLineDash([7,6]);
+    g.strokeRect(w*0.14, h*0.14, w*0.72, h*0.72);
+    g.setLineDash([]);
+    return;
+  }
+  // draw what we actually measured: tilted cells in the colours we read
+  d.cellsNorm.forEach((poly, i) => {
+    g.beginPath();
+    poly.forEach(([x,y], k) => k ? g.lineTo(x*w, y*h) : g.moveTo(x*w, y*h));
+    g.closePath();
+    g.fillStyle = d.hex[i];
+    g.globalAlpha = 0.88; g.fill(); g.globalAlpha = 1;
+    g.strokeStyle = d.found ? "rgba(63,185,80,.95)" : "rgba(210,153,34,.95)";
+    g.lineWidth = 2; g.stroke();
+  });
+}
+
+async function capture(live){
+  const face = SCAN_ORDER[S.scanFace].f;
+  S.armed = false;
+  S.capturedSig = live.signature;
+  S.stable = 0;
+  $("lockBar").style.width = "0%";
+
+  // full-resolution shot for the real reading, but keep the live frame if the
+  // bigger one turns out to be less confident
+  const blob = await grabFrame(0.92);
+  const fd = new FormData(); fd.append("image", blob, face+".jpg");
+  let d = live;
+  try{
+    const r = await fetch("/api/scan/face", {method:"POST", body:fd});
+    if (r.ok){
+      const full = await r.json();
+      if (full.found || !live.samples) d = full;
+    }
+  }catch{ /* keep the live reading */ }
+
+  if (!d.samples){
+    S.armed = true;
+    return note("scanMsg","err","Could not make out the nine stickers. Move closer, "
+      + "add light, or use <b>Enter by hand</b>.");
+  }
+
+  S.scanSamples[face] = d.samples;
+  S.scanHex[face] = d.hex;
+  S.scanQuality[face] = d.faceQuality;
+  showScanProgress();
+  $("flash").classList.remove("go"); void $("flash").offsetWidth;
+  $("flash").classList.add("go");
+
+  note("scanMsg", d.faceQuality < 0.45 ? "warn" : "ok",
+    d.faceQuality < 0.45
+      ? `Read the <b>${face}</b> face, but two of its colours looked alike. `
+        + "Click its tile below to do it again if the preview looks wrong."
+      : `Read the <b>${face}</b> face.`);
+
+  const next = SCAN_ORDER.findIndex(o => !S.scanSamples[o.f]);
+  S.scanFace = next === -1 ? S.scanFace : next;
+  renderFaceRow(); updateTip();
+  const done = Object.keys(S.scanSamples).length;
+  $("stageBadge").textContent = done + " of 6 faces read";
+
+  if (done === 6){ stopCamera(); await classifyAll(); }
+}
+
+async function classifyAll(){
+  const samples = [];
+  for (const f of FACE_ORDER) samples.push(...S.scanSamples[f]);
+  const r = await fetch("/api/classify", {
+    method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({samples})});
+  const d = await r.json();
+  if (d.palette) palette = {...DEFAULT_COLOURS, ...d.palette};
+  buildSwatches();
+  setFacelets(d.facelets);
+  $("netNote").textContent = "check these match your cube";
+
+  if (!d.valid){
+    note("scanMsg","err","<b>"+d.problem+"</b><br>That cannot happen on a real cube, "
+      + "so a colour was misread. Open <b>Enter by hand</b> and fix whichever "
+      + "stickers do not match — then press <b>Solve it</b>.");
+    return switchTab("hand");
+  }
+  // The colours are read two independent ways. Them agreeing is the one
+  // trustworthy confidence signal we have; them disagreeing is worth saying.
+  const shaky = [...FACE_ORDER].filter(f => S.scanQuality[f] < 0.45);
+  if (!d.agreed || d.repairedSwaps > 0 || shaky.length){
+    note("scanMsg","warn",
+      (!d.agreed
+        ? "My two ways of reading the colours did not quite agree, so I went with "
+          + "the one that better fits what the camera saw. "
+        : d.repairedSwaps > 0
+        ? "Two colours were too close to call, so I picked the reading that makes "
+          + "a real cube. "
+        : `The <b>${shaky.join(", ")}</b> face${shaky.length>1?"s were":" was"} `
+          + "harder to read than the rest. ")
+      + "Compare the flat map with your cube before you start.");
+    return;
+  }
+  note("scanMsg","ok","Read cleanly — both colour checks agree. Have a quick "
+    + "look at the flat map, then follow the turns on the right.");
+  solve();
+}
+
+/* =========================================================================
+   Solve + playback
+   ========================================================================= */
+async function solve(){
+  note("solveMsg","warn","Working it out…");
+  try{
+    const r = await fetch("/api/solve", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({facelets:S.facelets, mode:S.mode})});
+    const d = await r.json();
+    if (!r.ok){
+      const det = d.detail || {};
+      return note("solveMsg","err", det.error || JSON.stringify(d));
+    }
+    S.solution = d; S.index = 0;
+    renderSolution();
+    note("solveMsg","ok", d.moveCount === 0
+      ? "That cube is already solved."
+      : `<b>${d.moveCount} turns</b> and you are done. Follow the panel on the right.`
+        + (d.note ? "<br><small>"+d.note+"</small>" : ""));
+  }catch(e){
+    note("solveMsg","err","Could not reach the solver: "+e.message);
+  }
+}
+
+function renderSolution(){
+  const d = S.solution;
+  $("moveCard").style.display = d.moveCount ? "" : "none";
+  $("turnCount").textContent = d.moveCount ? d.moveCount + " in total" : "";
+  $("scrub").max = d.moveCount; $("scrub").value = 0;
+  $("netNote").textContent = "where your cube should be right now";
+
+  const ul = $("steps"); ul.innerHTML = "";
+  if (!d.moveCount){
+    ul.innerHTML = '<li class="empty">Nothing to do — it is already solved.</li>';
+  }
+  let stage = null;
+  d.steps.forEach((s, i) => {
+    if (s.stage !== stage){
+      stage = s.stage;
+      const h = document.createElement("li");
+      h.className = "head";
+      h.textContent = s.stageName;
+      ul.appendChild(h);
+    }
+    const li = document.createElement("li");
+    li.dataset.i = i;
+    li.innerHTML = `<span class="n">${s.index}</span><span class="m">${s.move}</span>`
+                 + `<span class="a">${s.arrow}</span><span class="d">${s.motion}</span>`;
+    li.onclick = () => jumpTo(i+1);
+    ul.appendChild(li);
+  });
+  paintCube(d.start);
+  highlight();
+}
+
+const stateAt = i => i === 0 ? S.solution.start : S.solution.steps[i-1].stateAfter;
+
+function highlight(){
+  const d = S.solution; if (!d) return;
+  const cur = d.steps[S.index];
+  $("scrub").value = S.index;
+  $("mvIdx").textContent = `${Math.min(S.index+1, d.moveCount)} / ${d.moveCount}`;
+
+  if (cur){
+    $("mvArrow").textContent = cur.arrow;
+    $("mvArrow").classList.remove("done");
+    $("mvWho").textContent = cur.faceName[0].toUpperCase()+cur.faceName.slice(1)+" face"
+                             + (cur.turns === 2 ? " — twice" : "");
+    $("mvMotion").textContent = cur.motion;
+    $("mvDetail").textContent = cur.text + " " + cur.hint;
+    $("mvStage").textContent = cur.stageName;
+    $("stageBadge").textContent = cur.move + " · " + cur.motion;
+    showArrow(cur);
+  } else {
+    $("mvArrow").textContent = "✓";
+    $("mvArrow").classList.add("done");
+    $("mvWho").textContent = "Solved";
+    $("mvMotion").textContent = "every face is one colour";
+    $("mvDetail").textContent = "";
+    $("mvStage").textContent = "";
+    $("stageBadge").textContent = "solved";
+    clearArrow();
+  }
+
+  const ul = $("steps");
+  [...ul.querySelectorAll("li[data-i]")].forEach(li => {
+    const n = +li.dataset.i;
+    li.setAttribute("aria-current", n === S.index);
+    li.classList.toggle("done", n < S.index);
+    if (n === S.index){
+      // scroll the list itself, never the page
+      ul.scrollTop = Math.max(0, li.offsetTop - ul.clientHeight/2 + li.clientHeight/2);
+    }
+  });
+  renderNet($("liveNet"), stateAt(S.index));
+}
+
+function speak(step){
+  if (!$("chkVoice").checked || !step || !window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(new SpeechSynthesisUtterance(
+    step.motion.replace(/[A-Z]{2,}/g, m => m.toLowerCase())));
+}
+
+async function stepForward(){
+  const d = S.solution;
+  if (!d || S.index >= d.moveCount || animating) return false;
+  const step = d.steps[S.index];
+  clearArrow();
+  speak(step);
+  await animateMove(step, 1050 - $("speed").value*85);
+  S.index++;
+  paintCube(stateAt(S.index));
+  highlight();
+  return true;
+}
+
+function jumpTo(i){
+  const d = S.solution; if (!d) return;
+  S.playing = false; $("btnPlay").textContent = "▶ Play";
+  S.index = Math.max(0, Math.min(d.moveCount, i));
+  paintCube(stateAt(S.index));
+  highlight();
+}
+
+async function play(){
+  if (!S.solution) return;
+  S.playing = !S.playing;
+  $("btnPlay").textContent = S.playing ? "⏸ Pause" : "▶ Play";
+  while (S.playing){
+    if (!await stepForward()) break;
+    await new Promise(r => setTimeout(r, 80));
+  }
+  S.playing = false; $("btnPlay").textContent = "▶ Play";
+}
+
+/* =========================================================================
+   Manual + wiring
+   ========================================================================= */
+/* ---- little front-on pictures of the cube, drawn rather than shipped as
+   images so they stay sharp at any size and cost nothing to load ---------- */
+const DIA = {ink:"#e9eef5", dim:"#8f9dae", faint:"#6b7887", line:"#1b2129",
+             cell:"#2b3540", hi:"#2f5f96", hiEdge:"#62b0ff", arrow:"#62b0ff"};
+
+function arrowPath(x1,y1,x2,y2,col=DIA.arrow){
+  const dx=x2-x1, dy=y2-y1, len=Math.hypot(dx,dy)||1;
+  const ux=dx/len, uy=dy/len, hl=14, hw=11;
+  const bx=x2-ux*hl, by=y2-uy*hl, px=-uy, py=ux;
+  return `<line x1="${x1}" y1="${y1}" x2="${bx}" y2="${by}" stroke="${col}"
+            stroke-width="6" stroke-linecap="round"/>
+          <polygon points="${x2},${y2} ${bx+px*hw/2},${by+py*hw/2}
+            ${bx-px*hw/2},${by-py*hw/2}" fill="${col}"/>`;
+}
+
+function arcArrow(cx,cy,r,a0,a1,col=DIA.arrow){
+  const pt = a => [cx + r*Math.cos(a), cy + r*Math.sin(a)];
+  const [sx,sy] = pt(a0), [ex,ey] = pt(a1);
+  const large = Math.abs(a1-a0) > Math.PI ? 1 : 0;
+  const sweep = a1 > a0 ? 1 : 0;
+  // head sits on the tangent at the far end
+  const t = a1 + (a1 > a0 ? Math.PI/2 : -Math.PI/2);
+  const hx = ex + Math.cos(t)*0.1, hy = ey + Math.sin(t)*0.1;
+  return `<path d="M ${sx} ${sy} A ${r} ${r} 0 ${large} ${sweep} ${ex} ${ey}"
+            fill="none" stroke="${col}" stroke-width="6" stroke-linecap="round"/>`
+       + arrowPath(ex, ey, hx + Math.cos(t)*13, hy + Math.sin(t)*13, col);
+}
+
+const CELL = 22, GAPX = 2, SPAN = 3*CELL + 2*GAPX;   // 70
+
+/** A 3x3 face seen head on, with the moving layer picked out. */
+function faceGrid(isMoving, {x0=30, y0=30, dashed=false}={}){
+  let out = "";
+  for (let r=0;r<3;r++) for (let k=0;k<3;k++){
+    const on = isMoving(r,k);
+    out += `<rect x="${x0+k*(CELL+GAPX)}" y="${y0+r*(CELL+GAPX)}"
+      width="${CELL}" height="${CELL}" rx="4"
+      fill="${on?DIA.hi:DIA.cell}" stroke="${on?DIA.hiEdge:DIA.line}"
+      stroke-width="${on?2:1.5}" ${dashed?'stroke-dasharray="3 3"':""}/>`;
+  }
+  return out;
+}
+
+const FACE_LAYER = {
+  U: r => r === 0,  D: r => r === 2,
+  R: (r,k) => k === 2, L: (r,k) => k === 0,
+  F: () => true,    B: () => true,
+};
+
+//: the clockwise direction for each face, as a straight arrow beside the grid
+const SWING = {           // x1, y1, x2, y2  (grid occupies 30..100)
+  U: [106, 18, 24, 18],
+  D: [24, 112, 106, 112],
+  R: [116, 106, 116, 24],
+  L: [14, 24, 14, 106],
+};
+
+function moveDiagram(move){
+  const face = move[0], prime = move.includes("'"), half = move.includes("2");
+  const mid = 30 + SPAN/2;
+  let art;
+
+  if (SWING[face]){
+    const [x1,y1,x2,y2] = SWING[face];
+    art = prime ? arrowPath(x2,y2,x1,y1) : arrowPath(x1,y1,x2,y2);
+    if (half) art += arrowPath(x2,y2,x1,y1);      // a head at both ends
+  } else {
+    // F spins clockwise as you look at it; B is the far side, so from where
+    // you sit the same turn looks the other way round
+    const cw = (face === "F") !== prime;
+    art = cw ? arcArrow(mid, mid, 50, -2.45, -0.6)
+             : arcArrow(mid, mid, 50, -0.6, -2.45);
+  }
+
+  return `<svg viewBox="0 0 130 132" role="img" aria-label="${move} turn">
+    ${faceGrid(FACE_LAYER[face], {dashed: face === "B"})}
+    ${art}
+    ${face === "B" ? `<text x="${mid}" y="127" text-anchor="middle" font-size="10"
+        fill="${DIA.faint}">the far side of the cube</text>` : ""}
+    ${half ? `<text x="${mid}" y="127" text-anchor="middle" font-size="11"
+        fill="${DIA.hiEdge}" font-weight="bold">twice</text>` : ""}
+  </svg>`;
+}
+
+/** Which face to point at the camera, and which way up to hold it. */
+function holdDiagram(face, up, name){
+  const y0 = 46, mid = 30 + SPAN/2, cx = 30 + CELL + GAPX + CELL/2;
+  return `<svg viewBox="0 0 130 150" role="img"
+      aria-label="show the ${name} face with the ${up} of the cube pointing up">
+    <text x="${mid}" y="11" text-anchor="middle" font-size="10" fill="${DIA.dim}"
+      >${up} of the cube up</text>
+    ${arrowPath(mid, 40, mid, 17)}
+    ${faceGrid(() => true, {y0})}
+    <text x="${cx}" y="${y0 + CELL + GAPX + CELL/2 + 6}" text-anchor="middle"
+      font-size="17" font-weight="bold" fill="#eaf3ff">${face}</text>
+    <text x="${mid}" y="146" text-anchor="middle" font-size="10.5" fill="${DIA.ink}"
+      >${name} face to the camera</text>
+  </svg>`;
+}
+
+const MOVE_HELP = {
+  "U":  ["Top layer", "the top layer spins — its front row slides LEFT"],
+  "U'": ["Top layer, back the other way", "the front row slides RIGHT"],
+  "D":  ["Bottom layer", "the bottom layer spins — its front row slides RIGHT"],
+  "D'": ["Bottom layer, other way", "the front row slides LEFT"],
+  "R":  ["Right column", "the right column rolls UP at the front"],
+  "R'": ["Right column, other way", "the right column rolls DOWN at the front"],
+  "L":  ["Left column", "the left column rolls DOWN at the front"],
+  "L'": ["Left column, other way", "the left column rolls UP at the front"],
+  "F":  ["The face towards you", "spins like a clock hand"],
+  "F'": ["The face towards you, other way", "spins anti-clockwise"],
+  "B":  ["The face away from you", "looks anti-clockwise from where you sit"],
+  "B'": ["The face away from you, other way", "looks clockwise from where you sit"],
+};
+
+function diaCard(art, code, lead, say){
+  return `<div class="diacard">${art}<div class="code">${code}</div>
+          <div class="lead">${lead}</div><div class="say">${say}</div></div>`;
+}
+
+function buildManual(){
+  $("moveGrid").innerHTML = Object.entries(MOVE_HELP)
+    .map(([m,[lead,say]]) => diaCard(moveDiagram(m), m, lead, say)).join("");
+  $("halfGrid").innerHTML =
+    diaCard(moveDiagram("R2"), "R2", "Right column, twice",
+            "half a turn — either direction gets you there");
+  $("holdGrid").innerHTML = SCAN_ORDER
+    .map((o,i) => diaCard(holdDiagram(o.f, o.up, o.name), `${i+1}. ${o.f}`,
+                          `${o.name} face`,
+                          `keep the ${o.up.toLowerCase()} of the cube pointing up`))
+    .join("");
+}
+
+function note(id, kind, html){
+  const el = $(id);
+  el.className = "msg show " + kind;
+  el.innerHTML = html;
+}
+function switchTab(name){
+  document.querySelectorAll("[role=tab]").forEach(b =>
+    b.setAttribute("aria-selected", b.dataset.tab === name));
+  $("tab-scan").style.display = name === "scan" ? "" : "none";
+  $("tab-hand").style.display = name === "hand" ? "" : "none";
+  if (name === "scan") {
+    updateTip();
+  } else {
+    animateScanRotation("F");
+  }
+}
+function buildSwatches(){
+  const el = $("swatches"); el.innerHTML = "";
+  for (const f of FACE_ORDER){
+    const b = document.createElement("button");
+    b.style.background = palette[f];
+    b.title = `${COLOUR_NAME[f]} — the ${f} face`;
+    b.setAttribute("aria-pressed", S.paint === f);
+    b.onclick = () => { S.paint = f; buildSwatches(); };
+    el.appendChild(b);
+  }
+}
+
+document.querySelectorAll("[role=tab]").forEach(b => b.onclick = () => switchTab(b.dataset.tab));
+$("btnCam").onclick  = () => stream ? stopCamera() : startCamera();
+$("btnShot").onclick = async () => {
+  if (!S.streaming || S.busy) return;
+  S.busy = true;
+  try { await capture({signature:"", samples:null}); } finally { S.busy = false; }
+};
+$("btnReset").onclick = () => {
+  S.scanSamples = {}; S.scanHex = {}; S.scanQuality = {}; S.scanFace = 0;
+  S.armed = true; S.stable = 0; palette = {...DEFAULT_COLOURS};
+  renderFaceRow(); updateTip(); buildSwatches(); setFacelets(SOLVED);
+  note("scanMsg","warn","Cleared. Start again with the top face.");
+};
+$("btnSolved").onclick = () => setFacelets(SOLVED);
+$("btnRandom").onclick = async () => {
+  const r = await fetch("/api/scramble", {method:"POST",
+    headers:{"Content-Type":"application/json"}, body:JSON.stringify({moves:25})});
+  const d = await r.json();
+  palette = {...DEFAULT_COLOURS}; buildSwatches();
+  setFacelets(d.facelets);
+  solve();
+};
+$("btnSolve").onclick = solve;
+$("btnMode").onclick = () => {
+  S.mode = S.mode === "quick" ? "learn" : "quick";
+  $("btnMode").textContent = S.mode === "quick" ? "Shortest" : "Learn";
+  if (S.solution) solve();
+};
+$("btnPlay").onclick  = play;
+$("btnNext").onclick  = () => { S.playing = false; stepForward(); };
+$("btnPrev").onclick  = () => jumpTo(S.index - 1);
+$("btnFirst").onclick = () => jumpTo(0);
+$("btnLast").onclick  = () => jumpTo(S.solution ? S.solution.moveCount : 0);
+$("scrub").oninput    = e => jumpTo(+e.target.value);
+$("chkArrow").onchange = () => S.solution ? highlight() : clearArrow();
+$("btnManual").onclick = () => $("sheet").classList.add("open");
+$("btnCloseManual").onclick = () => $("sheet").classList.remove("open");
+$("sheet").onclick = e => { if (e.target === $("sheet")) $("sheet").classList.remove("open"); };
+
+addEventListener("keydown", e => {
+  if (e.target.tagName === "INPUT") return;
+  if (e.key === "Escape") $("sheet").classList.remove("open");
+  if (e.key === " "){ e.preventDefault(); play(); }
+  if (e.key === "ArrowRight"){ e.preventDefault(); S.playing = false; stepForward(); }
+  if (e.key === "ArrowLeft"){ e.preventDefault(); jumpTo(S.index - 1); }
+});
+
+(async function boot(){
+  initThree();
+  renderFaceRow(); updateTip(); buildSwatches(); buildManual();
+  setFacelets(SOLVED);
+  $("stageBadge").textContent = "waiting for your cube";
+  try{
+    const h = await (await fetch("/api/health")).json();
+    $("pillSolver").textContent = h.solverReady ? "solver ready" : "solver warming up…";
+    if (!h.solverReady){
+      const poll = setInterval(async () => {
+        const g = await (await fetch("/api/health")).json();
+        if (g.solverReady){ $("pillSolver").textContent = "solver ready"; clearInterval(poll); }
+      }, 1500);
+    }
+  }catch{
+    $("pillSolver").textContent = "backend offline";
+  }
+})();
+</script>
+</body>
+</html>
