@@ -51,8 +51,8 @@ colours in. Same result.
 
 ## Step 2 — Hold the cube still and follow the arrow
 
-Once scanning finishes it solves automatically, usually in **about 21 turns**
-and never more than 30.
+Once scanning finishes it solves automatically, usually in **about 20 turns**
+and never more than 22.
 
 The screen is in three columns: your cube goes in on the **left**, the 3D model
 is in the **middle**, and the turns you have to make are on the **right**.
@@ -126,23 +126,32 @@ can look things up later.
 | Hear the moves | tick **Read aloud** and keep both hands on the cube |
 | Look from another angle | drag the 3D cube in the middle |
 | Fix a colour it got wrong | **Enter by hand**, pick a colour, click the sticker |
+| See it in another 3D style | **cubing.js** above the cube (needs internet); **Classic 3D** to go back |
+| Light or dark screen | the ◐ button in the top bar |
 
 ---
 
-## Two ways to solve
+## Three ways to solve
 
-**Shortest** (the default) — about 21 turns, and never more than 30 however
-badly mixed your cube is. It uses a two-phase search. Fair warning: the cube
+Pick one under your cube, before or after pressing **Solve it**.
+
+**Shortest** (the default) — about 20 turns, and never more than 22 however
+badly mixed your cube is. Two solvers race for it, one in your browser and one
+on the server, and you get whichever answer is shorter. Fair warning: the cube
 looks scrambled almost until the final move, then everything falls into place at
 once. That is normal, not a bug.
 
-**Learn** — around 140 turns, and slower to watch, but it solves the cube the way
-a person would: bottom cross, bottom corners, middle layer, top cross, top
-corners, top edges. Each stage has a goal you can see happening. Press the
-**Shortest / Learn** button to swap.
+**Beginner** — around 140 turns, and slower to watch, but it solves the cube the
+way a person would: bottom cross, bottom corners, middle layer, top cross, top
+corners, top edges. Each stage has a goal you can see happening.
 
-If you are trying to *understand* the cube rather than just fix it, start in
-Learn mode once, then use Shortest from then on.
+**CFOP** — about 65 turns. This is how speedcubers solve: the **C**ross, then the
+**F**irst two layers as four corner-and-edge pairs, then **O**rient the last
+layer (one algorithm makes the top one colour), then **P**ermute it (one
+algorithm slides the pieces home). You still never turn the whole cube over.
+
+If you are trying to *understand* the cube rather than just fix it, try
+Beginner once, then CFOP, then use Shortest from then on.
 
 ---
 

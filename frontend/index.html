@@ -4,368 +4,524 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Cube Solver</title>
+<meta name="description" content="Show it your Rubik's cube, follow the arrow, done in about 20 turns.">
+<meta name="color-scheme" content="light dark">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
+  /* ------------------------------------------------------------------ tokens */
   :root{
-    --bg:#0d1117; --panel:#161b22; --panel-2:#1b222c; --panel-3:#212a35;
-    --line:#293240; --line-soft:#222a35;
-    --ink:#e9eef5; --dim:#8f9dae; --faint:#6b7887;
-    --accent:#4f9cf9; --accent-ink:#06121f;
-    --good:#3fb950; --warn:#d29922; --bad:#f85149;
-    --r:13px;
+    --bg:#f4f5f7; --surface:#ffffff; --surface-2:#f6f7f9; --surface-3:#eceef2;
+    --line:#e3e6eb; --line-strong:#cfd4dc;
+    --ink:#111827; --muted:#5b6474; --faint:#8b93a1;
+    --accent:#2563eb; --accent-2:#1d4ed8; --accent-soft:rgba(37,99,235,.10); --on-accent:#fff;
+    --good:#16a34a; --good-soft:rgba(22,163,74,.10);
+    --warn:#b45309; --warn-soft:rgba(217,119,6,.12);
+    --bad:#dc2626;  --bad-soft:rgba(220,38,38,.09);
+    --stage:#eef1f5; --stage-2:#e2e7ee;
+    --shadow:0 1px 2px rgba(16,24,40,.05), 0 4px 16px rgba(16,24,40,.06);
+    --shadow-lg:0 20px 50px rgba(16,24,40,.18);
+    --r:16px; --r-sm:10px;
+    --sticker-line:rgba(0,0,0,.28);
   }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0b0d12; --surface:#141820; --surface-2:#1a1f29; --surface-3:#222835;
+      --line:#262c38; --line-strong:#353d4c;
+      --ink:#e9edf3; --muted:#a2acbb; --faint:#6f7a8a;
+      --accent:#5b9bff; --accent-2:#7aaeff; --accent-soft:rgba(91,155,255,.14); --on-accent:#06101f;
+      --good:#34d17a; --good-soft:rgba(52,209,122,.12);
+      --warn:#f0b54a; --warn-soft:rgba(240,181,74,.13);
+      --bad:#ff6b6b;  --bad-soft:rgba(255,107,107,.12);
+      --stage:#10141b; --stage-2:#171c25;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 6px 20px rgba(0,0,0,.25);
+      --shadow-lg:0 24px 60px rgba(0,0,0,.55);
+      --sticker-line:rgba(0,0,0,.55);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0b0d12; --surface:#141820; --surface-2:#1a1f29; --surface-3:#222835;
+    --line:#262c38; --line-strong:#353d4c;
+    --ink:#e9edf3; --muted:#a2acbb; --faint:#6f7a8a;
+    --accent:#5b9bff; --accent-2:#7aaeff; --accent-soft:rgba(91,155,255,.14); --on-accent:#06101f;
+    --good:#34d17a; --good-soft:rgba(52,209,122,.12);
+    --warn:#f0b54a; --warn-soft:rgba(240,181,74,.13);
+    --bad:#ff6b6b;  --bad-soft:rgba(255,107,107,.12);
+    --stage:#10141b; --stage-2:#171c25;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 6px 20px rgba(0,0,0,.25);
+    --shadow-lg:0 24px 60px rgba(0,0,0,.55);
+    --sticker-line:rgba(0,0,0,.55);
+  }
+
+  /* ------------------------------------------------------------------ base */
   *{box-sizing:border-box}
   html,body{margin:0;height:100%}
   body{
     background:var(--bg); color:var(--ink); overflow:hidden;
-    font:14.5px/1.55 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-    -webkit-font-smoothing:antialiased;
+    font:14.5px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased; font-feature-settings:"cv11","ss01";
   }
-  h1,h2,h3{margin:0;font-weight:640;letter-spacing:-.01em}
+  h1,h2,h3{margin:0;font-weight:700;letter-spacing:-.015em}
   button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:8px}
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 
-  .btn{padding:9px 14px;border-radius:9px;background:var(--panel-2);
-       border:1px solid var(--line);font-weight:550;transition:.12s;white-space:nowrap}
-  .btn:hover:not(:disabled){background:var(--panel-3);border-color:#3a4553}
-  .btn:disabled{opacity:.32;cursor:not-allowed}
-  .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
-  .btn.primary:hover:not(:disabled){background:#6cadfb}
-  .btn.sm{padding:6px 10px;font-size:12.5px;border-radius:8px}
-  .btn.ghost{background:transparent;border-color:transparent;color:var(--dim)}
-  .btn.ghost:hover{background:var(--panel-2);color:var(--ink)}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;
+       padding:10px 16px;border-radius:12px;background:var(--surface);
+       border:1px solid var(--line);font-weight:600;font-size:14px;
+       transition:background .15s,border-color .15s,transform .08s,box-shadow .15s;white-space:nowrap}
+  .btn:hover:not(:disabled){background:var(--surface-2);border-color:var(--line-strong)}
+  .btn:active:not(:disabled){transform:translateY(1px)}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+  .btn.primary{background:var(--accent);border-color:transparent;color:var(--on-accent);
+               box-shadow:0 1px 0 rgba(255,255,255,.15) inset, 0 6px 16px -6px var(--accent)}
+  .btn.primary:hover:not(:disabled){background:var(--accent-2)}
+  .btn.big{padding:14px 18px;font-size:15.5px;border-radius:14px}
+  .btn.sm{padding:7px 11px;font-size:13px;border-radius:10px}
+  .btn.icon{padding:0;width:40px;height:40px;border-radius:12px;font-size:16px}
+  .btn.ghost{background:transparent;border-color:transparent;color:var(--muted)}
+  .btn.ghost:hover:not(:disabled){background:var(--surface-2);color:var(--ink)}
 
   .app{display:grid;grid-template-rows:auto 1fr;height:100vh;height:100dvh}
 
-  header{display:flex;align-items:center;gap:12px;padding:10px 18px;
-         border-bottom:1px solid var(--line);background:var(--panel)}
-  header .logo{width:26px;height:26px;border-radius:7px;flex:none;
-    background:linear-gradient(135deg,#e03030 0 33%,#ffd400 33% 66%,#26a844 66%);
-    box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)}
-  header .sub{color:var(--dim);font-size:12px}
-  header .spacer{flex:1}
-  .pill{font-size:11.5px;padding:4px 10px;border-radius:999px;
-        border:1px solid var(--line);color:var(--dim);white-space:nowrap}
+  /* ------------------------------------------------------------------ top bar */
+  .topbar{display:flex;align-items:center;gap:14px;padding:12px 20px;
+          background:var(--surface);border-bottom:1px solid var(--line)}
+  .brand{display:flex;align-items:center;gap:11px;min-width:0}
+  .logo{width:32px;height:32px;flex:none;display:grid;grid-template-columns:repeat(3,1fr);gap:2px;
+        padding:3px;border-radius:9px;background:#15181e}
+  .logo i{border-radius:2.5px}
+  .brand h1{font-size:16.5px}
+  .brand .sub{color:var(--muted);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .stepper{display:flex;align-items:center;gap:6px;margin:0 auto;padding:4px;
+           background:var(--surface-2);border:1px solid var(--line);border-radius:999px}
+  .stepper span{display:flex;align-items:center;gap:7px;padding:6px 13px 6px 7px;border-radius:999px;
+                font-size:13px;font-weight:600;color:var(--faint);transition:.2s}
+  .stepper b{width:21px;height:21px;border-radius:50%;display:grid;place-items:center;font-size:11px;
+             background:var(--surface-3);color:var(--muted)}
+  .stepper span[data-state=active]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+  .stepper span[data-state=active] b{background:var(--accent);color:var(--on-accent)}
+  .stepper span[data-state=done]{color:var(--muted)}
+  .stepper span[data-state=done] b{background:var(--good);color:#fff}
+  .topbar .tools{display:flex;align-items:center;gap:8px}
+  .status{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--muted);
+          padding:6px 11px;border-radius:999px;border:1px solid var(--line);white-space:nowrap}
+  .status i{width:8px;height:8px;border-radius:50%;background:var(--faint)}
+  .status[data-kind=ok] i{background:var(--good);box-shadow:0 0 0 3px var(--good-soft)}
+  .status[data-kind=warn] i{background:var(--warn);box-shadow:0 0 0 3px var(--warn-soft)}
 
-  main{display:grid;grid-template-columns:370px minmax(0,1fr) 340px;gap:13px;
-       padding:13px;min-height:0;overflow:hidden}
-  .col{display:flex;flex-direction:column;gap:13px;min-height:0}
+  /* ------------------------------------------------------------------ layout */
+  main{display:grid;grid-template-columns:minmax(330px,370px) minmax(0,1fr) minmax(330px,370px);
+       gap:16px;padding:16px;min-height:0;overflow:hidden}
+  .col{display:flex;flex-direction:column;gap:16px;min-height:0}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
+        box-shadow:var(--shadow);display:flex;flex-direction:column;min-height:0}
+  .card-h{display:flex;align-items:center;gap:10px;padding:15px 18px 0;flex:none}
+  .card-h h2{font-size:15px}
+  .card-h .num{width:24px;height:24px;border-radius:8px;display:grid;place-items:center;
+               background:var(--accent-soft);color:var(--accent);font-size:12px;font-weight:800;flex:none}
+  .card-h .right{margin-left:auto;font-size:12.5px;color:var(--muted);font-weight:500}
+  .body{padding:15px 18px 18px;min-height:0;overflow:auto}
 
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
-        display:flex;flex-direction:column;min-height:0}
-  .card > h2{padding:10px 14px;font-size:11px;letter-spacing:.07em;text-transform:uppercase;
-             color:var(--faint);border-bottom:1px solid var(--line-soft);flex:none;
-             display:flex;align-items:center;gap:8px}
-  .card > h2 .step{width:17px;height:17px;border-radius:5px;background:var(--panel-3);
-    color:var(--dim);display:grid;place-items:center;font-size:10px;font-weight:700}
-  .card > h2 .right{margin-left:auto;text-transform:none;letter-spacing:0;font-size:11.5px}
-  .body{padding:13px;min-height:0;overflow:auto}
-  .body.flush{padding:0}
+  .seg{display:flex;gap:3px;padding:4px;background:var(--surface-2);border:1px solid var(--line);
+       border-radius:13px;flex:none}
+  .seg button{flex:1;padding:8px 10px;border-radius:9px;font-size:13px;font-weight:600;color:var(--muted);
+              transition:.15s;white-space:nowrap}
+  .seg button:hover{color:var(--ink)}
+  .seg button[aria-selected=true],.seg button[aria-pressed=true]{background:var(--surface);color:var(--ink);
+              box-shadow:0 1px 2px rgba(0,0,0,.08),0 0 0 1px var(--line)}
 
-  .tabs{display:flex;gap:4px;padding:5px;background:var(--panel-2);
-        border-bottom:1px solid var(--line-soft);flex:none}
-  .tabs button{flex:1;padding:7px;border-radius:7px;font-size:12.5px;font-weight:550;color:var(--dim)}
-  .tabs button[aria-selected=true]{background:var(--panel);color:var(--ink)}
-
-  /* ---------- scanner ---------- */
-  .videowrap{position:relative;background:#05080c;border-radius:10px;overflow:hidden;
-             aspect-ratio:1;display:grid;place-items:center}
+  /* ------------------------------------------------------------------ scanner */
+  .videowrap{position:relative;background:#07090d;border-radius:14px;overflow:hidden;
+             aspect-ratio:1;display:grid;place-items:center;margin-top:14px}
   .videowrap video{width:100%;height:100%;object-fit:cover;display:block}
   #overlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-  .ph{color:var(--dim);font-size:12.5px;text-align:center;padding:22px;line-height:1.65}
+  .ph{color:#aab3c2;font-size:13px;text-align:center;padding:26px;line-height:1.65}
+  .ph .cam{width:52px;height:52px;border-radius:16px;margin:0 auto 12px;display:grid;place-items:center;
+           background:rgba(255,255,255,.07);font-size:24px}
+  .ph b{color:#fff}
   .flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
   .flash.go{animation:flash .45s ease-out}
   @keyframes flash{0%{opacity:.7}100%{opacity:0}}
-  .lockwrap{display:flex;align-items:center;gap:9px;margin-top:10px;flex:none}
-  .bar{height:5px;flex:1;background:var(--panel-3);border-radius:99px;overflow:hidden}
-  .bar i{display:block;height:100%;background:var(--good);width:0;transition:width .12s}
-  .lockwrap span{font-size:11px;color:var(--faint);min-width:62px;text-align:right}
+  .lockwrap{display:flex;align-items:center;gap:10px;margin-top:12px;flex:none}
+  .bar{height:6px;flex:1;background:var(--surface-3);border-radius:99px;overflow:hidden}
+  .bar i{display:block;height:100%;background:var(--good);width:0;transition:width .15s;border-radius:99px}
+  .lockwrap span{font-size:12px;color:var(--muted);min-width:78px;text-align:right}
 
-  .facerow{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-top:11px;flex:none}
-  .facebtn{border:1px solid var(--line);border-radius:9px;padding:6px 2px 4px;text-align:center;
-           background:var(--panel-2);font-size:10.5px;color:var(--dim);transition:.12s}
-  .facebtn[data-done=true]{border-color:var(--good);color:var(--ink)}
-  .facebtn[data-shaky=true]{border-color:var(--warn)}
+  .facerow{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:12px;flex:none}
+  .facebtn{border:1px solid var(--line);border-radius:12px;padding:7px 2px 5px;text-align:center;
+           background:var(--surface-2);font-size:11.5px;font-weight:600;color:var(--muted);transition:.15s}
+  .facebtn:hover{border-color:var(--line-strong)}
+  .facebtn[data-done=true]{border-color:var(--good);color:var(--ink);background:var(--good-soft)}
+  .facebtn[data-shaky=true]{border-color:var(--warn);background:var(--warn-soft)}
   .facebtn[aria-current=true]{outline:2px solid var(--accent);outline-offset:1px;color:var(--ink)}
-  .facebtn .mini{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin:0 auto 4px;
-                 width:23px;height:23px}
-  .facebtn .mini span{background:#2b333d;border-radius:1.5px}
+  .facebtn .mini{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5px;margin:0 auto 5px;
+                 width:26px;height:26px}
+  .facebtn .mini span{background:var(--surface-3);border-radius:2px}
 
-  .tip{display:flex;gap:9px;align-items:flex-start;margin-top:11px;padding:9px 11px;
-       background:var(--panel-2);border-radius:10px;border:1px solid var(--line-soft);
-       font-size:12.5px;color:var(--dim);flex:none;line-height:1.5}
+  .tip{display:flex;gap:11px;align-items:flex-start;margin-top:12px;padding:12px 13px;
+       background:var(--surface-2);border-radius:13px;border:1px solid var(--line);
+       font-size:13px;color:var(--muted);flex:none;line-height:1.5}
   .tip b{color:var(--ink)}
-  .tip .num{flex:none;width:20px;height:20px;border-radius:50%;background:var(--accent);
-            color:var(--accent-ink);display:grid;place-items:center;font-size:11px;font-weight:700}
+  .tip .num{flex:none;width:24px;height:24px;border-radius:50%;background:var(--accent);
+            color:var(--on-accent);display:grid;place-items:center;font-size:12px;font-weight:800}
+  .tip .dia{flex:none;width:62px;margin-left:auto;color:var(--ink)}
+  .tip .dia svg{width:62px;height:62px;display:block}
 
-  /* ---------- flat map ---------- */
+  /* ------------------------------------------------------------------ flat map */
   .net{display:grid;grid-template-columns:repeat(4,var(--fs));grid-auto-rows:var(--fs);
-       gap:5px;justify-content:center;--cs:17px;--fs:calc(3 * var(--cs) + 4px)}
-  .net.big{--cs:21px}
+       gap:6px;justify-content:center;--cs:18px;--fs:calc(3 * var(--cs) + 4px)}
+  .net.big{--cs:23px}
+  .net.small{--cs:13px;gap:4px}
   .netface{display:grid;grid-template-columns:repeat(3,var(--cs));
            grid-template-rows:repeat(3,var(--cs));gap:2px}
-  .netface b{grid-column:1/4;font-size:8.5px;color:var(--faint);font-weight:600;
+  .netface b{grid-column:1/4;font-size:9px;color:var(--faint);font-weight:700;
              letter-spacing:.06em;text-align:center;line-height:1.3}
-  .cell{border-radius:3px;border:1px solid rgba(0,0,0,.45);transition:transform .08s}
+  .net.small .netface b{display:none}
+  .cell{border-radius:4px;box-shadow:inset 0 0 0 1px var(--sticker-line);transition:transform .08s}
+  .net.small .cell{border-radius:2.5px}
   .cell.edit{cursor:pointer}
-  .cell.edit:hover{transform:scale(1.2);position:relative;z-index:2}
-  .cell.centre{box-shadow:inset 0 0 0 2px rgba(0,0,0,.35)}
-  .swatches{display:flex;gap:6px;justify-content:center;margin-top:12px;flex-wrap:wrap}
-  .swatches button{width:27px;height:27px;border-radius:8px;border:2px solid transparent}
-  .swatches button[aria-pressed=true]{border-color:var(--ink);transform:scale(1.12)}
+  .cell.edit:hover{transform:scale(1.18);position:relative;z-index:2}
+  .cell.centre{box-shadow:inset 0 0 0 2px var(--sticker-line)}
+  .swatches{display:flex;gap:8px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+  .swatches button{width:34px;height:34px;border-radius:11px;box-shadow:inset 0 0 0 1px var(--sticker-line);
+                   transition:transform .1s}
+  .swatches button[aria-pressed=true]{outline:3px solid var(--accent);outline-offset:2px;transform:scale(1.08)}
 
-  /* ---------- 3D ---------- */
-  .stagecard{flex:1;min-height:0;position:relative;overflow:hidden}
-  #stage{position:absolute;inset:0}
-  #stage canvas{display:block;width:100%;height:100%}
-  .badge{position:absolute;right:12px;top:11px;font-size:11.5px;padding:5px 11px;border-radius:99px;
-    background:rgba(13,17,23,.78);border:1px solid var(--line);color:var(--dim);
-    backdrop-filter:blur(6px);max-width:70%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .stagehint{position:absolute;left:12px;bottom:10px;font-size:11px;color:var(--faint);
-    background:rgba(13,17,23,.7);padding:4px 9px;border-radius:8px;backdrop-filter:blur(6px)}
+  /* ------------------------------------------------------------------ solve box */
+  .modes{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px}
+  .mode{display:flex;flex-direction:column;align-items:flex-start;gap:1px;text-align:left;
+        padding:10px 11px;border-radius:13px;border:1px solid var(--line);background:var(--surface-2);
+        transition:.15s}
+  .mode:hover{border-color:var(--line-strong)}
+  .mode b{font-size:13.5px}
+  .mode small{font-size:11.5px;color:var(--muted);line-height:1.35}
+  .mode[aria-pressed=true]{border-color:var(--accent);background:var(--accent-soft);
+                           box-shadow:0 0 0 1px var(--accent) inset}
 
-  /* ---------- current move ---------- */
-  .move{padding:14px;display:flex;gap:13px;align-items:center;flex:none}
-  .move .arrow{font-size:44px;line-height:1;width:68px;height:68px;flex:none;border-radius:15px;
-    background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-weight:700}
-  .move .arrow.done{background:var(--good)}
-  .move .who{font-size:21px;font-weight:700;letter-spacing:-.02em}
-  .move .motion{font-size:13.5px;font-weight:600;color:var(--accent);margin-top:1px}
-  .move .detail{font-size:12px;color:var(--dim);margin-top:4px;line-height:1.45}
-  .movemeta{display:flex;justify-content:space-between;gap:10px;padding:0 14px 10px;
-            font-size:12px;color:var(--faint);flex:none}
-  .movemeta b{color:var(--ink)}
-  .controls{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:0 13px 11px;flex:none}
-  .controls .grow{flex:1;min-width:74px}
-  label.check{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--dim);cursor:pointer}
+  /* ------------------------------------------------------------------ stage */
+  .stagecard{flex:1;min-height:0;position:relative;overflow:hidden;
+             background:radial-gradient(120% 90% at 50% 35%, var(--stage-2), var(--stage))}
+  #stage,#stageCubing{position:absolute;inset:0}
+  #stage canvas{display:block;width:100%;height:100%;cursor:grab}
+  #stage canvas:active{cursor:grabbing}
+  #stageCubing{display:none;place-items:center}
+  #stageCubing twisty-player{width:100%;height:100%}
+  .stagecard[data-view=cubing] #stage{display:none}
+  .stagecard[data-view=cubing] #stageCubing{display:grid}
+  .stage-top{position:absolute;left:14px;right:14px;top:14px;display:flex;gap:10px;align-items:flex-start;
+             pointer-events:none}
+  .stage-top > *{pointer-events:auto}
+  .stage-top .seg{background:color-mix(in srgb, var(--surface) 78%, transparent);backdrop-filter:blur(10px)}
+  .badge{margin-left:auto;font-size:12.5px;font-weight:600;padding:8px 13px;border-radius:999px;
+    background:color-mix(in srgb, var(--surface) 82%, transparent);border:1px solid var(--line);
+    color:var(--muted);backdrop-filter:blur(10px);max-width:55%;overflow:hidden;
+    text-overflow:ellipsis;white-space:nowrap}
+  .stagehint{position:absolute;left:14px;bottom:12px;font-size:12px;color:var(--faint)}
+  .cubing-msg{color:var(--muted);font-size:13px;text-align:center;padding:30px;max-width:340px;line-height:1.6}
+  .mapcard{flex:none}
+  .mapcard .body{display:flex;align-items:center;gap:16px;padding:12px 18px}
+  .mapcard .lbl{font-size:12.5px;color:var(--muted);line-height:1.45;max-width:180px}
+  .mapcard .lbl b{display:block;color:var(--ink);font-size:13.5px}
+  .mapcard .net{margin-left:auto}
+
+  /* ------------------------------------------------------------------ current move */
+  .movecard .hero{display:flex;gap:16px;align-items:center;padding:16px 18px 10px}
+  .arrowtile{font-size:46px;line-height:1;width:84px;height:84px;flex:none;border-radius:22px;
+    background:linear-gradient(160deg,var(--accent),var(--accent-2));color:var(--on-accent);
+    display:grid;place-items:center;font-weight:700;box-shadow:0 12px 26px -12px var(--accent)}
+  .arrowtile.done{background:linear-gradient(160deg,#22c55e,#16a34a);box-shadow:0 12px 26px -12px #16a34a}
+  .movecard .code{display:inline-block;font-size:12px;font-weight:800;letter-spacing:.02em;
+    padding:2px 8px;border-radius:7px;background:var(--surface-3);color:var(--muted);margin-bottom:4px}
+  .movecard .who{font-size:21px;font-weight:800;letter-spacing:-.02em;line-height:1.2}
+  .movecard .motion{font-size:14px;font-weight:600;color:var(--accent);margin-top:2px}
+  .movecard .detail{font-size:12.5px;color:var(--muted);padding:0 18px 12px;line-height:1.5}
+  .progress{padding:0 18px 12px}
+  .progress .row1{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);margin-bottom:7px}
+  .progress .row1 b{color:var(--ink)}
+  .ptrack{display:flex;gap:3px;height:7px}
+  .ptrack i{flex:var(--n);background:var(--surface-3);border-radius:99px;overflow:hidden;position:relative}
+  .ptrack i::after{content:"";position:absolute;inset:0;width:var(--p,0%);background:var(--accent);
+                   border-radius:99px;transition:width .2s}
+  .controls{display:flex;gap:7px;align-items:center;padding:0 18px 12px;flex:none}
+  .controls .grow{flex:1}
+  .opts{display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:10px 18px 14px;
+        border-top:1px solid var(--line);font-size:12.5px;color:var(--muted)}
+  label.check{display:flex;gap:7px;align-items:center;cursor:pointer}
+  input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px}
   input[type=range]{accent-color:var(--accent)}
-  .scrub{width:100%}
+  .scrub{width:100%;margin:0}
+  .speedwrap{display:flex;align-items:center;gap:7px;margin-left:auto}
 
-  /* ---------- turn list ---------- */
-  .steps{list-style:none;margin:0;padding:5px;overflow:auto;flex:1;min-height:0}
-  .steps li{display:flex;gap:8px;align-items:center;padding:6px 8px;border-radius:8px;
-            cursor:pointer;font-size:12.5px}
-  .steps li:hover{background:var(--panel-2)}
-  .steps li[aria-current=true]{background:rgba(79,156,249,.16);box-shadow:inset 2px 0 0 var(--accent)}
+  /* ------------------------------------------------------------------ turn list */
+  .steps{list-style:none;margin:0;padding:6px 8px 10px;overflow:auto;flex:1;min-height:0;position:relative}
+  .steps li{display:flex;gap:10px;align-items:center;padding:7px 10px;border-radius:10px;
+            cursor:pointer;font-size:13px}
+  .steps li:hover{background:var(--surface-2)}
+  .steps li[aria-current=true]{background:var(--accent-soft);box-shadow:inset 3px 0 0 var(--accent)}
   .steps li.done{opacity:.45}
-  .steps li .n{color:var(--faint);font-size:10.5px;min-width:20px;font-variant-numeric:tabular-nums}
-  .steps li .m{font-weight:700;min-width:24px}
-  .steps li .a{font-size:14px;color:var(--accent);min-width:15px;text-align:center}
-  .steps li .d{color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .steps .head{cursor:default;font-size:10px;text-transform:uppercase;letter-spacing:.07em;
-    color:var(--accent);font-weight:650;padding:10px 8px 3px}
+  .steps li .n{color:var(--faint);font-size:11px;min-width:20px;font-variant-numeric:tabular-nums}
+  .steps li .m{font-weight:800;min-width:26px}
+  .steps li .a{font-size:15px;color:var(--accent);min-width:16px;text-align:center}
+  .steps li .d{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .steps .head{cursor:default;display:block;padding:14px 10px 4px}
   .steps .head:hover{background:transparent}
-  .empty{color:var(--faint);font-size:12.5px;padding:22px 16px;text-align:center;line-height:1.6}
+  .steps .head b{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);font-weight:800}
+  .steps .head small{display:block;font-size:12px;color:var(--muted);margin-top:1px;line-height:1.4}
+  .empty{color:var(--muted);font-size:13px;padding:30px 18px;text-align:center;line-height:1.65}
+  .empty .ico{font-size:30px;display:block;margin-bottom:8px;opacity:.7}
 
-  .msg{padding:9px 11px;border-radius:9px;font-size:12.5px;margin-top:10px;display:none;
-       flex:none;line-height:1.5}
+  /* ------------------------------------------------------------------ messages */
+  .msg{padding:10px 12px;border-radius:12px;font-size:13px;margin-top:12px;display:none;
+       flex:none;line-height:1.5;border:1px solid transparent}
   .msg.show{display:block}
-  .msg.err{background:rgba(248,81,73,.12);border:1px solid rgba(248,81,73,.38);color:#ffb3ae}
-  .msg.ok{background:rgba(63,185,80,.12);border:1px solid rgba(63,185,80,.38);color:#a5e6ac}
-  .msg.warn{background:rgba(210,153,34,.12);border:1px solid rgba(210,153,34,.38);color:#f0d08a}
+  .msg.err{background:var(--bad-soft);border-color:color-mix(in srgb,var(--bad) 35%,transparent);color:var(--ink)}
+  .msg.ok{background:var(--good-soft);border-color:color-mix(in srgb,var(--good) 35%,transparent);color:var(--ink)}
+  .msg.warn{background:var(--warn-soft);border-color:color-mix(in srgb,var(--warn) 35%,transparent);color:var(--ink)}
+  .msg.info{background:var(--surface-2);border-color:var(--line);color:var(--muted)}
+  .msg small{color:var(--muted)}
 
-  .row{display:flex;gap:7px;flex-wrap:wrap}
+  .row{display:flex;gap:8px;flex-wrap:wrap}
   .row > .grow{flex:1}
 
-  /* ---------- example diagrams ---------- */
-  .diagrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:9px;
-           margin:10px 0 4px}
-  .diacard{background:var(--panel-2);border:1px solid var(--line-soft);border-radius:11px;
-           padding:10px 9px;text-align:center}
-  .diacard svg{width:100%;max-width:124px;height:auto;display:block;margin:0 auto 5px}
-  .diacard .code{font-size:17px;font-weight:700;letter-spacing:-.01em}
-  .diacard .say{font-size:11.5px;color:var(--dim);line-height:1.45;margin-top:3px}
-  .diacard .lead{font-size:12px;color:var(--ink);font-weight:600;margin-top:2px}
-  .tip .dia{flex:none;width:58px}
-  .tip .dia svg{width:58px;height:58px;display:block}
+  /* ------------------------------------------------------------------ diagrams */
+  .diagrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:12px 0 4px}
+  .diacard{background:var(--surface-2);border:1px solid var(--line);border-radius:14px;
+           padding:12px 10px;text-align:center;color:var(--ink)}
+  .diacard svg{width:100%;max-width:124px;height:auto;display:block;margin:0 auto 6px}
+  .diacard .code{font-size:18px;font-weight:800;letter-spacing:-.01em}
+  .diacard .say{font-size:12px;color:var(--muted);line-height:1.45;margin-top:3px}
+  .diacard .lead{font-size:12.5px;font-weight:600;margin-top:2px}
 
-  /* ---------- manual ---------- */
-  .sheet{position:fixed;inset:0;background:rgba(4,7,11,.74);display:none;
-         place-items:center;padding:20px;z-index:50;backdrop-filter:blur(3px)}
-  .sheet.open{display:grid}
-  .sheet .inner{background:var(--panel);border:1px solid var(--line);border-radius:15px;
-    max-width:740px;width:100%;max-height:86vh;display:flex;flex-direction:column}
-  .sheet header{border-radius:15px 15px 0 0}
-  .sheet .scroll{overflow:auto;padding:18px 22px 24px}
-  .sheet h3{font-size:14.5px;margin:20px 0 7px}
+  /* ------------------------------------------------------------------ manual sheet */
+  .sheet{position:fixed;inset:0;background:rgba(8,11,17,.55);display:none;
+         place-items:center;padding:20px;z-index:50;backdrop-filter:blur(6px)}
+  .sheet.open{display:grid;animation:fade .18s ease-out}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .sheet .inner{background:var(--surface);border:1px solid var(--line);border-radius:22px;
+    max-width:780px;width:100%;max-height:88vh;display:flex;flex-direction:column;box-shadow:var(--shadow-lg)}
+  .sheet .shead{display:flex;align-items:center;gap:12px;padding:18px 22px;border-bottom:1px solid var(--line)}
+  .sheet .shead .sub{color:var(--muted);font-size:13px}
+  .sheet .scroll{overflow:auto;padding:20px 24px 28px}
+  .sheet h3{font-size:15.5px;margin:24px 0 8px}
   .sheet h3:first-child{margin-top:0}
-  .sheet p{margin:0 0 9px;color:var(--dim);font-size:13.5px}
-  .mtable{width:100%;border-collapse:collapse;font-size:13px;margin:6px 0 4px}
-  .mtable th,.mtable td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line-soft)}
-  .mtable th{color:var(--faint);font-weight:600;font-size:11px;text-transform:uppercase;
-             letter-spacing:.05em}
-  .mtable .code{font-weight:700;font-size:14.5px;width:48px}
-  .mtable .arr{font-size:18px;color:var(--accent);width:32px;text-align:center}
-  .facemap{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px;
-           margin:9px 0 4px}
-  .facemap div{background:var(--panel-2);border:1px solid var(--line-soft);border-radius:9px;
-               padding:8px 10px;font-size:12.5px;color:var(--dim)}
-  .facemap b{display:block;font-size:14px;margin-bottom:1px;color:var(--ink)}
+  .sheet p{margin:0 0 10px;color:var(--muted);font-size:14px}
+  .sheet p b{color:var(--ink)}
+  .facemap{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:10px 0 4px}
+  .facemap div{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;
+               padding:10px 12px;font-size:13px;color:var(--muted)}
+  .facemap b{display:block;font-size:14.5px;margin-bottom:1px;color:var(--ink)}
 
-  @media (max-width:1240px){
-    main{grid-template-columns:340px minmax(0,1fr)}
-    .col.right{grid-column:1 / -1;flex-direction:row;gap:13px}
-    .col.right > .card{flex:1}
+  /* ------------------------------------------------------------------ responsive */
+  @media (max-width:1280px){
+    main{grid-template-columns:minmax(320px,350px) minmax(0,1fr)}
+    .col.right{grid-column:1 / -1;flex-direction:row}
+    .col.right > .card{flex:1;min-width:0}
+    .stepper{display:none}
   }
   @media (max-width:900px){
     body{overflow:auto}
-    .app{height:auto}
-    main{grid-template-columns:1fr;overflow:visible}
+    .app{height:auto;min-height:100dvh}
+    .topbar{padding:10px 14px;flex-wrap:wrap}
+    .brand .sub{display:none}
+    .status{display:none}
+    main{grid-template-columns:1fr;overflow:visible;padding:12px;gap:12px}
     .col.right{flex-direction:column}
-    .stagecard{height:52vh;flex:none}
-    .steps{max-height:280px;flex:none}
+    .stagecard{height:62vw;min-height:300px;max-height:460px;flex:none}
+    .steps{max-height:320px;flex:none}
+    .mapcard .lbl{display:none}
+    .mapcard .net{margin:0 auto}
   }
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important} }
 </style>
 </head>
 <body>
 <div class="app">
 
-<header>
-  <div class="logo"></div>
-  <div>
-    <h1 style="font-size:16px">Cube Solver</h1>
-    <div class="sub">Show it your cube. Follow the arrow. Done in about 23 turns.</div>
+<header class="topbar">
+  <div class="brand">
+    <div class="logo" aria-hidden="true">
+      <i style="background:#e03030"></i><i style="background:#f2f4f6"></i><i style="background:#26a844"></i>
+      <i style="background:#ffd400"></i><i style="background:#1668d8"></i><i style="background:#e03030"></i>
+      <i style="background:#f07818"></i><i style="background:#26a844"></i><i style="background:#ffd400"></i>
+    </div>
+    <div style="min-width:0">
+      <h1>Cube Solver</h1>
+      <div class="sub">Show it your cube. Follow the arrow. Done.</div>
+    </div>
   </div>
-  <div class="spacer"></div>
-  <button class="btn sm" id="btnManual">What do R and U mean?</button>
-  <span class="pill" id="pillSolver">solver…</span>
+
+  <nav class="stepper" aria-label="Progress">
+    <span id="stp1" data-state="active"><b>1</b>Your cube</span>
+    <span id="stp2"><b>2</b>Check</span>
+    <span id="stp3"><b>3</b>Solve</span>
+  </nav>
+
+  <div class="tools">
+    <span class="status" id="pillSolver" data-kind=""><i></i><span id="pillText">starting…</span></span>
+    <button class="btn sm" id="btnManual">What do R and U mean?</button>
+    <button class="btn icon ghost" id="btnTheme" title="Light / dark" aria-label="Switch light or dark theme">◐</button>
+  </div>
 </header>
 
 <main>
   <!-- ══════════ LEFT: get the cube in ══════════ -->
   <div class="col">
-    <div class="card" style="flex:1">
-      <h2><span class="step">1</span> Your cube
-        <span class="right" id="scanCount">0 of 6 faces</span></h2>
-
-      <div class="tabs" role="tablist">
-        <button role="tab" data-tab="scan" aria-selected="true">Scan with camera</button>
-        <button role="tab" data-tab="hand" aria-selected="false">Enter by hand</button>
+    <section class="card" style="flex:1">
+      <div class="card-h">
+        <span class="num">1</span><h2>Your cube</h2>
+        <span class="right" id="scanCount">0 of 6 faces</span>
       </div>
+      <div class="body" style="padding-top:12px">
+        <div class="seg" role="tablist">
+          <button role="tab" data-tab="scan" aria-selected="true">📷 Scan with camera</button>
+          <button role="tab" data-tab="hand" aria-selected="false">✎ Enter by hand</button>
+        </div>
 
-      <div class="body" id="tab-scan">
-        <div class="videowrap">
-          <div class="ph" id="camPh">
-            Press <b>Start scanning</b> and hold each face up.<br>
-            It captures on its own once it can read all nine stickers.
+        <div id="tab-scan">
+          <div class="videowrap">
+            <div class="ph" id="camPh">
+              <div class="cam">📷</div>
+              Press <b>Start scanning</b> and hold each face up.<br>
+              It captures on its own once it can read all nine stickers.
+            </div>
+            <video id="video" playsinline muted style="display:none"></video>
+            <canvas id="overlay"></canvas>
+            <div class="flash" id="flash"></div>
           </div>
-          <video id="video" playsinline muted style="display:none"></video>
-          <canvas id="overlay"></canvas>
-          <div class="flash" id="flash"></div>
+
+          <div class="lockwrap">
+            <div class="bar"><i id="lockBar"></i></div>
+            <span id="lockText">camera off</span>
+          </div>
+
+          <div class="tip" id="tip">
+            <span class="num">1</span>
+            <div>Pick any face to be the <b>front</b> and keep that grip the whole time.</div>
+          </div>
+
+          <div class="facerow" id="facerow"></div>
+
+          <div class="row" style="margin-top:12px">
+            <button class="btn primary grow" id="btnCam">Start scanning</button>
+            <button class="btn" id="btnShot" disabled title="Capture this face now">Snap</button>
+            <button class="btn ghost" id="btnReset">Clear</button>
+          </div>
+          <div class="msg" id="scanMsg"></div>
         </div>
 
-        <div class="lockwrap">
-          <div class="bar"><i id="lockBar"></i></div>
-          <span id="lockText">camera off</span>
-        </div>
-
-        <div class="tip" id="tip">
-          <span class="num">1</span>
-          <div>Pick any face to be the <b>front</b> and keep that grip the whole time.</div>
-        </div>
-
-        <div class="facerow" id="facerow"></div>
-
-        <div class="row" style="margin-top:11px">
-          <button class="btn primary grow" id="btnCam">Start scanning</button>
-          <button class="btn" id="btnShot" disabled title="Capture this face now">Snap</button>
-          <button class="btn ghost sm" id="btnReset">Clear</button>
-        </div>
-        <div class="msg" id="scanMsg"></div>
-      </div>
-
-      <div class="body" id="tab-hand" style="display:none">
-        <div class="net big" id="net"></div>
-        <div class="swatches" id="swatches"></div>
-        <div class="tip"><span class="num">✎</span>
-          <div>Pick a colour, then click any sticker to change it. Centres stay
-          fixed — on a real cube they never move.</div></div>
-        <div class="row" style="margin-top:11px">
-          <button class="btn sm grow" id="btnSolved">Reset to solved</button>
-          <button class="btn sm grow" id="btnRandom">Try a random cube</button>
+        <div id="tab-hand" style="display:none">
+          <div style="margin-top:16px"><div class="net big" id="net"></div></div>
+          <div class="swatches" id="swatches"></div>
+          <div class="tip"><span class="num">✎</span>
+            <div>Pick a colour, then click any sticker to change it. Centres stay
+            fixed — on a real cube they never move.</div></div>
+          <div class="row" style="margin-top:12px">
+            <button class="btn sm grow" id="btnSolved">Reset to solved</button>
+            <button class="btn sm grow" id="btnRandom">🎲 Try a random cube</button>
+          </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <div class="card" style="flex:none">
+    <section class="card" style="flex:none">
       <div class="body">
-        <div class="row">
-          <button class="btn primary grow" id="btnSolve">Solve it</button>
-          <button class="btn" id="btnMode"
-                  title="Swap between the short solution and the teaching method">Shortest</button>
+        <div class="modes" role="group" aria-label="Solving method">
+          <button class="mode" data-mode="quick" aria-pressed="true">
+            <b>Shortest</b><small>~20 turns</small></button>
+          <button class="mode" data-mode="learn" aria-pressed="false">
+            <b>Beginner</b><small>layer by layer</small></button>
+          <button class="mode" data-mode="cfop" aria-pressed="false">
+            <b>CFOP</b><small>how speedcubers do it</small></button>
         </div>
+        <button class="btn primary big" id="btnSolve" style="width:100%">Solve it</button>
         <div class="msg" id="solveMsg"></div>
       </div>
-    </div>
+    </section>
   </div>
 
   <!-- ══════════ MIDDLE: the cube ══════════ -->
   <div class="col">
-    <div class="card stagecard">
+    <section class="card stagecard" id="stageCard" data-view="classic">
       <div id="stage"></div>
-      <div class="badge" id="stageBadge">waiting for your cube</div>
-      <div class="stagehint">drag to spin · space = play · ← → = step</div>
-    </div>
-    <div class="card" style="flex:none">
-      <h2><span class="step">2</span> Flattened out
-        <span class="right" id="netNote">this is where your cube is right now</span></h2>
-      <div class="body"><div class="net" id="liveNet"></div></div>
-    </div>
+      <div id="stageCubing"></div>
+      <div class="stage-top">
+        <div class="seg" role="group" aria-label="3D view">
+          <button id="viewClassic" aria-pressed="true" title="Our cube, with arrows on the layer to turn">Classic 3D</button>
+          <button id="viewCubing" aria-pressed="false" title="The cubing.js player used on speedcubing sites">cubing.js</button>
+        </div>
+        <div class="badge" id="stageBadge">waiting for your cube</div>
+      </div>
+      <div class="stagehint" id="stageHint">drag to spin · space = play · ← → = step</div>
+    </section>
+    <section class="card mapcard">
+      <div class="body">
+        <div class="lbl"><b>Flattened out</b><span id="netNote">this is where your cube is right now</span></div>
+        <div class="net small" id="liveNet"></div>
+      </div>
+    </section>
   </div>
 
   <!-- ══════════ RIGHT: the turns ══════════ -->
   <div class="col right">
-    <div class="card" id="moveCard" style="flex:none;display:none">
-      <h2><span class="step">3</span> Do this turn</h2>
-      <div class="move">
-        <div class="arrow" id="mvArrow">↑</div>
+    <section class="card movecard" id="moveCard" style="flex:none;display:none">
+      <div class="card-h"><span class="num">3</span><h2>Do this turn</h2>
+        <span class="right" id="mvSource"></span></div>
+      <div class="hero">
+        <div class="arrowtile" id="mvArrow">↑</div>
         <div style="min-width:0">
+          <span class="code" id="mvCode">R</span>
           <div class="who" id="mvWho">Right face</div>
           <div class="motion" id="mvMotion">push the RIGHT column UP</div>
-          <div class="detail" id="mvDetail"></div>
         </div>
       </div>
-      <div class="movemeta">
-        <span>Turn <b id="mvIdx">1 / 23</b></span>
-        <span id="mvStage"></span>
+      <div class="detail" id="mvDetail"></div>
+      <div class="progress">
+        <div class="row1"><span>Turn <b id="mvIdx">1 / 20</b></span><span id="mvStage"></span></div>
+        <div class="ptrack" id="ptrack"></div>
       </div>
       <div class="controls">
-        <button class="btn sm" id="btnFirst" title="Back to the start">⏮</button>
-        <button class="btn sm" id="btnPrev">◀</button>
+        <button class="btn icon" id="btnFirst" title="Back to the start" aria-label="Back to the start">⏮</button>
+        <button class="btn icon" id="btnPrev" title="Previous turn" aria-label="Previous turn">◀</button>
         <button class="btn primary grow" id="btnPlay">▶ Play</button>
-        <button class="btn sm" id="btnNext">▶</button>
-        <button class="btn sm" id="btnLast" title="Jump to the end">⏭</button>
+        <button class="btn icon" id="btnNext" title="Next turn" aria-label="Next turn">▶</button>
+        <button class="btn icon" id="btnLast" title="Jump to the end" aria-label="Jump to the end">⏭</button>
       </div>
       <div class="controls" style="padding-top:0">
-        <input type="range" class="scrub" id="scrub" min="0" max="0" value="0">
+        <input type="range" class="scrub" id="scrub" min="0" max="0" value="0" aria-label="Jump to turn">
       </div>
-      <div class="controls" style="padding-top:0">
+      <div class="opts">
         <label class="check"><input type="checkbox" id="chkVoice"> Read aloud</label>
         <label class="check"><input type="checkbox" id="chkArrow" checked> 3D arrow</label>
-        <span style="font-size:11.5px;color:var(--faint);margin-left:auto">Speed</span>
-        <input type="range" id="speed" min="1" max="10" value="6" style="width:74px">
+        <span class="speedwrap">Speed <input type="range" id="speed" min="1" max="10" value="6" style="width:80px" aria-label="Animation speed"></span>
       </div>
-    </div>
+    </section>
 
-    <div class="card" style="flex:1">
-      <h2>Every turn <span class="right" id="turnCount"></span></h2>
+    <section class="card" style="flex:1">
+      <div class="card-h"><h2>Every turn</h2><span class="right" id="turnCount"></span></div>
       <ul class="steps" id="steps">
-        <li class="empty">Scan your cube, then press <b>Solve it</b>.<br>
+        <li class="empty"><span class="ico">🧩</span>Scan your cube, then press <b>Solve it</b>.<br>
         Each turn will be listed here in order.</li>
       </ul>
-    </div>
+    </section>
   </div>
 </main>
 </div>
 
 <!-- ══════════ manual ══════════ -->
-<div class="sheet" id="sheet">
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
   <div class="inner">
-    <header>
-      <div class="logo"></div>
-      <div><h1 style="font-size:15px">How to read the turns</h1>
+    <div class="shead">
+      <div class="logo" aria-hidden="true">
+        <i style="background:#e03030"></i><i style="background:#f2f4f6"></i><i style="background:#26a844"></i>
+        <i style="background:#ffd400"></i><i style="background:#1668d8"></i><i style="background:#e03030"></i>
+        <i style="background:#f07818"></i><i style="background:#26a844"></i><i style="background:#ffd400"></i>
+      </div>
+      <div><h1 style="font-size:16px" id="sheetTitle">How to read the turns</h1>
       <div class="sub">Two minutes and you will never need this page again.</div></div>
-      <div class="spacer"></div>
-      <button class="btn sm" id="btnCloseManual">Close</button>
-    </header>
+      <button class="btn sm" id="btnCloseManual" style="margin-left:auto">Close</button>
+    </div>
     <div class="scroll">
       <h3>1. Hold the cube the same way all the way through</h3>
       <p>Pick one face to be the <b>front</b> and keep it facing you for the whole
@@ -393,7 +549,7 @@
       <div class="diagrid" id="moveGrid"></div>
 
       <h3>4. The mark after a letter</h3>
-      <p><b>R</b> turns the right side one way, <b>R\'</b> (say "R prime") turns it
+      <p><b>R</b> turns the right side one way, <b>R'</b> (say "R prime") turns it
       the other way — those are the twelve pictures above. <b>R2</b> means turn it
       <b>twice</b>, half a turn, and for that one the direction does not matter:</p>
       <div class="diagrid" style="max-width:320px" id="halfGrid"></div>
@@ -411,45 +567,39 @@
       always shows exactly what your cube should look like right now — compare it
       with the one in your hands.</p>
 
-      <h3>7. Why so few turns?</h3>
-      <p><b>Shortest</b> finishes in about 21 turns and never more than 30. The
-      cube looks scrambled almost to the end — that is normal, everything falls
-      into place at once. Switch to <b>Learn</b> to watch it solve layer by layer
-      instead: many more turns, but every stage has a goal you can see.</p>
+      <h3>7. Three ways to solve</h3>
+      <p><b>Shortest</b> finishes in about 20 turns and never more than 22. Two
+      solvers race for it — one in your browser, one on the server — and you get
+      whichever answer is shorter. The cube looks scrambled almost to the end;
+      that is normal, everything falls into place at once.</p>
+      <p><b>Beginner</b> solves it layer by layer: bottom cross, bottom corners,
+      middle layer, then the top. Many more turns, but every stage has a goal you
+      can see.</p>
+      <p><b>CFOP</b> is the method speedcubers use: <b>C</b>ross, <b>F</b>irst two
+      layers (four corner-and-edge pairs), <b>O</b>rient the last layer, <b>P</b>ermute
+      the last layer. About 65 turns. You still never rotate the whole cube.</p>
     </div>
   </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="/static/vendor/min2phase.js"></script>
+<script src="/static/vendor/rubiks-cube-solver.js"></script>
+<script src="/static/js/engine.js"></script>
 <script>
 /* =========================================================================
-   Cube geometry - mirrors backend/cube/model.py exactly (verified in tests).
+   Cube geometry - shared with backend/cube/model.py via js/engine.js
    ========================================================================= */
-const FACE_ORDER = "URFDLB";
-const NORMAL = {U:[0,1,0], R:[1,0,0], F:[0,0,1], D:[0,-1,0], L:[-1,0,0], B:[0,0,-1]};
-const AXES = {
-  U:[[1,0,0],[0,0,1]],  R:[[0,0,-1],[0,-1,0]], F:[[1,0,0],[0,-1,0]],
-  D:[[1,0,0],[0,0,-1]], L:[[0,0,1],[0,-1,0]],  B:[[-1,0,0],[0,-1,0]],
-};
-const sgn = v => (v>0) - (v<0);
-
-const FACELET = (() => {
-  const out = [];
-  for (const f of FACE_ORDER) {
-    const n = NORMAL[f], [u,v] = AXES[f];
-    for (let row=0; row<3; row++) for (let col=0; col<3; col++) {
-      const p = [0,1,2].map(i => n[i]*3 + u[i]*(col-1)*2 + v[i]*(row-1)*2);
-      out.push({face:f, cubie:p.map(sgn), dir:n});
-    }
-  }
-  return out;
-})();
+const E = window.CubeEngine;
+const FACE_ORDER = E.FACE_ORDER;
+const FACELET = E.FACELET;
 
 const DEFAULT_COLOURS = {U:"#f2f4f6", D:"#ffd400", F:"#26a844",
                          B:"#1668d8", R:"#e03030", L:"#f07818"};
 const COLOUR_NAME = {U:"White", D:"Yellow", F:"Green", B:"Blue", R:"Red", L:"Orange"};
+const UNKNOWN = "#3b414c";
 let palette = {...DEFAULT_COLOURS};
-const SOLVED = [...FACE_ORDER].map(f => f.repeat(9)).join("");
+const SOLVED = E.SOLVED;
 
 /* =========================================================================
    State
@@ -457,14 +607,37 @@ const SOLVED = [...FACE_ORDER].map(f => f.repeat(9)).join("");
 const S = {
   facelets: SOLVED, solution: null, index: 0, playing: false, mode: "quick",
   scanFace: 0, scanSamples: {}, scanHex: {}, scanQuality: {},
-  paint: "U", arrowStep: null,
+  paint: "U", arrowStep: null, solveToken: 0, server: null,
   streaming: false, armed: true, lastSig: "", stable: 0, busy: false, misses: 0,
+  view: "classic",
 };
 const $ = id => document.getElementById(id);
 const STABLE_NEEDED = 4;
+const store = {
+  get(k){ try { return localStorage.getItem("cube." + k); } catch { return null; } },
+  set(k, v){ try { localStorage.setItem("cube." + k, v); } catch {} },
+};
 
 /* =========================================================================
-   Three.js
+   Theme
+   ========================================================================= */
+function applyTheme(t){
+  if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+  else delete document.documentElement.dataset.theme;
+  $("btnTheme").textContent = t === "light" ? "☀" : t === "dark" ? "☾" : "◐";
+  $("btnTheme").title = "Theme: " + (t || "follow system");
+}
+$("btnTheme").onclick = () => {
+  const order = [null, "light", "dark"];
+  const cur = store.get("theme");
+  const next = order[(order.indexOf(cur === "light" || cur === "dark" ? cur : null) + 1) % 3];
+  store.set("theme", next || "");
+  applyTheme(next);
+};
+applyTheme(store.get("theme"));
+
+/* =========================================================================
+   Three.js - the classic cube
    ========================================================================= */
 let renderer, scene, camera, cubeRoot, cubies = [], arrowGroup = null, layerBox = null;
 const CUBIE = 0.96, GAP = 1.0;
@@ -476,12 +649,13 @@ function initThree(){
   stage.appendChild(renderer.domElement);
 
   scene = new THREE.Scene();
-  camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
-  scene.add(new THREE.AmbientLight(0xffffff, 0.75));
-  const key = new THREE.DirectionalLight(0xffffff, 0.58); key.position.set(6,9,7);
+  camera = new THREE.PerspectiveCamera(36, 1, 0.1, 100);
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x3a4150, 0.95));
+  const key = new THREE.DirectionalLight(0xffffff, 0.75); key.position.set(5, 9, 7);
   scene.add(key);
-  const fill = new THREE.DirectionalLight(0xffffff, 0.24); fill.position.set(-6,-3,-5);
-  scene.add(fill);
+  const rim = new THREE.DirectionalLight(0xbfd4ff, 0.35); rim.position.set(-7, 3, -6);
+  scene.add(rim);
+  scene.add(contactShadow());
 
   cubeRoot = new THREE.Group();
   scene.add(cubeRoot);
@@ -490,6 +664,25 @@ function initThree(){
   resize();
   new ResizeObserver(resize).observe(stage);
   (function loop(){ requestAnimationFrame(loop); placeArrow(); renderer.render(scene, camera); })();
+}
+
+/** A soft round shadow under the cube, so it sits on something. */
+function contactShadow(){
+  const size = 128, c = document.createElement("canvas");
+  c.width = c.height = size;
+  const g = c.getContext("2d");
+  if (g && g.createRadialGradient){
+    const grad = g.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
+    grad.addColorStop(0, "rgba(0,0,0,0.38)");
+    grad.addColorStop(0.55, "rgba(0,0,0,0.12)");
+    grad.addColorStop(1, "rgba(0,0,0,0)");
+    g.fillStyle = grad; g.fillRect(0, 0, size, size);
+  }
+  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(6.2, 6.2),
+    new THREE.MeshBasicMaterial({map: new THREE.CanvasTexture(c), transparent: true, depthWrite: false}));
+  mesh.rotation.x = -Math.PI/2;
+  mesh.position.y = -2.25;
+  return mesh;
 }
 
 function resize(){
@@ -501,11 +694,11 @@ function resize(){
 }
 
 function enableDrag(el){
-  let down=false, lx=0, ly=0, ry=0.66, rx=0.44;
+  let down=false, lx=0, ly=0, ry=0.62, rx=0.46;
   const apply = () => {
-    const r = 8.3;
+    const r = 11;
     camera.position.set(r*Math.cos(rx)*Math.sin(ry), r*Math.sin(rx), r*Math.cos(rx)*Math.cos(ry));
-    camera.lookAt(0,0,0);
+    camera.lookAt(0,-0.15,0);
   };
   apply();
   const pt = e => e.touches ? {x:e.touches[0].clientX, y:e.touches[0].clientY}
@@ -523,21 +716,46 @@ function enableDrag(el){
   addEventListener("mouseup", ()=>down=false); addEventListener("touchend", ()=>down=false);
 }
 
-function buildCube(){
-  cubies.forEach(c => cubeRoot.remove(c));
-  cubies = [];
-  const geo = new THREE.BoxGeometry(CUBIE, CUBIE, CUBIE);
-  for (let x=-1;x<=1;x++) for (let y=-1;y<=1;y++) for (let z=-1;z<=1;z++){
-    if (!x && !y && !z) continue;
-    const mats = [0,1,2,3,4,5].map(() => new THREE.MeshLambertMaterial({color:0x12161b}));
-    const m = new THREE.Mesh(geo, mats);
-    m.position.set(x*GAP, y*GAP, z*GAP);
-    cubeRoot.add(m); cubies.push(m);
+/**
+ * A box with rounded edges: take a finely divided box, squeeze most of its
+ * vertices into the corner zones, then push each one out to a sphere of
+ * radius r around the inner box.
+ */
+function roundedBox(size, r, seg = 5){
+  const geo = new THREE.BoxGeometry(size, size, size, seg*2, seg*2, seg*2);
+  const pos = geo.attributes && geo.attributes.position;
+  if (!pos) return geo;
+  const h = size/2, inner = h - r;
+  const remap = t => {                         // flat middle, detail at the edges
+    const a = Math.abs(t)/h, s = Math.sign(t);
+    const edge = 1/seg;                        // first ring after the centre
+    return s * (a <= edge ? (a/edge)*inner : inner + ((a-edge)/(1-edge))*r);
+  };
+  const clamp = v => Math.max(-inner, Math.min(inner, v));
+  for (let i = 0; i < pos.count; i++){
+    const x = remap(pos.getX(i)), y = remap(pos.getY(i)), z = remap(pos.getZ(i));
+    const cx = clamp(x), cy = clamp(y), cz = clamp(z);
+    let dx = x-cx, dy = y-cy, dz = z-cz;
+    const len = Math.hypot(dx, dy, dz);
+    if (len > 1e-9){ dx *= r/len; dy *= r/len; dz *= r/len; }
+    pos.setXYZ(i, cx+dx, cy+dy, cz+dz);
   }
-  paintCube(S.facelets);
+  geo.computeVertexNormals();
+  return geo;
+}
+
+function roundedSquare(size, r){
+  const s = new THREE.Shape(), h = size/2;
+  s.moveTo(-h + r, -h);
+  s.lineTo(h - r, -h);  s.quadraticCurveTo(h, -h, h, -h + r);
+  s.lineTo(h, h - r);   s.quadraticCurveTo(h, h, h - r, h);
+  s.lineTo(-h + r, h);  s.quadraticCurveTo(-h, h, -h, h - r);
+  s.lineTo(-h, -h + r); s.quadraticCurveTo(-h, -h, -h + r, -h);
+  return new THREE.ShapeGeometry(s, 6);
 }
 
 /* BoxGeometry material order: +x, -x, +y, -y, +z, -z */
+const DIRS = [[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]];
 function matIndex(dir){
   const [x,y,z] = dir;
   if (x ===  1) return 0;
@@ -547,18 +765,49 @@ function matIndex(dir){
   if (z ===  1) return 4;
   return 5;
 }
+
+function buildCube(){
+  cubies.forEach(c => cubeRoot.remove(c));
+  cubies = [];
+  const bodyGeo = roundedBox(CUBIE, 0.085);
+  const bodyMat = new THREE.MeshStandardMaterial({color:0x121419, roughness:0.5, metalness:0.15});
+  const stickerGeo = roundedSquare(0.8, 0.11);
+  for (let x=-1;x<=1;x++) for (let y=-1;y<=1;y++) for (let z=-1;z<=1;z++){
+    if (!x && !y && !z) continue;
+    const m = new THREE.Mesh(bodyGeo, bodyMat);
+    m.position.set(x*GAP, y*GAP, z*GAP);
+    m.userData.st = [];
+    DIRS.forEach((d, k) => {
+      if (d[0] && d[0] !== x || d[1] && d[1] !== y || d[2] && d[2] !== z) return;  // inside face
+      const mat = new THREE.MeshStandardMaterial({color: UNKNOWN, roughness: 0.3, metalness: 0});
+      const s = new THREE.Mesh(stickerGeo, mat);
+      const off = CUBIE/2 + 0.004;
+      s.position.set(d[0]*off, d[1]*off, d[2]*off);
+      if (d[0]) s.rotation.y = d[0] * Math.PI/2;
+      if (d[1]) s.rotation.x = -d[1] * Math.PI/2;
+      if (d[2] < 0) s.rotation.y = Math.PI;
+      m.add(s);
+      m.userData.st[k] = mat;
+    });
+    cubeRoot.add(m); cubies.push(m);
+  }
+  paintCube(S.facelets);
+}
+
 function cubieAt(x,y,z){
   return cubies.find(c => Math.round(c.position.x/GAP)===x
                        && Math.round(c.position.y/GAP)===y
                        && Math.round(c.position.z/GAP)===z);
 }
+function sticker(mesh, dir){ return mesh && mesh.userData.st && mesh.userData.st[matIndex(dir)]; }
+function blankAll(){ cubies.forEach(c => (c.userData.st || []).forEach(m => m && m.color.set(UNKNOWN))); }
+
 function paintCube(facelets){
-  cubies.forEach(c => c.material.forEach(m => m.color.set(0x12161b)));
+  blankAll();
   for (let i=0;i<54;i++){
     const {cubie, dir} = FACELET[i];
-    const mesh = cubieAt(cubie[0], cubie[1], cubie[2]);
-    if (!mesh) continue;
-    mesh.material[matIndex(dir)].color.set(palette[facelets[i]] || "#4a5560");
+    const m = sticker(cubieAt(cubie[0], cubie[1], cubie[2]), dir);
+    if (m) m.color.set(palette[facelets[i]] || UNKNOWN);
   }
 }
 /** Paint one face with the exact colours just read off the camera. */
@@ -566,13 +815,13 @@ function paintFaceRaw(face, hexes){
   const base = FACE_ORDER.indexOf(face)*9;
   for (let i=0;i<9;i++){
     const {cubie, dir} = FACELET[base+i];
-    const mesh = cubieAt(cubie[0], cubie[1], cubie[2]);
-    if (mesh) mesh.material[matIndex(dir)].color.set(hexes[i]);
+    const m = sticker(cubieAt(cubie[0], cubie[1], cubie[2]), dir);
+    if (m) m.color.set(hexes[i]);
   }
 }
 /** Grey out the faces we have not read yet, so progress is obvious. */
 function showScanProgress(){
-  cubies.forEach(c => c.material.forEach(m => m.color.set(0x12161b)));
+  blankAll();
   for (const f of FACE_ORDER){
     if (S.scanHex[f]) paintFaceRaw(f, S.scanHex[f]);
   }
@@ -594,22 +843,15 @@ let scanAnimTimer = null;
 function animateScanRotation(targetFace) {
   if (scanAnimTimer) cancelAnimationFrame(scanAnimTimer);
   const targetQ = TARGET_QUATERNIONS[targetFace];
-  if (!targetQ || !cubeRoot) return;
+  if (!targetQ || !cubeRoot || !cubeRoot.quaternion.clone) return;
   const startQ = cubeRoot.quaternion.clone();
   const t0 = performance.now();
   const duration = 600;
-  
   function tick(now) {
-    const elapsed = now - t0;
-    let t = Math.min(1, elapsed / duration);
+    let t = Math.min(1, (now - t0) / duration);
     t = 1 - Math.pow(1 - t, 3);
     cubeRoot.quaternion.slerpQuaternions(startQ, targetQ, t);
-    
-    if (t < 1) {
-      scanAnimTimer = requestAnimationFrame(tick);
-    } else {
-      scanAnimTimer = null;
-    }
+    scanAnimTimer = t < 1 ? requestAnimationFrame(tick) : null;
   }
   scanAnimTimer = requestAnimationFrame(tick);
 }
@@ -655,29 +897,30 @@ function clearArrow(){
   S.arrowStep = null;
 }
 
+function accentHex(){
+  const v = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim();
+  return /^#[0-9a-f]{6}$/i.test(v) ? parseInt(v.slice(1), 16) : 0x3b82f6;
+}
+
 /** One curved arrow, plus a dark copy behind it so it reads on any colour. */
 function buildArrowMesh(step){
   const g = new THREE.Group();
   const sweep = step.turns === 2 ? Math.PI*0.95 : Math.PI*0.66;
   const R = 1.95, tube = 0.115;
-
-  for (const [colour, grow, order] of [[0x05080c, 1.55, 998], [0x62b0ff, 1.0, 999]]){
+  for (const [colour, grow, order] of [[0x05080c, 1.55, 998], [accentHex(), 1.0, 999]]){
     const mat = new THREE.MeshBasicMaterial({
       color: colour, side: THREE.DoubleSide,
       depthTest: false, depthWrite: false, transparent: true,
-      opacity: colour === 0x05080c ? 0.85 : 1,
+      opacity: colour === 0x05080c ? 0.8 : 1,
     });
     const part = new THREE.Group();
-    part.add(new THREE.Mesh(
-      new THREE.TorusGeometry(R, tube*grow, 12, 56, sweep), mat));
-    const head = new THREE.Mesh(
-      new THREE.ConeGeometry(0.30*grow, 0.62*grow, 20), mat);
+    part.add(new THREE.Mesh(new THREE.TorusGeometry(R, tube*grow, 12, 56, sweep), mat));
+    const head = new THREE.Mesh(new THREE.ConeGeometry(0.30*grow, 0.62*grow, 20), mat);
     head.position.set(Math.cos(sweep)*R, Math.sin(sweep)*R, 0);
     head.rotation.z = sweep;
     part.add(head);
     if (step.turns === 2){
-      const tail = new THREE.Mesh(
-        new THREE.ConeGeometry(0.30*grow, 0.62*grow, 20), mat);
+      const tail = new THREE.Mesh(new THREE.ConeGeometry(0.30*grow, 0.62*grow, 20), mat);
       tail.position.set(R, 0, 0); tail.rotation.z = Math.PI;
       part.add(tail);
     }
@@ -689,16 +932,13 @@ function buildArrowMesh(step){
 
 /** A bright outline around the layer that is about to move. */
 function buildLayerBox(step){
-  const t = 1.06 * GAP, s = 3.18 * GAP;
+  const t = 1.08 * GAP, s = 3.2 * GAP;
   const size = step.axis === "x" ? [t,s,s] : step.axis === "y" ? [s,t,s] : [s,s,t];
   const geo = new THREE.EdgesGeometry(new THREE.BoxGeometry(...size));
   const line = new THREE.LineSegments(geo, new THREE.LineBasicMaterial({
-    color:0x62b0ff, transparent:true, opacity:0.9,
-    depthTest:false, depthWrite:false }));
+    color: accentHex(), transparent:true, opacity:0.9, depthTest:false, depthWrite:false }));
   const at = (step.layer === 2 ? 1 : -1) * GAP;
-  line.position.set(step.axis === "x" ? at : 0,
-                    step.axis === "y" ? at : 0,
-                    step.axis === "z" ? at : 0);
+  line.position.set(step.axis === "x" ? at : 0, step.axis === "y" ? at : 0, step.axis === "z" ? at : 0);
   line.renderOrder = 997;
   return line;
 }
@@ -716,38 +956,118 @@ function showArrow(step){
 }
 
 /**
- * Put the arrow on whichever end of the turning axis is facing the camera.
- *
- * The old version always drew it on the layer's own outer face, so a B, L or D
- * turn put the arrow round the back of the cube where you could not see it -
- * and if you did catch a glimpse, you were looking at its far side, which
- * shows the rotation the wrong way round. Sitting it on the near end fixes
- * both: it is never hidden, and the direction is always the direction you see.
- * The outlined slab says which layer actually moves.
+ * Put the arrow on whichever end of the turning axis is facing the camera,
+ * so it is never hidden round the back and its direction is always the
+ * direction you see. The outlined slab says which layer actually moves.
  */
 function placeArrow(){
   if (!arrowGroup || !S.arrowStep) return;
-  const step = S.arrowStep;
-  const axis = step.axis;
-  const camAt = axis === "x" ? camera.position.x
-              : axis === "y" ? camera.position.y : camera.position.z;
+  const step = S.arrowStep, axis = step.axis;
+  const camAt = axis === "x" ? camera.position.x : axis === "y" ? camera.position.y : camera.position.z;
   const near = camAt >= 0 ? 1 : -1;
-
   arrowGroup.rotation.set(0,0,0);
   if (axis === "x") arrowGroup.rotation.y = near * Math.PI/2;
   if (axis === "y") arrowGroup.rotation.x = -near * Math.PI/2;
   if (axis === "z" && near < 0) arrowGroup.rotation.y = Math.PI;
-  arrowGroup.position.set(axis === "x" ? near*2.6 : 0,
-                          axis === "y" ? near*2.6 : 0,
-                          axis === "z" ? near*2.6 : 0);
-  // a turn of +angle about the positive axis looks anticlockwise from the
-  // positive end and clockwise from the other, so flip when we swap ends
-  const child = arrowGroup.children[0];
-  child.scale.y = (step.angle * near) >= 0 ? 1 : -1;
-
+  arrowGroup.position.set(axis === "x" ? near*2.6 : 0, axis === "y" ? near*2.6 : 0, axis === "z" ? near*2.6 : 0);
+  // +angle about the positive axis looks anticlockwise from the positive end
+  // and clockwise from the other, so flip when we swap ends
+  arrowGroup.children[0].scale.y = (step.angle * near) >= 0 ? 1 : -1;
   const pulse = 1 + 0.055 * Math.sin(performance.now() / 260);
   arrowGroup.scale.setScalar(pulse);
   if (layerBox) layerBox.material.opacity = 0.55 + 0.35 * (pulse - 1) / 0.055 * 0.5;
+}
+
+/* =========================================================================
+   cubing.js view (loaded on demand, unmodified, from its own CDN)
+   ========================================================================= */
+const TWISTY_SOURCES = [
+  "https://cdn.cubing.net/v0/js/cubing/twisty",
+  "https://cdn.jsdelivr.net/npm/cubing@0.63.6/dist/lib/cubing/twisty/index.js",
+];
+let twisty = null, twistyLoading = null;
+
+async function loadTwisty(){
+  if (twisty) return twisty;
+  if (!twistyLoading) twistyLoading = (async () => {
+    let lastErr;
+    for (const src of TWISTY_SOURCES){
+      try { await import(src); lastErr = null; break; } catch (e) { lastErr = e; }
+    }
+    if (lastErr) throw lastErr;
+    const tp = document.createElement("twisty-player");
+    tp.puzzle = "3x3x3";
+    tp.visualization = "3D";
+    tp.controlPanel = "none";
+    tp.background = "none";
+    tp.hintFacelets = "floating";
+    tp.backView = "none";
+    $("stageCubing").innerHTML = "";
+    $("stageCubing").appendChild(tp);
+    // it can draw its first frames before its renderer is ready and then sit
+    // blank; a resize makes it redraw, so nudge it a few times while it wakes
+    [100, 500, 1200, 2500].forEach(ms => setTimeout(nudgeTwisty, ms));
+    twisty = tp;
+    return tp;
+  })();
+  return twistyLoading;
+}
+
+function nudgeTwisty(){ if (twisty && S.view === "cubing") dispatchEvent(new Event("resize")); }
+// the player only draws when something changes, so a frame drawn while the
+// page was hidden can be lost; redraw whenever the page comes back
+document.addEventListener("visibilitychange", () => { if (!document.hidden) setTimeout(nudgeTwisty, 60); });
+addEventListener("focus", () => setTimeout(nudgeTwisty, 60));
+
+function cubingMessage(html){
+  $("stageCubing").querySelectorAll(".cubing-msg").forEach(n => n.remove());
+  if (!html) return;
+  const d = document.createElement("div");
+  d.className = "cubing-msg"; d.innerHTML = html;
+  if (twisty) { d.style.position = "absolute"; }
+  $("stageCubing").appendChild(d);
+}
+
+/** Show the current state in the cubing.js player; optionally animate `move`. */
+function syncTwisty(move){
+  if (!twisty || S.view !== "cubing") return;
+  let setup;
+  if (S.solution && S.solution.moveCount){
+    const all = S.solution.moves;
+    const done = all.slice(0, S.index - (move ? 1 : 0));
+    setup = [...E.invert(all), ...done];
+  } else {
+    try { setup = E.invert(E.solveShortest(S.facelets).map(([m]) => m)); }
+    catch { cubingMessage("The cubing.js view needs a complete, possible cube. "
+                          + "Finish scanning, or switch back to <b>Classic 3D</b>."); return; }
+  }
+  cubingMessage(null);
+  twisty.tempoScale = 0.5 + $("speed").value / 4;
+  twisty.experimentalSetupAlg = setup.join(" ");
+  twisty.alg = move || "";
+  if (move) { twisty.jumpToStart(); setTimeout(() => twisty.play(), 30); }
+  requestAnimationFrame(nudgeTwisty);
+}
+
+async function setView(v){
+  S.view = v;
+  store.set("view", v);
+  $("stageCard").dataset.view = v;
+  $("viewClassic").setAttribute("aria-pressed", v === "classic");
+  $("viewCubing").setAttribute("aria-pressed", v === "cubing");
+  $("stageHint").textContent = v === "classic"
+    ? "drag to spin · space = play · ← → = step"
+    : "cubing.js twisty-player · drag to spin";
+  if (v !== "cubing") return;
+  if (!twisty){
+    cubingMessage("Loading the cubing.js player…");
+    try { await loadTwisty(); }
+    catch (e) {
+      return cubingMessage("Could not load cubing.js (" + e.message + "). It comes from "
+        + "cdn.cubing.net, so it needs an internet connection. <b>Classic 3D</b> works offline.");
+    }
+  }
+  syncTwisty();
 }
 
 /* =========================================================================
@@ -769,7 +1089,7 @@ function renderNet(el, facelets, {editable=false}={}){
       const idx = base+i;
       const c = document.createElement("div");
       c.className = "cell" + (i===4?" centre":"") + (editable && i!==4 ? " edit":"");
-      c.style.background = palette[facelets[idx]] || "#4a5560";
+      c.style.background = palette[facelets[idx]] || UNKNOWN;
       c.title = `${f}${i} · ${COLOUR_NAME[facelets[idx]]||facelets[idx]}`;
       if (editable && i!==4) c.addEventListener("click", () => {
         const a = S.facelets.split(""); a[idx] = S.paint;
@@ -781,20 +1101,26 @@ function renderNet(el, facelets, {editable=false}={}){
   }
 }
 
+function setStepper(n){
+  [1,2,3].forEach(i => $("stp"+i).dataset.state = i < n ? "done" : i === n ? "active" : "");
+}
+
 function setFacelets(f){
   S.facelets = f;
-  S.solution = null; S.index = 0; S.playing = false;
+  S.solution = null; S.index = 0; S.playing = false; S.solveToken++;
   renderNet($("net"), f, {editable:true});
   renderNet($("liveNet"), f);
   paintCube(f);
   clearArrow();
   $("moveCard").style.display = "none";
   $("turnCount").textContent = "";
-  $("steps").innerHTML = '<li class="empty">Press <b>Solve it</b> to work out the turns.</li>';
+  $("steps").innerHTML = '<li class="empty"><span class="ico">✨</span>Press <b>Solve it</b> to work out the turns.</li>';
   $("scrub").max = 0; $("scrub").value = 0;
   $("stageBadge").textContent = "ready to solve";
   $("netNote").textContent = "check these match your cube";
+  setStepper(f === SOLVED ? 1 : 2);
   if (typeof cubeRoot !== "undefined" && cubeRoot) animateScanRotation("F");
+  syncTwisty();
 }
 
 /* =========================================================================
@@ -850,18 +1176,15 @@ function updateTip(){
   const o = SCAN_ORDER[S.scanFace];
   const done = Object.keys(S.scanSamples).length;
   $("tip").innerHTML = done === 6
-    ? `<span class="num">✓</span><div>All six faces read. Check the flat map in the
-       middle, then press <b>Solve it</b>.</div>`
+    ? `<span class="num">✓</span><div>All six faces read. Check the flat map under the
+       cube, then press <b>Solve it</b>.</div>`
     : `<span class="num">${S.scanFace+1}</span><div>${o.tip}</div>`
       + `<div class="dia" title="${o.name} face towards the camera, `
       + `${o.up.toLowerCase()} of the cube pointing up">`
       + holdDiagram(o.f, o.up, o.name) + `</div>`;
 
-  if (done < 6 && $("tab-scan").style.display !== "none") {
-    animateScanRotation(o.f);
-  } else if (done === 6) {
-    animateScanRotation("F");
-  }
+  if (done < 6 && $("tab-scan").style.display !== "none") animateScanRotation(o.f);
+  else if (done === 6) animateScanRotation("F");
 }
 
 async function startCamera(){
@@ -873,7 +1196,7 @@ async function startCamera(){
       stream = await navigator.mediaDevices.getUserMedia({
         video:{facingMode:"environment", width:{ideal:1280}, height:{ideal:1280}}, audio:false});
     } catch(e) {
-      // Fallback to any available camera if 'environment' fails (common on desktops)
+      // any camera will do if there is no rear one (common on desktops)
       stream = await navigator.mediaDevices.getUserMedia({
         video:{width:{ideal:1280}, height:{ideal:1280}}, audio:false});
     }
@@ -887,7 +1210,7 @@ async function startCamera(){
   $("btnShot").disabled = false;
   $("btnCam").textContent = "Stop scanning";
   S.streaming = true; S.stable = 0; S.armed = true; S.misses = 0;
-  note("scanMsg","warn","Hold a face up and keep still — it captures on its own.");
+  note("scanMsg","info","Hold a face up and keep still — it captures on its own.");
   liveTimer = setInterval(tickLive, 230);
 }
 
@@ -946,6 +1269,9 @@ async function tickLive(){
         + "face flat to the camera, and keep the background plain.");
 
     if (good && S.armed && S.stable >= STABLE_NEEDED) await capture(d);
+  } catch {
+    if (!S.server) note("scanMsg","warn","The camera needs the server to read colours, and it "
+      + "is not answering. Use <b>Enter by hand</b> — solving works without it.");
   } finally { S.busy = false; }
 }
 
@@ -956,8 +1282,8 @@ function drawOverlay(d){
   const g = ov.getContext("2d");
   g.clearRect(0,0,w,h);
   if (!d.gridFound || !d.cellsNorm){
-    g.strokeStyle = "rgba(255,255,255,.45)"; g.lineWidth = 2;
-    g.setLineDash([7,6]);
+    g.strokeStyle = "rgba(255,255,255,.5)"; g.lineWidth = 2;
+    g.setLineDash([8,7]);
     g.strokeRect(w*0.14, h*0.14, w*0.72, h*0.72);
     g.setLineDash([]);
     return;
@@ -969,8 +1295,8 @@ function drawOverlay(d){
     g.closePath();
     g.fillStyle = d.hex[i];
     g.globalAlpha = 0.88; g.fill(); g.globalAlpha = 1;
-    g.strokeStyle = d.found ? "rgba(63,185,80,.95)" : "rgba(210,153,34,.95)";
-    g.lineWidth = 2; g.stroke();
+    g.strokeStyle = d.found ? "rgba(52,209,122,.95)" : "rgba(240,181,74,.95)";
+    g.lineWidth = 2.5; g.stroke();
   });
 }
 
@@ -1062,40 +1388,126 @@ async function classifyAll(){
 }
 
 /* =========================================================================
-   Solve + playback
+   Solving
+   Shortest: the browser (min2phase) answers at once while the server keeps
+   searching for up to a second; whichever is shorter wins. Beginner runs on
+   the server. CFOP runs in the browser. Every answer is replayed on our own
+   engine before it is shown, whoever produced it.
    ========================================================================= */
-async function solve(){
-  note("solveMsg","warn","Working it out…");
-  try{
+const MODE_LABEL = {quick:"Shortest", learn:"Beginner", cfop:"CFOP"};
+
+function checked(sol){
+  if (!sol || !Array.isArray(sol.moves)) return false;
+  try { return E.isSolved(E.applyAll(sol.start, sol.moves)); } catch { return false; }
+}
+
+async function askServer(facelets, mode, ms = 9000){
+  const ctl = typeof AbortController !== "undefined" ? new AbortController() : null;
+  const timer = setTimeout(() => ctl && ctl.abort(), ms);
+  try {
     const r = await fetch("/api/solve", {
       method:"POST", headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({facelets:S.facelets, mode:S.mode})});
+      body: JSON.stringify({facelets, mode}), signal: ctl ? ctl.signal : undefined});
     const d = await r.json();
-    if (!r.ok){
-      const det = d.detail || {};
-      return note("solveMsg","err", det.error || JSON.stringify(d));
-    }
-    S.solution = d; S.index = 0;
-    renderSolution();
-    note("solveMsg","ok", d.moveCount === 0
-      ? "That cube is already solved."
-      : `<b>${d.moveCount} turns</b> and you are done. Follow the panel on the right.`
-        + (d.note ? "<br><small>"+d.note+"</small>" : ""));
-  }catch(e){
-    note("solveMsg","err","Could not reach the solver: "+e.message);
+    if (!r.ok){ const det = d.detail || {}; return {error: det.error || JSON.stringify(d), invalid: true}; }
+    return {solution: d};
+  } catch (e) {
+    return {error: "offline"};
+  } finally { clearTimeout(timer); }
+}
+
+function showSolution(sol, source){
+  sol.source = source;
+  S.solution = sol; S.index = 0; S.playing = false;
+  renderSolution();
+  setStepper(3);
+}
+
+function sourceText(src){
+  return src === "browser" ? "solved in your browser" : src === "server" ? "solved on the server" : "";
+}
+
+async function solve(){
+  const facelets = S.facelets, mode = S.mode, token = ++S.solveToken;
+  const stale = () => token !== S.solveToken;
+  note("solveMsg","info","Working it out…");
+
+  if (mode === "cfop"){
+    try {
+      const t0 = performance.now();
+      const sol = E.buildSolution(facelets, E.solveCfop(facelets), {mode:"cfop"});
+      showSolution(sol, "browser");
+      return note("solveMsg","ok", sol.moveCount === 0 ? "That cube is already solved."
+        : `<b>${sol.moveCount} turns</b> in four stages: cross, first two layers, `
+          + `top colour, finish. <small>(${Math.round(performance.now()-t0)} ms, in your browser)</small>`);
+    } catch (e) { return note("solveMsg","err", e.message); }
   }
+
+  if (mode === "learn"){
+    const r = await askServer(facelets, "learn");
+    if (stale()) return;
+    if (r.solution && checked(r.solution)){
+      showSolution(r.solution, "server");
+      return note("solveMsg","ok", r.solution.moveCount === 0 ? "That cube is already solved."
+        : `<b>${r.solution.moveCount} turns</b>, one named stage at a time.`);
+    }
+    return note("solveMsg","err", r.error === "offline"
+      ? "The Beginner method runs on the server, which is not answering. "
+        + "<b>Shortest</b> and <b>CFOP</b> work without it."
+      : r.error || "The server's answer did not check out.");
+  }
+
+  // ---- Shortest: race the browser against the server
+  let local = null, localErr = null;
+  const t0 = performance.now();
+  try { local = E.buildSolution(facelets, E.solveShortest(facelets), {mode:"quick"}); }
+  catch (e) { localErr = e; }
+  const localMs = Math.round(performance.now() - t0);
+
+  if (local){
+    showSolution(local, "browser");
+    if (local.moveCount === 0) return note("solveMsg","ok","That cube is already solved.");
+    note("solveMsg","ok", `<b>${local.moveCount} turns</b> and you are done. `
+      + `<small>Found in your browser in ${localMs} ms — asking the server whether it can do shorter…</small>`);
+  }
+
+  const r = await askServer(facelets, "quick");
+  if (stale()) return;
+  const remote = r.solution && checked(r.solution) ? r.solution : null;
+
+  if (!local){
+    if (remote){ showSolution(remote, "server");
+      return note("solveMsg","ok", `<b>${remote.moveCount} turns</b> and you are done.`); }
+    return note("solveMsg","err", (r.invalid && r.error) || (localErr && localErr.message)
+      || "Could not solve that cube.");
+  }
+  if (remote && remote.moveCount < local.moveCount){
+    const untouched = S.index === 0 && !S.playing;
+    if (untouched){
+      showSolution(remote, "server");
+      return note("solveMsg","ok", `<b>${remote.moveCount} turns</b> and you are done. `
+        + `<small>The server found ${local.moveCount - remote.moveCount} fewer than the browser's `
+        + `${local.moveCount}, so you get the shorter one.</small>`);
+    }
+    return note("solveMsg","ok", `<b>${local.moveCount} turns.</b> <small>The server found a `
+      + `${remote.moveCount}-turn answer, but you have already started — press Solve again to switch.</small>`);
+  }
+  note("solveMsg","ok", `<b>${local.moveCount} turns</b> and you are done. <small>`
+    + (remote ? `Both solvers checked — the server's best was ${remote.moveCount}.`
+              : "Solved offline in your browser.") + "</small>");
 }
 
 function renderSolution(){
   const d = S.solution;
   $("moveCard").style.display = d.moveCount ? "" : "none";
-  $("turnCount").textContent = d.moveCount ? d.moveCount + " in total" : "";
+  $("turnCount").textContent = d.moveCount ? `${d.moveCount} turns · ${MODE_LABEL[d.mode] || ""}` : "";
+  $("mvSource").textContent = sourceText(d.source);
   $("scrub").max = d.moveCount; $("scrub").value = 0;
   $("netNote").textContent = "where your cube should be right now";
 
   const ul = $("steps"); ul.innerHTML = "";
   if (!d.moveCount){
-    ul.innerHTML = '<li class="empty">Nothing to do — it is already solved.</li>';
+    ul.innerHTML = '<li class="empty"><span class="ico">🎉</span>Nothing to do — it is already solved.</li>';
   }
   let stage = null;
   d.steps.forEach((s, i) => {
@@ -1103,7 +1515,9 @@ function renderSolution(){
       stage = s.stage;
       const h = document.createElement("li");
       h.className = "head";
-      h.textContent = s.stageName;
+      h.innerHTML = `<b></b><small></small>`;
+      h.querySelector("b").textContent = s.stageName;
+      h.querySelector("small").textContent = s.stageGoal || "";
       ul.appendChild(h);
     }
     const li = document.createElement("li");
@@ -1113,8 +1527,20 @@ function renderSolution(){
     li.onclick = () => jumpTo(i+1);
     ul.appendChild(li);
   });
+
+  // progress track: one segment per stage, sized by its turn count
+  const track = $("ptrack"); track.innerHTML = "";
+  (d.stages || []).forEach(st => {
+    const seg = document.createElement("i");
+    seg.style.setProperty("--n", st.to - st.from + 1);
+    seg.title = st.name;
+    seg.dataset.from = st.from; seg.dataset.to = st.to;
+    track.appendChild(seg);
+  });
+
   paintCube(d.start);
   highlight();
+  syncTwisty();
 }
 
 const stateAt = i => i === 0 ? S.solution.start : S.solution.steps[i-1].stateAfter;
@@ -1128,6 +1554,7 @@ function highlight(){
   if (cur){
     $("mvArrow").textContent = cur.arrow;
     $("mvArrow").classList.remove("done");
+    $("mvCode").textContent = cur.move;
     $("mvWho").textContent = cur.faceName[0].toUpperCase()+cur.faceName.slice(1)+" face"
                              + (cur.turns === 2 ? " — twice" : "");
     $("mvMotion").textContent = cur.motion;
@@ -1138,13 +1565,20 @@ function highlight(){
   } else {
     $("mvArrow").textContent = "✓";
     $("mvArrow").classList.add("done");
-    $("mvWho").textContent = "Solved";
+    $("mvCode").textContent = "done";
+    $("mvWho").textContent = "Solved!";
     $("mvMotion").textContent = "every face is one colour";
     $("mvDetail").textContent = "";
     $("mvStage").textContent = "";
-    $("stageBadge").textContent = "solved";
+    $("stageBadge").textContent = "solved 🎉";
     clearArrow();
   }
+
+  $("ptrack").querySelectorAll("i").forEach(seg => {
+    const from = +seg.dataset.from, to = +seg.dataset.to;
+    const p = Math.max(0, Math.min(1, (S.index - from) / (to - from + 1)));
+    seg.style.setProperty("--p", (p*100) + "%");
+  });
 
   const ul = $("steps");
   [...ul.querySelectorAll("li[data-i]")].forEach(li => {
@@ -1172,8 +1606,15 @@ async function stepForward(){
   const step = d.steps[S.index];
   clearArrow();
   speak(step);
-  await animateMove(step, 1050 - $("speed").value*85);
-  S.index++;
+  const ms = 1050 - $("speed").value*85;
+  if (S.view === "cubing" && twisty){
+    S.index++;
+    syncTwisty(step.move);
+    await new Promise(r => setTimeout(r, ms));
+  } else {
+    await animateMove(step, ms);
+    S.index++;
+  }
   paintCube(stateAt(S.index));
   highlight();
   return true;
@@ -1185,10 +1626,12 @@ function jumpTo(i){
   S.index = Math.max(0, Math.min(d.moveCount, i));
   paintCube(stateAt(S.index));
   highlight();
+  syncTwisty();
 }
 
 async function play(){
   if (!S.solution) return;
+  if (S.index >= S.solution.moveCount && !S.playing) jumpTo(0);
   S.playing = !S.playing;
   $("btnPlay").textContent = S.playing ? "⏸ Pause" : "▶ Play";
   while (S.playing){
@@ -1199,12 +1642,11 @@ async function play(){
 }
 
 /* =========================================================================
-   Manual + wiring
+   Manual diagrams - drawn, not shipped as images, so they stay sharp and
+   follow the theme (currentColor = the text colour around them)
    ========================================================================= */
-/* ---- little front-on pictures of the cube, drawn rather than shipped as
-   images so they stay sharp at any size and cost nothing to load ---------- */
-const DIA = {ink:"#e9eef5", dim:"#8f9dae", faint:"#6b7887", line:"#1b2129",
-             cell:"#2b3540", hi:"#2f5f96", hiEdge:"#62b0ff", arrow:"#62b0ff"};
+const DIA = {cell:"rgba(128,140,160,.22)", line:"rgba(128,140,160,.55)",
+             hi:"rgba(59,130,246,.55)", hiEdge:"#3b82f6", arrow:"#3b82f6"};
 
 function arrowPath(x1,y1,x2,y2,col=DIA.arrow){
   const dx=x2-x1, dy=y2-y1, len=Math.hypot(dx,dy)||1;
@@ -1221,8 +1663,7 @@ function arcArrow(cx,cy,r,a0,a1,col=DIA.arrow){
   const [sx,sy] = pt(a0), [ex,ey] = pt(a1);
   const large = Math.abs(a1-a0) > Math.PI ? 1 : 0;
   const sweep = a1 > a0 ? 1 : 0;
-  // head sits on the tangent at the far end
-  const t = a1 + (a1 > a0 ? Math.PI/2 : -Math.PI/2);
+  const t = a1 + (a1 > a0 ? Math.PI/2 : -Math.PI/2);   // tangent at the far end
   const hx = ex + Math.cos(t)*0.1, hy = ey + Math.sin(t)*0.1;
   return `<path d="M ${sx} ${sy} A ${r} ${r} 0 ${large} ${sweep} ${ex} ${ey}"
             fill="none" stroke="${col}" stroke-width="6" stroke-linecap="round"/>`
@@ -1237,7 +1678,7 @@ function faceGrid(isMoving, {x0=30, y0=30, dashed=false}={}){
   for (let r=0;r<3;r++) for (let k=0;k<3;k++){
     const on = isMoving(r,k);
     out += `<rect x="${x0+k*(CELL+GAPX)}" y="${y0+r*(CELL+GAPX)}"
-      width="${CELL}" height="${CELL}" rx="4"
+      width="${CELL}" height="${CELL}" rx="5"
       fill="${on?DIA.hi:DIA.cell}" stroke="${on?DIA.hiEdge:DIA.line}"
       stroke-width="${on?2:1.5}" ${dashed?'stroke-dasharray="3 3"':""}/>`;
   }
@@ -1250,7 +1691,7 @@ const FACE_LAYER = {
   F: () => true,    B: () => true,
 };
 
-//: the clockwise direction for each face, as a straight arrow beside the grid
+// the clockwise direction for each face, as a straight arrow beside the grid
 const SWING = {           // x1, y1, x2, y2  (grid occupies 30..100)
   U: [106, 18, 24, 18],
   D: [24, 112, 106, 112],
@@ -1262,7 +1703,6 @@ function moveDiagram(move){
   const face = move[0], prime = move.includes("'"), half = move.includes("2");
   const mid = 30 + SPAN/2;
   let art;
-
   if (SWING[face]){
     const [x1,y1,x2,y2] = SWING[face];
     art = prime ? arrowPath(x2,y2,x1,y1) : arrowPath(x1,y1,x2,y2);
@@ -1271,15 +1711,13 @@ function moveDiagram(move){
     // F spins clockwise as you look at it; B is the far side, so from where
     // you sit the same turn looks the other way round
     const cw = (face === "F") !== prime;
-    art = cw ? arcArrow(mid, mid, 50, -2.45, -0.6)
-             : arcArrow(mid, mid, 50, -0.6, -2.45);
+    art = cw ? arcArrow(mid, mid, 50, -2.45, -0.6) : arcArrow(mid, mid, 50, -0.6, -2.45);
   }
-
   return `<svg viewBox="0 0 130 132" role="img" aria-label="${move} turn">
     ${faceGrid(FACE_LAYER[face], {dashed: face === "B"})}
     ${art}
     ${face === "B" ? `<text x="${mid}" y="127" text-anchor="middle" font-size="10"
-        fill="${DIA.faint}">the far side of the cube</text>` : ""}
+        fill="currentColor" opacity=".6">the far side of the cube</text>` : ""}
     ${half ? `<text x="${mid}" y="127" text-anchor="middle" font-size="11"
         fill="${DIA.hiEdge}" font-weight="bold">twice</text>` : ""}
   </svg>`;
@@ -1290,13 +1728,13 @@ function holdDiagram(face, up, name){
   const y0 = 46, mid = 30 + SPAN/2, cx = 30 + CELL + GAPX + CELL/2;
   return `<svg viewBox="0 0 130 150" role="img"
       aria-label="show the ${name} face with the ${up} of the cube pointing up">
-    <text x="${mid}" y="11" text-anchor="middle" font-size="10" fill="${DIA.dim}"
+    <text x="${mid}" y="11" text-anchor="middle" font-size="10" fill="currentColor" opacity=".7"
       >${up} of the cube up</text>
     ${arrowPath(mid, 40, mid, 17)}
     ${faceGrid(() => true, {y0})}
     <text x="${cx}" y="${y0 + CELL + GAPX + CELL/2 + 6}" text-anchor="middle"
-      font-size="17" font-weight="bold" fill="#eaf3ff">${face}</text>
-    <text x="${mid}" y="146" text-anchor="middle" font-size="10.5" fill="${DIA.ink}"
+      font-size="17" font-weight="bold" fill="currentColor">${face}</text>
+    <text x="${mid}" y="146" text-anchor="middle" font-size="10.5" fill="currentColor"
       >${name} face to the camera</text>
   </svg>`;
 }
@@ -1324,16 +1762,17 @@ function diaCard(art, code, lead, say){
 function buildManual(){
   $("moveGrid").innerHTML = Object.entries(MOVE_HELP)
     .map(([m,[lead,say]]) => diaCard(moveDiagram(m), m, lead, say)).join("");
-  $("halfGrid").innerHTML =
-    diaCard(moveDiagram("R2"), "R2", "Right column, twice",
-            "half a turn — either direction gets you there");
+  $("halfGrid").innerHTML = diaCard(moveDiagram("R2"), "R2", "Right column, twice",
+                                    "half a turn — either direction gets you there");
   $("holdGrid").innerHTML = SCAN_ORDER
     .map((o,i) => diaCard(holdDiagram(o.f, o.up, o.name), `${i+1}. ${o.f}`,
-                          `${o.name} face`,
-                          `keep the ${o.up.toLowerCase()} of the cube pointing up`))
+                          `${o.name} face`, `keep the ${o.up.toLowerCase()} of the cube pointing up`))
     .join("");
 }
 
+/* =========================================================================
+   Wiring
+   ========================================================================= */
 function note(id, kind, html){
   const el = $(id);
   el.className = "msg show " + kind;
@@ -1344,11 +1783,7 @@ function switchTab(name){
     b.setAttribute("aria-selected", b.dataset.tab === name));
   $("tab-scan").style.display = name === "scan" ? "" : "none";
   $("tab-hand").style.display = name === "hand" ? "" : "none";
-  if (name === "scan") {
-    updateTip();
-  } else {
-    animateScanRotation("F");
-  }
+  if (name === "scan") updateTip(); else animateScanRotation("F");
 }
 function buildSwatches(){
   const el = $("swatches"); el.innerHTML = "";
@@ -1356,13 +1791,23 @@ function buildSwatches(){
     const b = document.createElement("button");
     b.style.background = palette[f];
     b.title = `${COLOUR_NAME[f]} — the ${f} face`;
+    b.setAttribute("aria-label", b.title);
     b.setAttribute("aria-pressed", S.paint === f);
     b.onclick = () => { S.paint = f; buildSwatches(); };
     el.appendChild(b);
   }
 }
+function setMode(m){
+  S.mode = m;
+  store.set("mode", m);
+  document.querySelectorAll(".mode").forEach(b => b.setAttribute("aria-pressed", b.dataset.mode === m));
+}
 
 document.querySelectorAll("[role=tab]").forEach(b => b.onclick = () => switchTab(b.dataset.tab));
+document.querySelectorAll(".mode").forEach(b => b.onclick = () => {
+  setMode(b.dataset.mode);
+  if (S.solution || S.facelets !== SOLVED) solve();
+});
 $("btnCam").onclick  = () => stream ? stopCamera() : startCamera();
 $("btnShot").onclick = async () => {
   if (!S.streaming || S.busy) return;
@@ -1373,23 +1818,16 @@ $("btnReset").onclick = () => {
   S.scanSamples = {}; S.scanHex = {}; S.scanQuality = {}; S.scanFace = 0;
   S.armed = true; S.stable = 0; palette = {...DEFAULT_COLOURS};
   renderFaceRow(); updateTip(); buildSwatches(); setFacelets(SOLVED);
-  note("scanMsg","warn","Cleared. Start again with the top face.");
+  showScanProgress();
+  note("scanMsg","info","Cleared. Start again with the top face.");
 };
 $("btnSolved").onclick = () => setFacelets(SOLVED);
-$("btnRandom").onclick = async () => {
-  const r = await fetch("/api/scramble", {method:"POST",
-    headers:{"Content-Type":"application/json"}, body:JSON.stringify({moves:25})});
-  const d = await r.json();
+$("btnRandom").onclick = () => {
   palette = {...DEFAULT_COLOURS}; buildSwatches();
-  setFacelets(d.facelets);
+  setFacelets(E.applyAll(SOLVED, E.randomScramble(25)));
   solve();
 };
 $("btnSolve").onclick = solve;
-$("btnMode").onclick = () => {
-  S.mode = S.mode === "quick" ? "learn" : "quick";
-  $("btnMode").textContent = S.mode === "quick" ? "Shortest" : "Learn";
-  if (S.solution) solve();
-};
 $("btnPlay").onclick  = play;
 $("btnNext").onclick  = () => { S.playing = false; stepForward(); };
 $("btnPrev").onclick  = () => jumpTo(S.index - 1);
@@ -1397,6 +1835,8 @@ $("btnFirst").onclick = () => jumpTo(0);
 $("btnLast").onclick  = () => jumpTo(S.solution ? S.solution.moveCount : 0);
 $("scrub").oninput    = e => jumpTo(+e.target.value);
 $("chkArrow").onchange = () => S.solution ? highlight() : clearArrow();
+$("viewClassic").onclick = () => setView("classic");
+$("viewCubing").onclick  = () => setView("cubing");
 $("btnManual").onclick = () => $("sheet").classList.add("open");
 $("btnCloseManual").onclick = () => $("sheet").classList.remove("open");
 $("sheet").onclick = e => { if (e.target === $("sheet")) $("sheet").classList.remove("open"); };
@@ -1404,27 +1844,43 @@ $("sheet").onclick = e => { if (e.target === $("sheet")) $("sheet").classList.re
 addEventListener("keydown", e => {
   if (e.target.tagName === "INPUT") return;
   if (e.key === "Escape") $("sheet").classList.remove("open");
+  if ($("sheet").classList.contains("open")) return;
   if (e.key === " "){ e.preventDefault(); play(); }
   if (e.key === "ArrowRight"){ e.preventDefault(); S.playing = false; stepForward(); }
   if (e.key === "ArrowLeft"){ e.preventDefault(); jumpTo(S.index - 1); }
 });
 
+function setStatus(kind, text){
+  $("pillSolver").dataset.kind = kind;
+  $("pillText").textContent = text;
+}
+
 (async function boot(){
   initThree();
   renderFaceRow(); updateTip(); buildSwatches(); buildManual();
+  setMode(["quick","learn","cfop"].includes(store.get("mode")) ? store.get("mode") : "quick");
   setFacelets(SOLVED);
   $("stageBadge").textContent = "waiting for your cube";
+  if (store.get("view") === "cubing") setView("cubing");
+
+  // the browser solver needs ~0.1 s of table building - do it off the first click
+  setTimeout(() => { try { E.min2phaseReady(); } catch {} }, 50);
+
   try{
     const h = await (await fetch("/api/health")).json();
-    $("pillSolver").textContent = h.solverReady ? "solver ready" : "solver warming up…";
+    S.server = h;
+    setStatus(h.solverReady ? "ok" : "warn", h.solverReady ? "ready" : "server warming up…");
     if (!h.solverReady){
       const poll = setInterval(async () => {
-        const g = await (await fetch("/api/health")).json();
-        if (g.solverReady){ $("pillSolver").textContent = "solver ready"; clearInterval(poll); }
+        try {
+          const g = await (await fetch("/api/health")).json();
+          if (g.solverReady){ setStatus("ok", "ready"); clearInterval(poll); }
+        } catch {}
       }, 1500);
     }
   }catch{
-    $("pillSolver").textContent = "backend offline";
+    S.server = null;
+    setStatus("warn", "offline · browser solving only");
   }
 })();
 </script>
