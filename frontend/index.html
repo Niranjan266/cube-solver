@@ -991,6 +991,17 @@ function animateScanRotation(targetFace) {
 
 let animating = false;
 
+/**
+ * The turn's timing: quick off the mark, a few degrees past the target, then
+ * back - the feel of a real cube clicking into place (an "ease-out-back"
+ * curve with a gentle overshoot of about 5%).
+ */
+const SPRING = 1.1;
+function springEase(t){
+  const u = t - 1;
+  return 1 + (SPRING + 1) * u * u * u + SPRING * u * u;
+}
+
 function animateMove(step, ms){
   return new Promise(resolve => {
     if (animating) return resolve();
@@ -1005,7 +1016,7 @@ function animateMove(step, ms){
     const t0 = performance.now();
     (function tick(now){
       const t = Math.min(1, (now - t0) / ms);
-      const e = t<.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2;
+      const e = springEase(t);
       group.setRotationFromAxisAngle(axis, total*e);
       if (t < 1) return requestAnimationFrame(tick);
       group.setRotationFromAxisAngle(axis, total);
@@ -1035,32 +1046,69 @@ function accentHex(){
   return /^#[0-9a-f]{6}$/i.test(v) ? parseInt(v.slice(1), 16) : 0x3b82f6;
 }
 
-/** One curved arrow, plus a dark copy behind it so it reads on any colour. */
+/**
+ * The turn arrow: a faint track showing the whole path, and a bright streak
+ * that draws itself along it from tail to head, the arrowhead riding its
+ * tip, then fades and starts again. Direction reads at a glance and nothing
+ * pulses. Each part has a dark copy behind it so it shows on any colour.
+ */
+const ARROW = {R: 1.95, tube: 0.115, segs: 64, radial: 10, cycleMs: 1500};
+
+function arcCurve(R, sweep){
+  const c = new THREE.Curve();
+  c.getPoint = (t, target) => (target || new THREE.Vector3()).set(
+    R * Math.cos(t * sweep), R * Math.sin(t * sweep), 0);
+  return c;
+}
+
 function buildArrowMesh(step){
   const g = new THREE.Group();
   const sweep = step.turns === 2 ? Math.PI*0.95 : Math.PI*0.66;
-  const R = 1.95, tube = 0.115;
-  for (const [colour, grow, order] of [[0x05080c, 1.55, 998], [accentHex(), 1.0, 999]]){
-    const mat = new THREE.MeshBasicMaterial({
-      color: colour, side: THREE.DoubleSide,
-      depthTest: false, depthWrite: false, transparent: true,
-      opacity: colour === 0x05080c ? 0.8 : 1,
-    });
-    const part = new THREE.Group();
-    part.add(new THREE.Mesh(new THREE.TorusGeometry(R, tube*grow, 12, 56, sweep), mat));
-    const head = new THREE.Mesh(new THREE.ConeGeometry(0.30*grow, 0.62*grow, 20), mat);
-    head.position.set(Math.cos(sweep)*R, Math.sin(sweep)*R, 0);
-    head.rotation.z = sweep;
-    part.add(head);
-    if (step.turns === 2){
-      const tail = new THREE.Mesh(new THREE.ConeGeometry(0.30*grow, 0.62*grow, 20), mat);
-      tail.position.set(R, 0, 0); tail.rotation.z = Math.PI;
-      part.add(tail);
-    }
-    part.traverse(o => { o.renderOrder = order; });
-    g.add(part);
+  const {R, tube, segs, radial} = ARROW;
+  const mat = (colour, opacity) => new THREE.MeshBasicMaterial({
+    color: colour, side: THREE.DoubleSide, depthTest: false, depthWrite: false,
+    transparent: true, opacity});
+  const dark = 0x05080c, accent = accentHex();
+  const streaks = [], heads = [], fading = [];
+  for (const [colour, grow, order, trackOpacity] of [[dark, 1.55, 996, 0.3], [accent, 1.0, 999, 0.22]]){
+    // the track: the whole path, faint
+    const track = new THREE.Mesh(new THREE.TorusGeometry(R, tube*grow, 8, 48, sweep), mat(colour, trackOpacity));
+    track.renderOrder = order - 1;
+    g.add(track);
+    // the streak: drawn a little more each frame via its draw range
+    const geo = new THREE.TubeGeometry(arcCurve(R, sweep), segs, tube*grow*1.02, radial, false);
+    const m = mat(colour, colour === dark ? 0.85 : 1);
+    const streak = new THREE.Mesh(geo, m);
+    streak.renderOrder = order;
+    g.add(streak);
+    streaks.push(geo); fading.push([m, m.opacity]);
+    const hm = mat(colour, colour === dark ? 0.85 : 1);
+    const head = new THREE.Mesh(new THREE.ConeGeometry(0.30*grow, 0.62*grow, 20), hm);
+    head.renderOrder = order;
+    g.add(head);
+    heads.push(head); fading.push([hm, hm.opacity]);
   }
+  g.userData = {sweep, streaks, heads, fading, born: performance.now()};
   return g;
+}
+
+/** Advance the flow: how much of the arc is drawn, where the head is, how faded. */
+function flowArrow(g, now){
+  const u = g.userData;
+  if (!u || !u.streaks) return;
+  const p = ((now - u.born) % ARROW.cycleMs) / ARROW.cycleMs;
+  const grow = Math.min(1, p / 0.62);
+  const f = 1 - Math.pow(1 - grow, 3);                        // eases in to the head
+  const fade = p < 0.8 ? 1 : 1 - (p - 0.8) / 0.2;             // then fades out
+  const drawn = Math.max(1, Math.ceil(f * ARROW.segs));
+  for (const geo of u.streaks) if (geo.setDrawRange) geo.setDrawRange(0, drawn * ARROW.radial * 6);
+  const a = f * u.sweep;
+  for (const h of u.heads){
+    h.position.set(Math.cos(a) * ARROW.R, Math.sin(a) * ARROW.R, 0);
+    h.rotation.z = a;
+    h.visible = f > 0.06;
+  }
+  for (const [m, base] of u.fading) m.opacity = base * fade;
 }
 
 /** A bright outline around the layer that is about to move. */
@@ -1106,9 +1154,10 @@ function placeArrow(){
   // +angle about the positive axis looks anticlockwise from the positive end
   // and clockwise from the other, so flip when we swap ends
   arrowGroup.children[0].scale.y = (step.angle * near) >= 0 ? 1 : -1;
-  const pulse = 1 + 0.055 * Math.sin(performance.now() / 260);
-  arrowGroup.scale.setScalar(pulse);
-  if (layerBox) layerBox.material.opacity = 0.55 + 0.35 * (pulse - 1) / 0.055 * 0.5;
+  const now = performance.now();
+  flowArrow(arrowGroup.children[0], now);
+  // the outlined layer breathes gently, in time with the flow
+  if (layerBox) layerBox.material.opacity = 0.62 + 0.25 * Math.sin(now / ARROW.cycleMs * Math.PI * 2);
 }
 
 /* =========================================================================
