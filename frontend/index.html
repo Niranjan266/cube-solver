@@ -393,8 +393,8 @@
           <div class="videowrap">
             <div class="ph" id="camPh">
               <div class="cam">📷</div>
-              Press <b>Start scanning</b> and hold each face up.<br>
-              It captures on its own once it can read all nine stickers.<br>
+              Press <b>Start scanning</b> and show each side in the square —
+              any order, any way up. It reads it the moment you hold still.<br>
               No webcam? <b>Upload photos</b> of the six faces instead.
             </div>
             <video id="video" playsinline muted style="display:none"></video>
@@ -549,10 +549,16 @@
         <div><b>Left</b> the left-hand column</div>
       </div>
 
-      <h3>2. Scanning: which face to show, and which way up</h3>
-      <p>The app asks for the six faces in this order. The picture shows the face
-      to point at the camera, and the arrow shows which side of the cube must be
-      pointing upwards while you do it.</p>
+      <h3>2. Scanning: any side, any order, any way up</h3>
+      <p>Fill the square on the camera picture with one side of the cube and hold
+      still for a moment — it reads the colours in your browser as you hold it,
+      and names the side from its <b>centre</b> sticker (white, red, green, yellow,
+      orange or blue). Show the other five the same way, in any order and turned
+      any way; once all six are in, it works out which way up each one was.</p>
+      <p>It assumes the standard colour layout — white opposite yellow, green
+      opposite blue, red opposite orange — which almost every cube uses. When it
+      starts solving, hold the cube with <b>white on top and green facing you</b>.
+      If you like a routine anyway, this order works well:</p>
       <div class="diagrid" id="holdGrid"></div>
 
       <h3>3. Every turn, with a picture</h3>
@@ -599,6 +605,7 @@
 <script src="/static/vendor/min2phase.js"></script>
 <script src="/static/vendor/rubiks-cube-solver.js"></script>
 <script src="/static/js/engine.js"></script>
+<script src="/static/js/scanner.js"></script>
 <script>
 /* =========================================================================
    Cube geometry - shared with backend/cube/model.py via js/engine.js
@@ -619,9 +626,9 @@ const SOLVED = E.SOLVED;
    ========================================================================= */
 const S = {
   facelets: SOLVED, solution: null, index: 0, playing: false, mode: "quick",
-  scanFace: 0, scanSamples: {}, scanHex: {}, scanQuality: {},
+  scanSamples: {}, scanHex: {}, scanQuality: {}, liveFace: null, live: null,
   paint: "U", arrowStep: null, solveToken: 0, server: null,
-  streaming: false, armed: true, lastSig: "", stable: 0, busy: false, misses: 0,
+  streaming: false, lastSig: "", stable: 0, busy: false, misses: 0,
   view: "classic",
 };
 const $ = id => document.getElementById(id);
@@ -1154,50 +1161,63 @@ const SCAN_ORDER = [
    tip:"Last one — the <b>BACK</b> face. Top still up."},
 ];
 let stream = null, liveTimer = null;
+const SC = window.CubeScanner;
+const GUIDE = 0.66;          // the guide square covers this much of the picture
+const LIVE_MS = 90;          // how often the live picture is read
+const STEADY = 3;            // identical readings in a row before it captures (~0.3 s)
+const GRID_DARK = 0.72;      // grid lines must be this much darker than the stickers
+const FACE_WORD = {U:"top", R:"right", F:"front", D:"bottom", L:"left", B:"back"};
+const sideName = f => `${SC.SCHEME[f]} side`;
+
+/** Centres captured so far, face -> BGR sample. */
+function capturedCentres(){
+  const c = {};
+  for (const f of FACE_ORDER) if (S.scanSamples[f]) c[f] = S.scanSamples[f][4];
+  return c;
+}
 
 function renderFaceRow(){
   const row = $("facerow"); row.innerHTML = "";
-  SCAN_ORDER.forEach((o, i) => {
+  for (const f of FACE_ORDER){
     const b = document.createElement("button");
     b.className = "facebtn";
-    b.dataset.done = !!S.scanSamples[o.f];
-    b.dataset.shaky = S.scanQuality[o.f] !== undefined && S.scanQuality[o.f] < 0.45;
-    b.setAttribute("aria-current", i === S.scanFace);
-    b.title = S.scanSamples[o.f]
-      ? (b.dataset.shaky === "true"
-          ? "Read, but two colours here looked alike — worth doing again"
-          : "Read cleanly. Click to do this face again.")
-      : "Not read yet";
+    b.dataset.done = !!S.scanSamples[f];
+    b.setAttribute("aria-current", S.liveFace === f);
+    b.title = S.scanSamples[f] ? `${sideName(f)} read. Click to read it again.`
+                               : `${sideName(f)} not read yet`;
     const mini = document.createElement("div"); mini.className = "mini";
-    const hexes = S.scanHex[o.f] || [];
+    const hexes = S.scanHex[f] || [];
     for (let k=0;k<9;k++){
       const s = document.createElement("span");
       if (hexes[k]) s.style.background = hexes[k];
+      else if (k === 4) { s.style.background = DEFAULT_COLOURS[f]; s.style.opacity = .35; }
       mini.appendChild(s);
     }
     b.appendChild(mini);
-    b.appendChild(document.createTextNode(o.f));
-    b.onclick = () => { S.scanFace = i; S.stable = 0; S.armed = true;
-                        renderFaceRow(); updateTip(); };
+    b.appendChild(document.createTextNode(SC.SCHEME[f]));
+    b.onclick = () => {
+      // read this side again: forget it, and the next time it is shown it is taken
+      delete S.scanSamples[f]; delete S.scanHex[f]; delete S.scanQuality[f];
+      S.stable = 0; S.lastSig = "";
+      renderFaceRow(); updateTip(); showScanProgress();
+      note("scanMsg","info", `Show the <b>${sideName(f)}</b> again.`);
+    };
     row.appendChild(b);
-  });
+  }
   const done = Object.keys(S.scanSamples).length;
-  $("scanCount").textContent = done + " of 6 faces";
+  $("scanCount").textContent = done + " of 6 sides";
 }
 
 function updateTip(){
-  const o = SCAN_ORDER[S.scanFace];
   const done = Object.keys(S.scanSamples).length;
+  const left = FACE_ORDER.split("").filter(f => !S.scanSamples[f]).map(f => SC.SCHEME[f]);
   $("tip").innerHTML = done === 6
-    ? `<span class="num">✓</span><div>All six faces read. Check the flat map under the
+    ? `<span class="num">✓</span><div>All six sides read. Check the flat map under the
        cube, then press <b>Solve it</b>.</div>`
-    : `<span class="num">${S.scanFace+1}</span><div>${o.tip}</div>`
-      + `<div class="dia" title="${o.name} face towards the camera, `
-      + `${o.up.toLowerCase()} of the cube pointing up">`
-      + holdDiagram(o.f, o.up, o.name) + `</div>`;
-
-  if (done < 6 && $("tab-scan").style.display !== "none") animateScanRotation(o.f);
-  else if (done === 6) animateScanRotation("F");
+    : `<span class="num">${done + 1}</span><div>Fill the square with <b>any side</b> of the cube
+       — any order, any way up. It reads the colours the moment you hold still.
+       <br><small>Still to show: ${left.join(", ")}.</small></div>`;
+  if (done === 6) animateScanRotation("F");
 }
 
 /** Why the camera would not open, in words a person can act on. */
@@ -1254,15 +1274,34 @@ async function startCamera(){
   $("camPh").style.display = "none";
   $("btnShot").disabled = false;
   $("btnCam").textContent = "Stop scanning";
-  S.streaming = true; S.stable = 0; S.armed = true; S.misses = 0;
-  note("scanMsg","info","Hold a face up and keep still — it captures on its own.");
-  liveTimer = setInterval(tickLive, 230);
+  S.streaming = true; S.stable = 0; S.lastSig = ""; S.misses = 0;
+  note("scanMsg","info","Fill the square with one side of the cube and hold still.");
+  liveTimer = setInterval(tickLive, LIVE_MS);
+  lockWhiteBalance();
+}
+
+/**
+ * Stop the camera re-balancing its colours between sides. Once it has
+ * settled on the first view, a fixed white balance means a red sticker is
+ * the same red on every side - exactly what the colour fit relies on. Not
+ * every camera allows it; where it does not, the fit copes anyway.
+ */
+function lockWhiteBalance(){
+  const track = stream && stream.getVideoTracks && stream.getVideoTracks()[0];
+  if (!track || !track.getCapabilities) return;
+  setTimeout(async () => {
+    try {
+      const caps = track.getCapabilities();
+      if (caps.whiteBalanceMode && caps.whiteBalanceMode.includes("manual"))
+        await track.applyConstraints({advanced: [{whiteBalanceMode: "manual"}]});
+    } catch { /* not supported here - fine */ }
+  }, 1500);
 }
 
 function stopCamera(){
   clearInterval(liveTimer); liveTimer = null;
   if (stream) stream.getTracks().forEach(t => t.stop());
-  stream = null; S.streaming = false;
+  stream = null; S.streaming = false; S.liveFace = null;
   $("video").style.display = "none";
   $("camPh").style.display = "block";
   $("btnShot").disabled = true;
@@ -1270,163 +1309,201 @@ function stopCamera(){
   $("lockBar").style.width = "0%";
   $("lockText").textContent = "camera off";
   const ov = $("overlay"); ov.getContext("2d").clearRect(0,0,ov.width,ov.height);
+  renderFaceRow();
 }
 
-function grabFrame(quality){
+/** The centre square of the video, at `size` pixels, as a canvas. */
+function frameCanvas(size){
   const v = $("video");
   const side = Math.min(v.videoWidth, v.videoHeight);
   if (!side) return null;
-  const cv = document.createElement("canvas");
-  cv.width = cv.height = side;
-  cv.getContext("2d").drawImage(v, (v.videoWidth-side)/2, (v.videoHeight-side)/2,
-                                side, side, 0, 0, side, side);
-  return new Promise(r => cv.toBlob(r, "image/jpeg", quality));
+  const cv = frameCanvas.cv || (frameCanvas.cv = document.createElement("canvas"));
+  const px = size || side;
+  if (cv.width !== px){ cv.width = cv.height = px; }
+  const g = cv.getContext("2d", {willReadFrequently: true});
+  g.drawImage(v, (v.videoWidth-side)/2, (v.videoHeight-side)/2, side, side, 0, 0, px, px);
+  return cv;
 }
 
-async function tickLive(){
+function grabFrame(quality){
+  const cv = frameCanvas();
+  return cv ? new Promise(r => cv.toBlob(r, "image/jpeg", quality)) : null;
+}
+
+/** Read the nine stickers in the guide square, in the browser. */
+function readLive(){
+  const cv = frameCanvas(240);
+  if (!cv) return null;
+  const img = cv.getContext("2d", {willReadFrequently: true}).getImageData(0, 0, 240, 240);
+  const {samples, spread, lines} = SC.sampleGrid(img, GUIDE);
+  const centres = capturedCentres();
+  const id = SC.identifyFace(samples[4], centres);
+  // preview colours: the real centres once seen, else the textbook ones
+  const labels = SC.classifyLive(samples, centres).map(x => x.face);
+  const flat = spread.filter(v => v < 0.16).length;   // cells that look like one flat sticker
+  return {samples, spread, lines, labels, id, flat,
+          hex: samples.map(SC.hex), sig: id.face + labels.join("")};
+}
+
+function tickLive(){
   if (!S.streaming || S.busy || Object.keys(S.scanSamples).length === 6) return;
-  S.busy = true;
-  try{
-    const blob = await grabFrame(0.7);
-    if (!blob) return;
-    const fd = new FormData(); fd.append("image", blob, "f.jpg");
-    const r = await fetch("/api/scan/live", {method:"POST", body:fd});
-    if (!r.ok) return;
-    const d = await r.json();
-    drawOverlay(d);
+  const d = readLive();
+  if (!d) return;
+  S.live = d;
+  S.liveFace = d.id.face;
+  // nine flat stickers AND dark lines between them: a cube face, not a desk
+  const plausible = d.flat >= 8 && d.lines < GRID_DARK;
+  const isNew = !d.id.again;
+  if (plausible && d.sig === S.lastSig) S.stable++;
+  else S.stable = plausible ? 1 : 0;
+  S.lastSig = d.sig;
+  drawOverlay(d, plausible);
 
-    // capture only when the grid is properly located AND the nine colours
-    // separate cleanly. A guessed frame is worse than no frame.
-    const good = d.found && d.confidence >= 0.75;
-    if (!good){ S.stable = 0; S.armed = true; }
-    else if (d.signature === S.lastSig){ S.stable++; }
-    else { S.stable = 1; if (d.signature !== S.capturedSig) S.armed = true; }
-    S.lastSig = d.signature;
+  const pct = Math.min(100, 100 * S.stable / STEADY);
+  $("lockBar").style.width = (isNew ? pct : 0) + "%";
+  $("lockBar").style.background = plausible ? "var(--good)" : "var(--warn)";
+  $("lockText").textContent = !plausible ? "fill the square"
+    : !isNew ? `${SC.SCHEME[d.id.face]} done ✓`
+    : S.stable >= STEADY ? "got it" : `${SC.SCHEME[d.id.face]} side…`;
 
-    $("lockBar").style.width = Math.min(100, 100*S.stable/STABLE_NEEDED) + "%";
-    $("lockBar").style.background = good ? "var(--good)" : "var(--warn)";
-    $("lockText").textContent = good ? (S.stable >= STABLE_NEEDED ? "capturing…" : "hold still")
-                 : d.gridFound ? "colours unclear" : "looking for stickers";
+  S.misses = plausible ? 0 : S.misses + 1;
+  if (S.misses === 40)
+    note("scanMsg","warn","Cannot see nine stickers yet — hold one side flat to the camera "
+      + "so it fills the square, in good light.");
 
-    S.misses = good ? 0 : S.misses + 1;
-    if (S.misses === 14)
-      note("scanMsg","warn","Cannot read nine stickers yet — add light, hold the "
-        + "face flat to the camera, and keep the background plain.");
-
-    if (good && S.armed && S.stable >= STABLE_NEEDED) await capture(d);
-  } catch {
-    if (!S.server) note("scanMsg","warn","The camera needs the server to read colours, and it "
-      + "is not answering. Use <b>Enter by hand</b> — solving works without it.");
-  } finally { S.busy = false; }
+  if (plausible && isNew && S.stable >= STEADY) storeFace(d.id.face, d.samples, d.hex);
 }
 
-function drawOverlay(d){
+/** The guide square, filled with the colours being read right now. */
+function drawOverlay(d, plausible){
   const ov = $("overlay"), v = $("video");
   const w = v.clientWidth, h = v.clientHeight;
   if (ov.width !== w || ov.height !== h){ ov.width = w; ov.height = h; }
   const g = ov.getContext("2d");
   g.clearRect(0,0,w,h);
-  if (!d.gridFound || !d.cellsNorm){
-    g.strokeStyle = "rgba(255,255,255,.5)"; g.lineWidth = 2;
-    g.setLineDash([8,7]);
-    g.strokeRect(w*0.14, h*0.14, w*0.72, h*0.72);
-    g.setLineDash([]);
-    return;
+  const side = Math.min(w, h) * GUIDE, x0 = (w - side) / 2, y0 = (h - side) / 2, c = side / 3;
+  // dim everything outside the square
+  g.fillStyle = "rgba(0,0,0,.35)";
+  g.fillRect(0, 0, w, y0); g.fillRect(0, y0 + side, w, h - y0 - side);
+  g.fillRect(0, y0, x0, side); g.fillRect(x0 + side, y0, w - x0 - side, side);
+  const done = d && !d.id.again ? false : true;
+  for (let i = 0; i < 9; i++){
+    const x = x0 + (i % 3) * c, y = y0 + Math.floor(i / 3) * c;
+    if (d && plausible){
+      // a chip in each cell: the colour it will be read as
+      g.fillStyle = palette[d.labels[i]] || DEFAULT_COLOURS[d.labels[i]];
+      const r = c * 0.2;
+      g.beginPath(); g.arc(x + c/2, y + c/2, r, 0, Math.PI * 2); g.fill();
+      g.lineWidth = 2; g.strokeStyle = "rgba(0,0,0,.55)"; g.stroke();
+    }
+    g.strokeStyle = !plausible ? "rgba(255,255,255,.55)"
+                  : done ? "rgba(255,255,255,.4)" : "rgba(52,209,122,.95)";
+    g.lineWidth = 2.5;
+    g.strokeRect(x + 3, y + 3, c - 6, c - 6);
   }
-  // draw what we actually measured: tilted cells in the colours we read
-  d.cellsNorm.forEach((poly, i) => {
-    g.beginPath();
-    poly.forEach(([x,y], k) => k ? g.lineTo(x*w, y*h) : g.moveTo(x*w, y*h));
-    g.closePath();
-    g.fillStyle = d.hex[i];
-    g.globalAlpha = 0.88; g.fill(); g.globalAlpha = 1;
-    g.strokeStyle = d.found ? "rgba(52,209,122,.95)" : "rgba(240,181,74,.95)";
-    g.lineWidth = 2.5; g.stroke();
-  });
+  if (d && plausible){
+    const label = d.id.again ? `${SC.SCHEME[d.id.face]} — already read` : `${sideName(d.id.face)}`;
+    g.font = "600 14px Inter, system-ui, sans-serif";
+    const tw = g.measureText(label).width + 20;
+    g.fillStyle = "rgba(10,12,16,.75)";
+    g.fillRect(w/2 - tw/2, y0 - 34, tw, 26);
+    g.fillStyle = "#fff"; g.textAlign = "center"; g.textBaseline = "middle";
+    g.fillText(label, w/2, y0 - 21);
+  }
 }
 
-/** Read the current face from the camera, or from `photo` (a File/Blob) if given. */
-async function capture(live, photo){
-  const face = SCAN_ORDER[S.scanFace].f;
-  S.armed = false;
-  S.capturedSig = live.signature;
+/** Keep one side's nine samples, show them straight away, finish at six. */
+async function storeFace(face, samples, hex, quality){
+  S.scanSamples[face] = samples;
+  S.scanHex[face] = hex;
+  S.scanQuality[face] = quality === undefined ? 1 : quality;
   S.stable = 0;
-  $("lockBar").style.width = "0%";
-
-  // full-resolution shot for the real reading, but keep the live frame if the
-  // bigger one turns out to be less confident
-  const blob = photo || await grabFrame(0.92);
-  if (!blob) { S.armed = true; return false; }
-  const fd = new FormData(); fd.append("image", blob, face+".jpg");
-  let d = live;
-  try{
-    const r = await fetch("/api/scan/face", {method:"POST", body:fd});
-    if (r.ok){
-      const full = await r.json();
-      if (full.found || !live.samples) d = full;
-    }
-  }catch{ /* keep the live reading */ }
-
-  if (!d.samples){
-    S.armed = true;
-    note("scanMsg","err", photo
-      ? `Could not find the nine stickers of the <b>${face}</b> face in that photo. `
-        + "Take it straight on, filling most of the picture, in good light."
-      : "Could not make out the nine stickers. Move closer, "
-        + "add light, or use <b>Enter by hand</b>.");
-    return false;
-  }
-
-  S.scanSamples[face] = d.samples;
-  S.scanHex[face] = d.hex;
-  S.scanQuality[face] = d.faceQuality;
-  showScanProgress();
+  paintFaceRaw(face, hex);
+  animateScanRotation(face);
   $("flash").classList.remove("go"); void $("flash").offsetWidth;
   $("flash").classList.add("go");
-
-  note("scanMsg", d.faceQuality < 0.45 ? "warn" : "ok",
-    d.faceQuality < 0.45
-      ? `Read the <b>${face}</b> face, but two of its colours looked alike. `
-        + "Click its tile below to do it again if the preview looks wrong."
-      : `Read the <b>${face}</b> face.`);
-
-  const next = SCAN_ORDER.findIndex(o => !S.scanSamples[o.f]);
-  S.scanFace = next === -1 ? S.scanFace : next;
-  renderFaceRow(); updateTip();
+  if (navigator.vibrate) try { navigator.vibrate(30); } catch {}
   const done = Object.keys(S.scanSamples).length;
-  $("stageBadge").textContent = done + " of 6 faces read";
-
+  note("scanMsg","ok", `Read the <b>${sideName(face)}</b>. `
+    + (done < 6 ? `${6 - done} to go — show another side.` : ""));
+  renderFaceRow(); updateTip();
+  $("stageBadge").textContent = done + " of 6 sides read";
   if (done === 6){ stopCamera(); await classifyAll(); }
+}
+
+/**
+ * Snap: take whatever is in the square right now (live reading), or - with a
+ * `photo` - send it to the server, whose grid finder copes with a tilted,
+ * off-centre face in a photo.
+ */
+async function capture(live, photo){
+  if (!photo){
+    const d = S.live || readLive();
+    if (!d) return false;
+    if (d.id.again && S.scanSamples[d.id.face])
+      return note("scanMsg","warn", `That is the <b>${sideName(d.id.face)}</b> again — `
+        + "show a side you have not read yet, or click its tile to read it again."), false;
+    await storeFace(d.id.face, d.samples, d.hex);
+    return true;
+  }
+  const fd = new FormData(); fd.append("image", photo, "face.jpg");
+  const r = await fetch("/api/scan/face", {method:"POST", body:fd});
+  const d = r.ok ? await r.json() : {};
+  if (!d.samples || !d.found){
+    note("scanMsg","err", "Could not find the nine stickers in that photo. Take it straight "
+      + "on, with one side filling most of the picture, in good light.");
+    return false;
+  }
+  const id = SC.identifyFace(d.samples[4], capturedCentres());
+  if (id.again && S.scanSamples[id.face]){
+    note("scanMsg","warn", `That photo shows the <b>${sideName(id.face)}</b> again — skipped.`);
+    return true;
+  }
+  await storeFace(id.face, d.samples, d.hex, d.faceQuality);
   return true;
 }
 
-/** Photos instead of a live camera: one per face, in the order the app asks. */
+/** Photos instead of a live camera: one per side, in any order. */
 async function uploadPhotos(files){
   files = [...files].filter(f => f.type.startsWith("image/"));
   if (!files.length) return;
   if (S.streaming) stopCamera();
   for (const file of files){
     if (Object.keys(S.scanSamples).length === 6) break;
-    note("scanMsg","info", `Reading the <b>${SCAN_ORDER[S.scanFace].f}</b> face from ${file.name}…`);
+    note("scanMsg","info", `Reading ${file.name}…`);
     let ok = false;
-    try { ok = await capture({signature: "", samples: null}, file); }
+    try { ok = await capture(null, file); }
     catch { note("scanMsg","err","Reading photos needs the server, and it is not answering. "
                  + "Use <b>Enter by hand</b> instead."); return; }
     if (!ok) return;                    // stop at the first photo we could not read
   }
   const left = 6 - Object.keys(S.scanSamples).length;
   if (left) note("scanMsg","ok", `Read ${files.length} photo${files.length > 1 ? "s" : ""}. `
-    + `Now the <b>${SCAN_ORDER[S.scanFace].f}</b> face — ${left} to go. `
-    + "Follow the picture above for which way up to hold it.");
+    + `${left} side${left > 1 ? "s" : ""} to go.`);
 }
 
+/**
+ * All six sides in: work out which way up each was held, then read all 54
+ * colours carefully. The browser settles the rotations (and any red/orange
+ * mix-up); the server's classifier then does the careful colour reading. If
+ * the two readings disagree, say so - that is the one honest warning sign.
+ */
 async function classifyAll(){
-  const samples = [];
-  for (const f of FACE_ORDER) samples.push(...S.scanSamples[f]);
-  const r = await fetch("/api/classify", {
-    method:"POST", headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({samples})});
-  const d = await r.json();
+  const res = SC.resolveRotations(S.scanSamples);
+  let d;
+  try {
+    const r = await fetch("/api/classify", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({samples: res.samples})});
+    if (!r.ok) throw new Error("server said " + r.status);
+    d = await r.json();
+  } catch {
+    // offline: the browser's own reading, checked by the browser solver
+    let valid = true, problem = null;
+    try { E.solveShortest(res.labels); } catch (e) { valid = false; problem = e.message; }
+    d = {facelets: res.labels, valid, problem, agreed: true, repairedSwaps: res.repaired,
+         palette: null, offline: true};
+  }
   if (d.palette) palette = {...DEFAULT_COLOURS, ...d.palette};
   buildSwatches();
   setFacelets(d.facelets);
@@ -1438,24 +1515,21 @@ async function classifyAll(){
       + "stickers do not match — then press <b>Solve it</b>.");
     return switchTab("hand");
   }
-  // The colours are read two independent ways. Them agreeing is the one
-  // trustworthy confidence signal we have; them disagreeing is worth saying.
-  const shaky = [...FACE_ORDER].filter(f => S.scanQuality[f] < 0.45);
-  if (!d.agreed || d.repairedSwaps > 0 || shaky.length){
+  const browserAgrees = d.facelets === res.labels;
+  const turned = Object.values(res.rotations).filter(k => k).length;
+  const how = turned ? ` (${turned} side${turned > 1 ? "s were" : " was"} held turned — sorted that out)` : "";
+  if (!browserAgrees || !d.agreed || d.repairedSwaps > 0 || res.ambiguous){
     note("scanMsg","warn",
-      (!d.agreed
-        ? "My two ways of reading the colours did not quite agree, so I went with "
-          + "the one that better fits what the camera saw. "
-        : d.repairedSwaps > 0
-        ? "Two colours were too close to call, so I picked the reading that makes "
-          + "a real cube. "
-        : `The <b>${shaky.join(", ")}</b> face${shaky.length>1?"s were":" was"} `
-          + "harder to read than the rest. ")
-      + "Compare the flat map with your cube before you start.");
+      (!browserAgrees || !d.agreed
+        ? "Two independent readings of the colours did not quite agree, so I went with "
+          + "the one that makes a real cube. "
+        : res.ambiguous
+        ? "That pattern could be read more than one way. "
+        : "Two colours were too close to call, so I picked the reading that makes a real cube. ")
+      + "Compare the flat map with your cube before you start." + how);
     return;
   }
-  note("scanMsg","ok","Read cleanly — both colour checks agree. Have a quick "
-    + "look at the flat map, then follow the turns on the right.");
+  note("scanMsg","ok","Read cleanly — every check agrees" + how + ". Solving…");
   solve();
 }
 
@@ -1891,14 +1965,14 @@ $("fileFaces").onchange = async e => {
 $("btnShot").onclick = async () => {
   if (!S.streaming || S.busy) return;
   S.busy = true;
-  try { await capture({signature:"", samples:null}); } finally { S.busy = false; }
+  try { await capture(null); } finally { S.busy = false; }
 };
 $("btnReset").onclick = () => {
-  S.scanSamples = {}; S.scanHex = {}; S.scanQuality = {}; S.scanFace = 0;
-  S.armed = true; S.stable = 0; palette = {...DEFAULT_COLOURS};
+  S.scanSamples = {}; S.scanHex = {}; S.scanQuality = {};
+  S.stable = 0; S.lastSig = ""; palette = {...DEFAULT_COLOURS};
   renderFaceRow(); updateTip(); buildSwatches(); setFacelets(SOLVED);
   showScanProgress();
-  note("scanMsg","info","Cleared. Start again with the top face.");
+  note("scanMsg","info","Cleared. Show any side to start again.");
 };
 $("btnSolved").onclick = () => setFacelets(SOLVED);
 $("btnRandom").onclick = () => {
