@@ -1058,6 +1058,12 @@ function accentHex(){
  * pulses. Each part has a dark copy behind it so it shows on any colour.
  */
 const ARROW = {R: 1.95, tube: 0.115, segs: 64, radial: 10, cycleMs: 1500};
+// On a phone the cube is small on screen, so the arrow gets a thicker tube,
+// a bigger head, and sits a little further out so it does not cover the stickers.
+const ARROW_PHONE = {R: 2.1, tubeScale: 1.75, headScale: 1.55};
+const arrowSize = () => (typeof isPhone === "function" && isPhone())
+  ? {R: ARROW_PHONE.R, tube: ARROW.tube * ARROW_PHONE.tubeScale, head: ARROW_PHONE.headScale}
+  : {R: ARROW.R, tube: ARROW.tube, head: 1};
 
 function arcCurve(R, sweep){
   const c = new THREE.Curve();
@@ -1069,7 +1075,8 @@ function arcCurve(R, sweep){
 function buildArrowMesh(step){
   const g = new THREE.Group();
   const sweep = step.turns === 2 ? Math.PI*0.95 : Math.PI*0.66;
-  const {R, tube, segs, radial} = ARROW;
+  const {segs, radial} = ARROW;
+  const {R, tube, head: hs} = arrowSize();
   const mat = (colour, opacity) => new THREE.MeshBasicMaterial({
     color: colour, side: THREE.DoubleSide, depthTest: false, depthWrite: false,
     transparent: true, opacity});
@@ -1088,12 +1095,12 @@ function buildArrowMesh(step){
     g.add(streak);
     streaks.push(geo); fading.push([m, m.opacity]);
     const hm = mat(colour, colour === dark ? 0.85 : 1);
-    const head = new THREE.Mesh(new THREE.ConeGeometry(0.30*grow, 0.62*grow, 20), hm);
+    const head = new THREE.Mesh(new THREE.ConeGeometry(0.30*grow*hs, 0.62*grow*hs, 20), hm);
     head.renderOrder = order;
     g.add(head);
     heads.push(head); fading.push([hm, hm.opacity]);
   }
-  g.userData = {sweep, streaks, heads, fading, born: performance.now()};
+  g.userData = {sweep, R, streaks, heads, fading, born: performance.now()};
   return g;
 }
 
@@ -1109,7 +1116,7 @@ function flowArrow(g, now){
   for (const geo of u.streaks) if (geo.setDrawRange) geo.setDrawRange(0, drawn * ARROW.radial * 6);
   const a = f * u.sweep;
   for (const h of u.heads){
-    h.position.set(Math.cos(a) * ARROW.R, Math.sin(a) * ARROW.R, 0);
+    h.position.set(Math.cos(a) * u.R, Math.sin(a) * u.R, 0);
     h.rotation.z = a;
     h.visible = f > 0.06;
   }
@@ -1339,6 +1346,11 @@ function setScreen(name){
     $("solveHead").textContent = "Nothing to solve yet";
   if (typeof resize === "function" && renderer) requestAnimationFrame(resize);
   if (isPhone()) document.querySelector("main").scrollTop = 0;
+}
+if (window.matchMedia) {
+  const mq = matchMedia("(max-width: 760px)");
+  const redraw = () => { if (S.arrowStep) showArrow(S.arrowStep); };
+  if (mq.addEventListener) mq.addEventListener("change", redraw); else if (mq.addListener) mq.addListener(redraw);
 }
 function openTurns(open){
   document.body.classList.toggle("sheet-open", !!open);
