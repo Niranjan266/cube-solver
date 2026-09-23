@@ -77,6 +77,12 @@ STAGE_GOAL = {
 }
 
 
+def _sentence(s: str) -> str:
+    # not str.capitalize(): that lower-cases the rest, and the capitals in
+    # "slides to the LEFT" are the whole point
+    return s[0].upper() + s[1:] + "."
+
+
 def describe(move: str) -> Dict:
     """Everything the UI needs to show and speak one move."""
     face, suffix = move[0], move[1:]
@@ -93,13 +99,13 @@ def describe(move: str) -> Dict:
         angle, direction = -90, "anticlockwise"
         arrow, motion = MOTION_CCW[face]
         text = f"Turn the {name.upper()} face 90° ANTI-CLOCKWISE (looking straight at it)."
-        hint = HINT_CCW[face].capitalize() + "."
+        hint = _sentence(HINT_CCW[face])
         speech = f"{name} face, anti clockwise"
     else:
         angle, direction = 90, "clockwise"
         arrow, motion = MOTION_CW[face]
         text = f"Turn the {name.upper()} face 90° CLOCKWISE (looking straight at it)."
-        hint = HINT_CW[face].capitalize() + "."
+        hint = _sentence(HINT_CW[face])
         speech = f"{name} face, clockwise"
 
     return {
