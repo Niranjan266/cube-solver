@@ -328,16 +328,35 @@ if (OFFLINE) {
   });
 }
 
-check("speed presets: Slow / Normal / Fast", () => {
-  $("speedSeg").querySelector('[data-speed="slow"]').click();
-  const slow = G("speed().turnMs");
-  $("speedSeg").querySelector('[data-speed="fast"]').click();
-  const fast = G("speed().turnMs");
-  const pressed = $("speedSeg").querySelector('[aria-pressed="true"]').dataset.speed;
-  if (!(slow > fast) || pressed !== "fast") throw new Error(`slow ${slow} ms, fast ${fast} ms, pressed ${pressed}`);
-  $("speedSeg").querySelector('[data-speed="normal"]').click();
-  return `slow ${slow} ms, fast ${fast} ms per turn`;
+check("speed bar runs from 0.01x to 2x", () => {
+  const bar = $("speedBar");
+  const at = (v) => { bar.value = v; bar.dispatchEvent(new win.Event("input", { bubbles: true }));
+                      return { x: G("speed().x"), ms: G("speed().turnMs"), label: $("speedVal").textContent }; };
+  const lo = at(0), hi = at(1000), mid = at(869);
+  if (Math.abs(lo.x - 0.01) > 1e-9 || Math.abs(hi.x - 2) > 1e-9) throw new Error(`ends ${lo.x}, ${hi.x}`);
+  if (mid.x !== 1 || mid.label !== "1.00×") throw new Error(`1x position gave ${mid.x} (${mid.label})`);
+  if (!(lo.ms > hi.ms)) throw new Error("slower is not slower");
+  at(0); $("speedVal").click();
+  if (G("speed().x") !== 1) throw new Error("the readout did not reset to 1x");
+  return `${lo.label} = ${Math.round(lo.ms / 1000)} s a turn, ${hi.label} = ${Math.round(hi.ms)} ms`;
 });
+
+// a very slow turn must speed up at once when the bar moves mid-turn
+G("jumpTo(0); setSpeed(0.01)");
+const turnStart = Date.now();
+const turning = G("stepForward()");
+await sleep(300);
+G("setSpeed(2)");
+let turnErr = null;
+try { await withTimeout(turning, 4000, "a 0.01x turn after switching to 2x"); } catch (e) { turnErr = e; }
+const turnTook = Date.now() - turnStart;
+G("setSpeed(1)");
+check("changing speed mid-turn applies at once", () => {
+  if (turnErr) throw turnErr;
+  if (G("S.index") !== 1) throw new Error("the turn did not finish");
+  return `a 52-second turn finished ${turnTook} ms after starting, once set to 2x`;
+});
+G("jumpTo(0)");
 
 check("phone screens and the turn list", () => {
   for (const name of ["scan", "check", "solve"]) {
