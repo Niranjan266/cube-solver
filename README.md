@@ -67,6 +67,14 @@ the controls and the speed stay on screen, and *All turns* slides the full
 list up from the bottom. Every control is at least 44 px tall, and the layout
 respects the notch and home bar.
 
+**The 3D cube** fills in live while you scan. The side you are holding up is
+painted onto it as the camera reads it, and the cube swings round to show that
+side. On a phone a small live cube sits in the corner of the camera view.
+**+ / − / reset** on the 3D view change its size (remembered). Dragging it
+keeps some momentum and glides to a stop. When nothing is happening, it turns
+slowly on its own, and any touch stops that. Layer turns spring into place,
+lifting slightly as they go, with a light haptic click on phones.
+
 **Speed** is three buttons: *Slow*, *Normal* and *Fast*. They set how quickly
 the 3D cube turns and how long *Play* pauses between turns (Slow leaves time
 to copy each turn by hand). The choice is remembered.

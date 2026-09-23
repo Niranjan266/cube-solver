@@ -234,6 +234,21 @@
     color:var(--muted);backdrop-filter:blur(10px);max-width:55%;overflow:hidden;
     text-overflow:ellipsis;white-space:nowrap}
   .stagehint{position:absolute;left:16px;bottom:14px;font-size:12px;color:var(--faint)}
+  .zoombar{position:absolute;right:14px;bottom:14px;display:flex;flex-direction:column;gap:6px;padding:5px;
+           border-radius:16px;background:color-mix(in srgb, var(--surface) 86%, transparent);
+           border:1px solid var(--line);backdrop-filter:blur(10px);z-index:2}
+  .zoombar button{width:40px;height:40px;border-radius:11px;background:var(--surface-2);color:var(--ink);
+                  display:grid;place-items:center}
+  .zoombar button:hover{background:var(--surface-3)}
+  .stagecard[data-view=cubing] .zoombar{display:none}
+  /* the live 3D preview in the camera's corner (phones, while scanning) */
+  .pip{display:none;position:absolute;right:5px;bottom:5px;width:24%;aspect-ratio:1;border-radius:14px;
+       background:rgba(14,17,22,.86);border:1px solid rgba(255,255,255,.14);overflow:hidden;z-index:3}
+  .pip #stage{position:absolute;inset:0}
+  .pip-live{position:absolute;left:7px;top:5px;z-index:2;display:flex;align-items:center;gap:4px;
+            font-size:10px;font-weight:700;letter-spacing:.06em;color:#ff9a9a;pointer-events:none}
+  .pip-live i{width:7px;height:7px;border-radius:50%;background:#ff5b5b}
+  .videowrap.has-pip .pip{display:block}
   .cubing-msg{color:var(--muted);font-size:13.5px;text-align:center;padding:30px;max-width:340px;line-height:1.6}
   .mapcard{flex:none}
   .mapcard .body{display:flex;align-items:center;gap:24px;padding:16px 22px}
@@ -399,6 +414,8 @@
     #btnFirst,#btnLast{width:46px;min-width:46px}
     .controls .btn.primary{min-height:56px;font-size:17px}
     .opts{padding:12px 16px 14px;gap:10px}
+    .zoombar{right:10px;bottom:10px}
+    .zoombar button{width:44px;height:44px}
     .toggles{gap:12px;flex-wrap:wrap}
 
     .turnscard{position:fixed;left:0;right:0;bottom:0;z-index:40;max-height:74dvh;border-radius:26px 26px 0 0;
@@ -483,6 +500,7 @@
               No webcam? <b>Upload photos</b> of the six sides instead.
             </div>
             <video id="video" playsinline muted style="display:none"></video>
+            <div class="pip" id="pip" aria-label="Live 3D preview"><span class="pip-live"><i></i>LIVE</span></div>
             <canvas id="overlay"></canvas>
             <div class="flash" id="flash"></div>
           </div>
@@ -557,6 +575,11 @@
         <div class="badge" id="stageBadge">waiting for your cube</div>
       </div>
       <div class="stagehint" id="stageHint">drag to spin · space = play · ← → = step</div>
+      <div class="zoombar" role="group" aria-label="Cube size">
+        <button id="zoomIn" title="Bigger" aria-label="Make the cube bigger"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+        <button id="zoomOut" title="Smaller" aria-label="Make the cube smaller"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg></button>
+        <button id="zoomReset" title="Reset the view" aria-label="Reset the size and angle"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.3-5.7M4 4v4h4"/></svg></button>
+      </div>
     </section>
     <section class="card mapcard" data-on="check">
       <div class="body">
@@ -795,7 +818,13 @@ function initThree(){
   enableDrag(stage);
   resize();
   new ResizeObserver(resize).observe(stage);
-  (function loop(){ requestAnimationFrame(loop); placeArrow(); renderer.render(scene, camera); })();
+  let lastFrame = performance.now();
+  (function loop(now){
+    requestAnimationFrame(loop);
+    now = now || performance.now();
+    stepView(now - lastFrame); lastFrame = now;
+    placeArrow(); renderer.render(scene, camera);
+  })();
 }
 
 /** A soft round shadow under the cube, so it sits on something. */
@@ -824,31 +853,104 @@ function resize(){
   camera.aspect = w/h;
   // a short stage (phones) needs a wider view, or the turn arrow above
   // the top layer runs off the edge
-  camera.fov = h < 300 ? 48 : h < 420 ? 42 : 36;
+  // in the camera's corner the view is tiny: frame the cube tightly
+  const inPip = s.parentElement && s.parentElement.id === "pip";
+  camera.fov = inPip ? 31 : h < 300 ? 48 : h < 420 ? 42 : 36;
   camera.updateProjectionMatrix();
 }
 
+/*
+ * The camera orbits the cube. One small state, advanced every frame, gives:
+ *  - momentum: let go mid-drag and the cube glides on and slows to a stop;
+ *  - an idle spin: when nothing has happened for a few seconds (and no turn
+ *    is being shown), the cube turns slowly on its own - any touch stops it;
+ *  - size: + / - change the zoom, which eases rather than jumps.
+ */
+const VIEW_HOME = {ry: 0.62, rx: 0.46, zoom: 1};
+const VIEW = {ry: VIEW_HOME.ry, rx: VIEW_HOME.rx, vry: 0, vrx: 0, zoom: 1, zoomTo: 1,
+              dragging: false, touched: 0, homing: false, idle: 0};
+const ZOOM_MIN = 0.6, ZOOM_MAX = 1.9;
+const reducedMotion = () => !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+
+function applyCamera(){
+  const r = 11 / VIEW.zoom, {rx, ry} = VIEW;
+  camera.position.set(r*Math.cos(rx)*Math.sin(ry), r*Math.sin(rx), r*Math.cos(rx)*Math.cos(ry));
+  camera.lookAt(0,-0.15,0);
+}
+
+function stepView(dt){
+  const k = Math.min(3, dt / 16.7);                      // frames' worth of time
+  if (!VIEW.dragging){
+    // momentum, fading out
+    VIEW.ry += VIEW.vry * k; VIEW.rx += VIEW.vrx * k;
+    const f = Math.pow(0.93, k);
+    VIEW.vry *= f; VIEW.vrx *= f;
+    if (Math.abs(VIEW.vry) < 1e-5) VIEW.vry = 0;
+    if (Math.abs(VIEW.vrx) < 1e-5) VIEW.vrx = 0;
+    // idle spin: nothing touched for 4 s, no turn on show, not scanning
+    const quiet = performance.now() - VIEW.touched > 4000 && !S.arrowStep && !S.streaming
+                  && !animating && !VIEW.homing && !reducedMotion();
+    VIEW.idle += ((quiet ? 1 : 0) - VIEW.idle) * 0.03 * k;   // ease in and out of it
+    VIEW.ry += 0.0035 * VIEW.idle * k;
+    // back home, gently
+    if (VIEW.homing){
+      const e = 1 - Math.pow(0.88, k);
+      let d = VIEW_HOME.ry - VIEW.ry;
+      d = Math.atan2(Math.sin(d), Math.cos(d));          // the short way round
+      VIEW.ry += d * e; VIEW.rx += (VIEW_HOME.rx - VIEW.rx) * e;
+      if (Math.abs(d) < 1e-3 && Math.abs(VIEW_HOME.rx - VIEW.rx) < 1e-3) VIEW.homing = false;
+    }
+  }
+  VIEW.rx = Math.max(-1.35, Math.min(1.35, VIEW.rx));
+  VIEW.zoom += (VIEW.zoomTo - VIEW.zoom) * (1 - Math.pow(0.82, k));
+  applyCamera();
+}
+
+function setZoom(z){
+  VIEW.zoomTo = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, z));
+  VIEW.touched = performance.now();
+  store.set("zoom", VIEW.zoomTo.toFixed(2));
+  $("zoomIn").disabled = VIEW.zoomTo >= ZOOM_MAX - 1e-6;
+  $("zoomOut").disabled = VIEW.zoomTo <= ZOOM_MIN + 1e-6;
+}
+function resetView(){
+  setZoom(1);
+  VIEW.vry = VIEW.vrx = 0; VIEW.homing = true; VIEW.idle = 0;
+}
+
 function enableDrag(el){
-  let down=false, lx=0, ly=0, ry=0.62, rx=0.46;
-  const apply = () => {
-    const r = 11;
-    camera.position.set(r*Math.cos(rx)*Math.sin(ry), r*Math.sin(rx), r*Math.cos(rx)*Math.cos(ry));
-    camera.lookAt(0,-0.15,0);
-  };
-  apply();
+  let lx=0, ly=0, lastT=0;
+  applyCamera();
   const pt = e => e.touches ? {x:e.touches[0].clientX, y:e.touches[0].clientY}
                             : {x:e.clientX, y:e.clientY};
-  const start = e => { down=true; const p=pt(e); lx=p.x; ly=p.y; };
-  const move  = e => {
-    if(!down) return;
-    const p = pt(e);
-    ry -= (p.x-lx)*0.008; rx += (p.y-ly)*0.008;
-    rx = Math.max(-1.35, Math.min(1.35, rx));
-    lx=p.x; ly=p.y; apply();
+  const start = e => {
+    VIEW.dragging = true; VIEW.homing = false; VIEW.vry = VIEW.vrx = 0; VIEW.idle = 0;
+    VIEW.touched = lastT = performance.now();
+    const p = pt(e); lx = p.x; ly = p.y;
+  };
+  const move = e => {
+    if (!VIEW.dragging) return;
+    const p = pt(e), now = performance.now();
+    const dy = -(p.x-lx)*0.008, dx = (p.y-ly)*0.008;
+    VIEW.ry += dy; VIEW.rx += dx;
+    // remember how fast it was going, per 60 Hz frame, for the glide
+    const frames = Math.max(0.5, (now - lastT) / 16.7);
+    VIEW.vry = VIEW.vry * 0.5 + (dy / frames) * 0.5;
+    VIEW.vrx = VIEW.vrx * 0.5 + (dx / frames) * 0.5;
+    lx = p.x; ly = p.y; lastT = VIEW.touched = now;
+    applyCamera();
+  };
+  const end = () => {
+    if (!VIEW.dragging) return;
+    VIEW.dragging = false;
+    if (performance.now() - lastT > 90) VIEW.vry = VIEW.vrx = 0;   // held still, then let go
+    VIEW.vry = Math.max(-0.12, Math.min(0.12, VIEW.vry));
+    VIEW.vrx = Math.max(-0.08, Math.min(0.08, VIEW.vrx));
+    VIEW.touched = performance.now();
   };
   el.addEventListener("mousedown", start); el.addEventListener("touchstart", start, {passive:true});
   addEventListener("mousemove", move);     el.addEventListener("touchmove", move, {passive:true});
-  addEventListener("mouseup", ()=>down=false); addEventListener("touchend", ()=>down=false);
+  addEventListener("mouseup", end); addEventListener("touchend", end); addEventListener("touchcancel", end);
 }
 
 /**
@@ -980,12 +1082,13 @@ function animateScanRotation(targetFace) {
   const targetQ = TARGET_QUATERNIONS[targetFace];
   if (!targetQ || !cubeRoot || !cubeRoot.quaternion.clone) return;
   const startQ = cubeRoot.quaternion.clone();
+  if (startQ.angleTo && startQ.angleTo(targetQ) < 1e-3) return;   // already there
   const t0 = performance.now();
-  const duration = 600;
+  const duration = 720;
   function tick(now) {
-    let t = Math.min(1, (now - t0) / duration);
-    t = 1 - Math.pow(1 - t, 3);
-    cubeRoot.quaternion.slerpQuaternions(startQ, targetQ, t);
+    const t = Math.min(1, (now - t0) / duration);
+    // swing past a touch and settle, like the layer turns
+    cubeRoot.quaternion.slerpQuaternions(startQ, targetQ, t < 1 ? springEase(t) : 1);
     scanAnimTimer = t < 1 ? requestAnimationFrame(tick) : null;
   }
   scanAnimTimer = requestAnimationFrame(tick);
@@ -1023,8 +1126,13 @@ function animateMove(step, ms){
       t = Math.min(1, t + Math.max(0, now - last) / msNow()); last = now;
       const e = springEase(t);
       group.setRotationFromAxisAngle(axis, total*e);
+      // the moving layer lifts a hair outward mid-turn, then seats itself
+      const lift = 0.07 * Math.sin(Math.PI * Math.min(1, t * 1.15));
+      if (group.position.copy) group.position.copy(axis).multiplyScalar(lift * want);
       if (t < 1) return requestAnimationFrame(tick);
       group.setRotationFromAxisAngle(axis, total);
+      group.position.set(0, 0, 0);
+      if (navigator.vibrate && typeof isPhone === "function" && isPhone()) try { navigator.vibrate(8); } catch {}
       group.updateMatrixWorld(true);
       members.forEach(c => {
         cubeRoot.attach(c);
@@ -1348,11 +1456,12 @@ function setScreen(name){
   if (name === "solve" && !S.solution)
     $("solveHead").textContent = "Nothing to solve yet";
   if (typeof resize === "function" && renderer) requestAnimationFrame(resize);
+  updatePip();
   if (isPhone()) document.querySelector("main").scrollTop = 0;
 }
 if (window.matchMedia) {
   const mq = matchMedia("(max-width: 760px)");
-  const redraw = () => { if (S.arrowStep) showArrow(S.arrowStep); };
+  const redraw = () => { if (S.arrowStep) showArrow(S.arrowStep); updatePip(); };
   if (mq.addEventListener) mq.addEventListener("change", redraw); else if (mq.addListener) mq.addListener(redraw);
 }
 function openTurns(open){
@@ -1523,6 +1632,8 @@ async function startCamera(){
   S.streaming = true; S.stable = 0; S.lastSig = ""; S.misses = 0;
   note("scanMsg","info","Fill the square with one side of the cube and hold still.");
   liveTimer = setInterval(tickLive, LIVE_MS);
+  S.liveCubeSig = null; S.liveCubeFace = null;
+  updatePip();
   lockWhiteBalance();
 }
 
@@ -1565,6 +1676,7 @@ function stopCamera(){
   $("lockText").textContent = "camera off";
   const ov = $("overlay"); ov.getContext("2d").clearRect(0,0,ov.width,ov.height);
   renderFaceRow();
+  S.liveCubeSig = null; showScanProgress(); updatePip();
 }
 
 /** The centre square of the video, at `size` pixels, as a canvas. */
@@ -1621,12 +1733,47 @@ function tickLive(){
     : !isNew ? `${SC.SCHEME[d.id.face]} done ✓`
     : S.stable >= STEADY ? "got it" : `${SC.SCHEME[d.id.face]} side…`;
 
+  showLiveOnCube(plausible && isNew ? d : null);
+
   S.misses = plausible ? 0 : S.misses + 1;
   if (S.misses === 40)
     note("scanMsg","warn","Cannot see nine stickers yet — hold one side flat to the camera "
       + "so it fills the square, in good light.");
 
   if (plausible && isNew && S.stable >= STEADY) storeFace(d.id.face, d.samples, d.hex);
+}
+
+/**
+ * Paint the side being read onto the 3D cube, live, and swing the cube round
+ * to show it; captured sides stay as they are. When nothing is being read,
+ * the cube goes back to just the captured sides.
+ */
+function showLiveOnCube(d){
+  const sig = d ? d.sig : "";
+  if (sig === S.liveCubeSig) return;
+  S.liveCubeSig = sig;
+  showScanProgress();
+  if (!d){
+    if (S.streaming) $("stageBadge").textContent = Object.keys(S.scanSamples).length + " of 6 sides read";
+    return;
+  }
+  paintFaceRaw(d.id.face, d.labels.map(l => DEFAULT_COLOURS[l]));
+  if (S.liveCubeFace !== d.id.face){ S.liveCubeFace = d.id.face; animateScanRotation(d.id.face); }
+  $("stageBadge").textContent = `LIVE · reading the ${SC.SCHEME[d.id.face].toLowerCase()} side`;
+}
+
+/**
+ * Phones, Scan screen: the 3D view moves into the corner of the camera box,
+ * so the cube can be watched filling in without leaving the camera.
+ */
+function updatePip(){
+  const pip = $("pip"), stage = $("stage"), card = $("stageCard");
+  const want = isPhone() && document.body.dataset.screen === "scan" && $("tab-scan").style.display !== "none"
+               && (S.streaming || Object.keys(S.scanSamples).length > 0);
+  $("pip").parentElement.classList.toggle("has-pip", want);
+  if (want && stage.parentElement !== pip) pip.appendChild(stage);
+  if (!want && stage.parentElement !== card) card.insertBefore(stage, card.firstChild);
+  if (renderer) requestAnimationFrame(resize);
 }
 
 /** The guide square, filled with the colours being read right now. */
@@ -1717,7 +1864,8 @@ async function storeFace(face, samples, hex, quality){
     + (renamed.length ? `<small>(Now that I can compare them: ${renamed.map(([a, b]) =>
         `the side I called ${SC.SCHEME[a].toLowerCase()} is ${SC.SCHEME[b].toLowerCase()}`).join(", ")}.)</small> ` : "")
     + (done < 6 ? `${6 - done} to go — show another side.` : ""));
-  renderFaceRow(); updateTip();
+  renderFaceRow(); updateTip(); updatePip();
+  S.liveCubeSig = null;
   $("stageBadge").textContent = done + " of 6 sides read";
   if (done === 6){ stopCamera(); await classifyAll(); }
 }
@@ -2236,6 +2384,7 @@ function switchTab(name){
   $("tab-scan").style.display = name === "scan" ? "" : "none";
   $("tab-hand").style.display = name === "hand" ? "" : "none";
   if (name === "scan") updateTip(); else animateScanRotation("F");
+  if (typeof updatePip === "function") updatePip();
 }
 function buildSwatches(){
   const el = $("swatches"); el.innerHTML = "";
@@ -2263,6 +2412,9 @@ $("btnTurns").onclick = () => openTurns(!document.body.classList.contains("sheet
 $("btnTurnsClose").onclick = () => openTurns(false);
 $("scrim").onclick = () => openTurns(false);
 $("btnToHand").onclick = () => switchTab("hand");
+$("zoomIn").onclick = () => setZoom(VIEW.zoomTo * 1.15);
+$("zoomOut").onclick = () => setZoom(VIEW.zoomTo / 1.15);
+$("zoomReset").onclick = resetView;
 $("btnFix").onclick = () => { setScreen("scan"); switchTab("hand"); };
 document.querySelectorAll(".mode").forEach(b => b.onclick = () => {
   setMode(b.dataset.mode);
@@ -2327,6 +2479,7 @@ function setStatus(kind, text){
   renderFaceRow(); updateTip(); buildSwatches(); buildManual();
   setMode(["quick","learn","cfop"].includes(store.get("mode")) ? store.get("mode") : "quick");
   setSpeed(store.get("speed") || 1);
+  setZoom(parseFloat(store.get("zoom")) || 1); VIEW.zoom = VIEW.zoomTo;
   setFacelets(SOLVED);
   $("stageBadge").textContent = "waiting for your cube";
   if (store.get("view") === "cubing") setView("cubing");

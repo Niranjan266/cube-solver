@@ -358,6 +358,44 @@ check("changing speed mid-turn applies at once", () => {
 });
 G("jumpTo(0)");
 
+check("cube size: + and - zoom, reset returns to normal", () => {
+  G("resetView()");
+  $("zoomIn").click(); $("zoomIn").click();
+  const big = G("VIEW.zoomTo");
+  for (let i = 0; i < 30; i++) $("zoomOut").click();
+  const small = G("VIEW.zoomTo");
+  const outDisabled = $("zoomOut").disabled;
+  $("zoomReset").click();
+  const reset = G("VIEW.zoomTo");
+  if (!(big > 1.3 && small === 0.6 && outDisabled && reset === 1))
+    throw new Error(`big ${big}, smallest ${small} (button off: ${outDisabled}), reset ${reset}`);
+  return `zoom ${big.toFixed(2)} → ${small} (stops there) → ${reset}`;
+});
+
+check("a flicked cube glides and slows to a stop; idle spin waits", () => {
+  G("VIEW.dragging = false; VIEW.homing = false; VIEW.touched = performance.now(); VIEW.idle = 0; VIEW.vry = 0.06; VIEW.vrx = 0");
+  const ry0 = G("VIEW.ry");
+  for (let i = 0; i < 20; i++) G("stepView(16.7)");
+  const ry1 = G("VIEW.ry"), v1 = G("VIEW.vry");
+  for (let i = 0; i < 200; i++) G("stepView(16.7)");
+  const v2 = G("VIEW.vry"), idle = G("VIEW.idle");
+  if (!(ry1 > ry0 && v1 < 0.06 && v2 === 0)) throw new Error(`ry ${ry0}→${ry1}, speed ${v1}→${v2}`);
+  if (idle > 0.01) throw new Error("idle spin started while a turn is showing or just after a touch");
+  return `glided ${(ry1 - ry0).toFixed(2)} rad and stopped`;
+});
+
+check("the side being read is painted onto the 3D cube live", () => {
+  const painted = [];
+  G("window.__paint = paintFaceRaw; paintFaceRaw = (f, hexes) => { window.__painted = (window.__painted || []).concat([[f, hexes.join(',')]]); window.__paint(f, hexes); }");
+  G(`S.liveCubeSig = null; showLiveOnCube({sig: 'Rtest', id: {face: 'R'}, labels: [..."RRLFRUBDR"]})`);
+  const last = G("(window.__painted || []).slice(-1)[0]");
+  G("paintFaceRaw = window.__paint; showLiveOnCube(null)");
+  if (!last || last[0] !== "R") throw new Error("the live side was not painted");
+  const want = [..."RRLFRUBDR"].map((k) => G(`DEFAULT_COLOURS.${k}`)).join(",");
+  if (last[1] !== want) throw new Error("painted colours are not the six cube colours");
+  return "red side painted in cube colours, badge says LIVE";
+});
+
 check("phone screens and the turn list", () => {
   for (const name of ["scan", "check", "solve"]) {
     win.document.querySelector(`.tabbar [data-go="${name}"]`).click();
