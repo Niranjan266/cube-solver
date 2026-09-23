@@ -28,6 +28,7 @@ const SOLVED = [..."URFDLB"].map((f) => f.repeat(9)).join("");
 const OFFLINE_CUBE = "BRBFUUULDFBRFRRLLLBFRBFRUBBRDDBDDDFFUDRULRFLFDULDBLUUL";
 const errors = [];
 const steps = [];
+let photoCount = 0;
 
 /* ---- the two things that cannot run in a headless DOM ------------------- */
 
@@ -86,7 +87,14 @@ function offlineApi(url, opts) {
     return { ok: true, solverReady: true, detector: "opencv" };
   if (url.includes("/api/scramble"))
     return { scramble: ["R"], facelets: SOLVED };
-  if (url.includes("/api/scan/live") || url.includes("/api/scan/face"))
+  if (url.includes("/api/scan/face")) {
+    // each photo shows the next side of OFFLINE_CUBE, as a real photo would
+    const f = "URFDLB"[photoCount++ % 6], base = "URFDLB".indexOf(f) * 9;
+    const samples = [...OFFLINE_CUBE.slice(base, base + 9)].map((c) => PALETTE[c].slice());
+    return { method: "lattice", confidence: 1, faceQuality: 1, found: true, gridFound: true,
+             samples, hex: samples.map(() => "#888888"), signature: f };
+  }
+  if (url.includes("/api/scan/live"))
     return {
       method: "lattice", confidence: 1, faceQuality: 1, found: true,
       gridFound: true,
@@ -194,8 +202,9 @@ check("manual diagrams built", () => {
   if (n !== 12 || h !== 6) throw new Error(`moves ${n}, holds ${h}`);
   return `${n} move pictures, ${h} hold pictures`;
 });
-check("scan tip shows a picture", () => {
-  if (!$("tip").querySelector("svg")) throw new Error("no diagram in the tip");
+check("scan tip says any side, any order", () => {
+  const t = $("tip").textContent;
+  if (!/any side/i.test(t) || !/any order/i.test(t)) throw new Error(JSON.stringify(t.slice(0, 80)));
   return "yes";
 });
 
@@ -212,7 +221,7 @@ const SCRAMBLED = OFFLINE ? OFFLINE_CUBE
 const faceSamples = {};
 [..."URFDLB"].forEach((f, i) => {
   faceSamples[f] = [...SCRAMBLED.slice(i * 9, i * 9 + 9)]
-    .map((c) => PALETTE[c].slice().reverse());       // the page speaks BGR
+    .map((c) => PALETTE[c].slice());                  // already B, G, R
 });
 G(`for (const [f, s] of Object.entries(${JSON.stringify(faceSamples)})) {
      S.scanSamples[f] = s;

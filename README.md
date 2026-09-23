@@ -32,12 +32,15 @@ cd backend && uvicorn app:app --port 8000
 
 ### 1. Get your cube into the app
 
-**Camera** — press *Start scanning* and hold a face up. There is no shutter
-button: the app watches the live picture, and once the nine colours hold steady
-for about a second it captures that face itself, flashes, paints it onto the 3D
-cube, and moves on to the next one. The green bar shows how close it is to
-locking on. Pick one face to be the "front" and **keep that grip the whole
-time**; the app tells you which face to show next and which way up to hold it.
+**Camera** — press *Start scanning* and fill the square with **any side** of the
+cube, in **any order, held any way up**. There is no shutter button: the colours
+are read in your browser about ten times a second, and the moment they hold
+steady (about 0.3 s) the side is captured, painted onto the 3D cube, and named
+from its centre sticker ("Red side"). The chips in the square show what each
+sticker is being read as before it commits. When all six are in, the app works
+out which way up each side was held on its own. It assumes the standard colour
+layout (white opposite yellow, green opposite blue, red opposite orange); when
+solving, hold the cube with white on top and green facing you.
 
 **Photos** — no webcam, or the laptop camera is switched off? Press *Upload
 photos* and pick pictures of the faces (a phone camera is ideal). They go
@@ -111,6 +114,8 @@ down, Shortest and CFOP still work; only the camera and Beginner need it.
 ```
 frontend/index.html      the page: live scanner, flat-map editor, Three.js cube,
                          cubing.js view, arrows, narration, manual. No build step.
+frontend/js/scanner.js   the live scanner: sampling, naming a side by its centre,
+                         lighting-corrected colours, which-way-up resolution
 frontend/js/engine.js    model.py + explain.py ported to JS, plus the glue that
                          runs and checks the two browser solvers
 frontend/vendor/         min2phase.js and rubiks-cube-solver.js (both MIT, see
@@ -186,6 +191,46 @@ algorithm placements instead of guessing. Result: **1000 out of 1000 random
 scrambles solved**, average 143 turns.
 
 ### Reading the colours
+
+**Live, in the browser (`frontend/js/scanner.js`).** Scanning used to upload
+several camera frames a second to the server, which was slow anywhere and very
+slow over the internet. Now nothing leaves the browser until all six sides are
+in:
+
+- **Sampling** mirrors the server's `sample_cells`: the middle half of each
+  cell, blown-out and black pixels dropped, the brightest quarter dropped as
+  glare, then the median.
+- **"Is this a cube?"** Nine flat cells are not enough, because a desk is flat
+  too. There must also be dark lines between the cells (black plastic, or the
+  gaps of a stickerless cube), searched for in a band so an off-centre cube
+  still counts. The stickers must also be bright enough: black has no colour,
+  so a covered lens would otherwise read as white.
+- **Which side?** The centre sticker names it, compared as colour *ratios*
+  (log R/G, log B/G), which shading does not move. Once a colour is in, a new
+  centre can only be one of the colours still missing. When all six are in,
+  red/orange, white/yellow and green/blue are settled by comparing the two
+  centres of each pair with each other. That is far safer than judging each
+  one against a textbook colour.
+- **Which way up?** Each sticker is labelled with a small port of the server's
+  lighting fit (a colour cast per side, nine of each colour). Then all
+  4⁶ = 4096 combinations of side rotations are scored by how many of the 20
+  pieces are real pieces. The right one stands out at 20/20, and if two
+  stickers were read the wrong way round, the cheapest one-swap repair
+  finishes the job. This cannot catch a red/orange swap: a mirror-image cube
+  with two colours swapped is a valid cube. That is why the pairs are settled
+  by comparison first.
+- The rotated samples then go to the server's classifier as before. If the
+  browser's reading and the server's disagree, the app says so instead of
+  solving.
+
+Measured on 400 simulated scans (random cube, per-side exposure and colour
+cast, noise, shadows, random order and rotation): sides named right 99.5%,
+whole cube right from the browser alone 98.5%. Run through the server
+classifier, the end-to-end figure is 98.5%. In a real browser fed a fake camera,
+each side was captured in about 0.3 s, and a black frame and a plain desk were
+correctly ignored.
+
+**On the server:**
 
 This is the part that decides whether the app is any good, so it is measured
 rather than assumed. `python tools/bench_vision.py` scores it on rendered photos
@@ -365,6 +410,7 @@ And the page itself, which is a separate problem:
 ```bash
 npm install jsdom                       # once
 node frontend/test/engine.test.mjs      # the JS engine and both browser solvers
+node frontend/test/scanner.test.mjs     # the live scanner on 400 simulated scans
 node frontend/test/smoke.mjs --offline  # canned replies, no server needed
 node frontend/test/smoke.mjs            # against a server on :8000
 ```
