@@ -426,10 +426,13 @@ def test_scan_survives_a_colour_cast():
 
 
 if __name__ == "__main__":
+    from tests import test_fixtures           # real-scan fixtures, own module
+
+    found = {k: v for k, v in globals().items()
+             if k.startswith("test_") and callable(v)}
+    found.update(test_fixtures.collect())
     fails = 0
-    for name, fn in sorted(globals().items()):
-        if not name.startswith("test_") or not callable(fn):
-            continue
+    for name, fn in sorted(found.items()):
         try:
             fn()
             print(f"  PASS  {name}")

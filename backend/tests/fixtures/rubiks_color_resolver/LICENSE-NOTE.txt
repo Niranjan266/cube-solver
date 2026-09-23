@@ -1,0 +1,40 @@
+These 3x3x3 scan fixtures are real per-sticker RGB readings taken from the
+rubiks-color-resolver project by Daniel Walton, used under the MIT license.
+
+  Repository: https://github.com/dwalton76/rubiks-color-resolver
+  Commit:     c1a7211dd15a82589fc1454f630450ac26e5b44b (branch master)
+  Source:     tests/test-data/3x3x3-*.txt
+  Raw URL:    https://raw.githubusercontent.com/dwalton76/rubiks-color-resolver/c1a7211dd15a82589fc1454f630450ac26e5b44b/tests/test-data/<file>
+
+The files are copied unmodified. The expected answers used in
+backend/tests/test_fixtures.py come from the same commit's tests/test-cubes.py.
+
+Format: JSON object mapping square number "1".."54" to [R, G, B]. Faces are
+numbered in the order U L F R B D, nine squares each, row-major in the
+standard Kociemba orientation (upstream's cube_for_kociemba_strict() just
+re-orders these blocks to U R F D L B without rotating any face).
+
+-------------------------------------------------------------------------------
+Upstream license (verbatim):
+
+MIT License
+
+Copyright (c) 2019 Daniel Walton
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
