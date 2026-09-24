@@ -444,7 +444,7 @@ a trained model against the classical detector with `tools/bench_vision.py`.
 
 `/timer` (linked from the top bar) is a speedcubing timer on its own page:
 
-- **Hold space (or touch and hold) until the time turns green, let go to start**; any key or tap stops it. `Esc` cancels.
+- **Press space (or tap) to start**; any key or tap stops it. `Esc` cancels. Settings has **Hold to start** (hold until green, then let go) for the competition feel.
 - A fresh **scramble** for every solve, with an optional picture of the scrambled cube.
 - Optional **15-second inspection** (over 15 s is +2, over 17 s is DNF), and **+2 / DNF / delete** on any solve.
 - The **Progress, Solves and Stats** buttons open a side panel: every time with Ao5 and Ao12 trend lines, an average per day, how your times spread, and best / current single, Ao5, Ao12, Ao50 and Ao100 (trimmed the way competitions count them).
