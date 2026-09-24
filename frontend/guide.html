@@ -165,7 +165,7 @@
     html{scroll-padding-top:120px}
     :root{--barH:56px}
     .topbar{padding:0 12px 0 16px;height:56px}
-    .brand span{display:none}
+    .brand > span:not(.logo){display:none}
     .wrap{padding:0 16px}
     .hero{padding:28px 0 18px}
     .picker,.grid2{grid-template-columns:minmax(0,1fr)}
@@ -175,7 +175,7 @@
     .step .n{width:38px;height:38px;border-radius:12px;font-size:16px}
     .algs{grid-template-columns:minmax(0,1fr)}
     section.block > h2{font-size:26px}
-    #themeBtn .lbl,#openSolver .lbl{display:none}
+    #themeBtn .lbl,#openSolver .lbl,#openTimer .lbl{display:none}
   }
 </style>
 </head>
@@ -189,6 +189,7 @@
     </span>
     <b>Cube Solver</b><span>· Guide</span>
   </a>
+  <a class="btn sm" id="openTimer" href="/timer"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg><span class="lbl">Timer</span></a>
   <a class="btn sm primary" id="openSolver" href="/"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z"/></svg><span class="lbl">Open the solver</span></a>
   <button class="btn sm" id="themeBtn" aria-label="Switch light or dark">◐ <span class="lbl">Theme</span></button>
 </header>

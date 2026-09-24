@@ -374,7 +374,7 @@
     .short{display:inline}
     .tools{width:auto;gap:8px}
     #btnManual{width:44px;min-width:44px;padding:0;font:700 17px var(--display)}
-    #lnkGuide{width:44px;min-width:44px;padding:0}
+    #lnkGuide,#lnkTimer{width:44px;min-width:44px;padding:0}
 
     main{display:flex;flex-direction:column;gap:14px;padding:14px 16px 20px;overflow:auto;
          overscroll-behavior:contain;grid-template-columns:none}
@@ -473,6 +473,7 @@
 
   <div class="tools">
     <span class="status" id="pillSolver" data-kind=""><i></i><span id="pillText">starting…</span></span>
+    <a class="btn" id="lnkTimer" href="/timer" title="Speedcubing timer with your progress charts"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg><span class="long">Timer</span></a>
     <a class="btn" id="lnkGuide" href="/guide" title="How to solve a cube: 4 methods, step by step"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2zM4 19V5M8 7h6"/></svg><span class="long">Guide</span></a>
     <button class="btn" id="btnManual" aria-label="How to read the turns"><span class="long">What do R and U mean?</span><span class="short" aria-hidden="true">?</span></button>
     <button class="btn icon" id="btnTheme" title="Light / dark" aria-label="Switch light or dark theme">◐</button>
