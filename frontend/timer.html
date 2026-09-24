@@ -300,6 +300,10 @@
             <button class="switch" id="optInsp" role="switch" aria-checked="false" aria-label="15-second inspection"></button>
           </div>
           <div class="setting">
+            <div><b>Hold to start</b><small>Off: press Space (or tap) and the timer starts. On: hold until the time turns green, then let go — like a real speedcubing timer, so you never start by accident.</small></div>
+            <button class="switch" id="optHold" role="switch" aria-checked="false" aria-label="Hold to start"></button>
+          </div>
+          <div class="setting">
             <div><b>Hide the time while solving</b><small>Shows “solving” instead of the running numbers, so you are not distracted.</small></div>
             <button class="switch" id="optHide" role="switch" aria-checked="false" aria-label="Hide the time while solving"></button>
           </div>
@@ -318,7 +322,7 @@
         </div>
         <div class="card" style="font-size:14px;color:var(--muted)">
           <b style="color:var(--ink)">Keys</b><br>
-          <kbd>Space</kbd> hold until green, let go to start · any key stops<br>
+          <kbd>Space</kbd> starts (hold until green if “Hold to start” is on) · any key stops<br>
           <kbd>Esc</kbd> cancel a solve or inspection · <kbd>N</kbd> new scramble
         </div>
       </section>
@@ -344,8 +348,8 @@ function load(){
   try {
     const d = JSON.parse(store.get(KEY) || "{}");
     return {solves: Array.isArray(d.solves) ? d.solves.filter((s) => typeof s.ms === "number") : [],
-            opts: Object.assign({insp: false, hide: false, len: 20}, d.opts || {})};
-  } catch { return {solves: [], opts: {insp: false, hide: false, len: 20}}; }
+            opts: Object.assign({insp: false, hide: false, hold: false, len: 20}, d.opts || {})};
+  } catch { return {solves: [], opts: {insp: false, hide: false, hold: false, len: 20}}; }
 }
 const data = load();
 const save = () => store.set(KEY, JSON.stringify(data));
@@ -404,8 +408,12 @@ function hint(){
   const h = {
     idle: data.opts.insp
       ? "Press <kbd>Space</kbd> (or tap) to start inspecting"
-      : "Hold <kbd>Space</kbd> (or touch and hold) until the time turns green, then let go",
-    inspecting: "Inspecting — hold <kbd>Space</kbd> (or touch and hold) until green, then let go to start",
+      : data.opts.hold
+        ? "Hold <kbd>Space</kbd> (or touch and hold) until the time turns green, then let go"
+        : "Press <kbd>Space</kbd> (or tap the screen) to start · press any key to stop",
+    inspecting: data.opts.hold
+      ? "Inspecting — hold <kbd>Space</kbd> (or touch and hold) until green, then let go to start"
+      : "Inspecting — press <kbd>Space</kbd> (or tap) to start the solve",
   }[state];
   $("hint").innerHTML = h || "";
 }
@@ -414,13 +422,15 @@ function beginHold(){
   state = state === "inspecting" ? "inspHold" : "holding";
   if (state === "holding") setTime("0.00", "hold");
   else timeEl.classList.add("hold");
-  holdTimer = setTimeout(() => {
+  const ready = () => {
     if (state === "holding" || state === "inspHold") {
       state = state === "holding" ? "ready" : "inspReady";
       timeEl.classList.remove("hold"); timeEl.classList.add("ready");
       if (state === "ready") setTime("0.00", "ready");
     }
-  }, HOLD_MS);
+  };
+  // a plain press is enough unless "hold to start" is switched on
+  if (data.opts.hold) holdTimer = setTimeout(ready, HOLD_MS); else ready();
 }
 
 function startSolve(){
@@ -788,10 +798,12 @@ function renderAll(){
 function syncOpts(){
   $("optInsp").setAttribute("aria-checked", !!data.opts.insp);
   $("optHide").setAttribute("aria-checked", !!data.opts.hide);
+  $("optHold").setAttribute("aria-checked", !!data.opts.hold);
   $("optLen").value = String(data.opts.len);
 }
 $("optInsp").onclick = () => { data.opts.insp = !data.opts.insp; save(); syncOpts(); if (state === "idle") hint(); };
 $("optHide").onclick = () => { data.opts.hide = !data.opts.hide; save(); syncOpts(); };
+$("optHold").onclick = () => { data.opts.hold = !data.opts.hold; save(); syncOpts(); if (state === "idle" || state === "inspecting") hint(); };
 $("optLen").onchange = (e) => { data.opts.len = +e.target.value; save(); newScramble(); };
 $("clearAll").onclick = () => {
   if (!data.solves.length) return;
