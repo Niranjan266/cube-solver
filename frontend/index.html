@@ -1020,6 +1020,7 @@ function buildCube(){
     if (!x && !y && !z) continue;
     const m = new THREE.Mesh(bodyGeo, bodyMat);
     m.position.set(x*GAP, y*GAP, z*GAP);
+    m.userData.home = [x, y, z];
     m.userData.st = [];
     DIRS.forEach((d, k) => {
       if (d[0] && d[0] !== x || d[1] && d[1] !== y || d[2] && d[2] !== z) return;  // inside face
@@ -1046,7 +1047,23 @@ function cubieAt(x,y,z){
 function sticker(mesh, dir){ return mesh && mesh.userData.st && mesh.userData.st[matIndex(dir)]; }
 function blankAll(){ cubies.forEach(c => (c.userData.st || []).forEach(m => m && m.color.set(UNKNOWN))); }
 
+/**
+ * Put every piece back in the slot it was built for, square and upright.
+ * Each piece only carries stickers on the sides that face out from its own
+ * slot, so the colours are always repainted from the state rather than
+ * carried round by the pieces - after a turn the pieces go home.
+ */
+function reseat(){
+  cubies.forEach(c => {
+    const h = c.userData.home; if (!h) return;
+    if (c.parent !== cubeRoot) cubeRoot.attach(c);
+    c.position.set(h[0]*GAP, h[1]*GAP, h[2]*GAP);
+    c.quaternion.identity();
+  });
+}
+
 function paintCube(facelets){
+  if (!animating) reseat();
   blankAll();
   for (let i=0;i<54;i++){
     const {cubie, dir} = FACELET[i];
@@ -1118,8 +1135,10 @@ function animateMove(step, ms){
   return new Promise(resolve => {
     if (animating) return resolve();
     animating = true;
+    // turn inside the cube's own frame, so a turn is square even while the
+    // cube is still swinging round from the scan
     const group = new THREE.Group();
-    scene.add(group);
+    cubeRoot.add(group);
     const want = step.layer === 2 ? 1 : -1;
     const members = cubies.filter(c => Math.round(c.position[step.axis]/GAP) === want);
     members.forEach(c => group.attach(c));
@@ -1141,14 +1160,9 @@ function animateMove(step, ms){
       group.position.set(0, 0, 0);
       if (navigator.vibrate && typeof isPhone === "function" && isPhone()) try { navigator.vibrate(8); } catch {}
       group.updateMatrixWorld(true);
-      members.forEach(c => {
-        cubeRoot.attach(c);
-        c.position.set(Math.round(c.position.x/GAP)*GAP,
-                       Math.round(c.position.y/GAP)*GAP,
-                       Math.round(c.position.z/GAP)*GAP);
-        c.quaternion.identity();   // stickers get repainted from the new state
-      });
-      scene.remove(group);
+      members.forEach(c => cubeRoot.attach(c));
+      cubeRoot.remove(group);
+      reseat();                    // stickers get repainted from the new state
       animating = false;
       resolve();
     })(last);

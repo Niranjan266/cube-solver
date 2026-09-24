@@ -64,6 +64,9 @@
   .btn.icon{width:40px;padding:0}
   .btn.sm{min-height:32px;padding:0 10px;font-size:13px;border-radius:10px}
   .btn.danger{color:var(--bad)}
+  .btn.primary{background:var(--accent);border-color:transparent;color:var(--on-accent)}
+  .btn.primary:hover{background:var(--accent-2)}
+  .btn.big{min-height:46px;padding:0 22px;font-size:16px;border-radius:14px}
 
   /* ---------- frame */
   .app{display:grid;grid-template-rows:auto minmax(0,1fr);height:100%}
@@ -95,7 +98,7 @@
   .time.ready{color:var(--good)}
   .hint{color:var(--muted);font-size:15px;text-align:center;min-height:24px;max-width:520px}
   .hint kbd{font:600 13px var(--mono);padding:2px 7px;border-radius:6px;border:1px solid var(--line-strong);background:var(--surface)}
-  .last{display:flex;gap:8px;align-items:center;min-height:34px}
+  .last{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;align-items:center;min-height:34px}
   .badge{font-size:13px;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--good-soft);color:var(--good)}
 
   .quick{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;width:100%;max-width:760px}
@@ -322,7 +325,7 @@
         </div>
         <div class="card" style="font-size:14px;color:var(--muted)">
           <b style="color:var(--ink)">Keys</b><br>
-          <kbd>Space</kbd> starts (hold until green if “Hold to start” is on) · any key stops<br>
+          <kbd>Space</kbd> starts (hold until green if “Hold to start” is on) · any key stops · <b>Restart</b> for the next solve<br>
           <kbd>Esc</kbd> cancel a solve or inspection · <kbd>N</kbd> new scramble
         </div>
       </section>
@@ -411,6 +414,7 @@ function hint(){
       : data.opts.hold
         ? "Hold <kbd>Space</kbd> (or touch and hold) until the time turns green, then let go"
         : "Press <kbd>Space</kbd> (or tap the screen) to start · press any key to stop",
+    done: "Stopped. Click <b>Restart</b> when you are ready for the next solve",
     inspecting: data.opts.hold
       ? "Inspecting — hold <kbd>Space</kbd> (or touch and hold) until green, then let go to start"
       : "Inspecting — press <kbd>Space</kbd> (or tap) to start the solve",
@@ -449,7 +453,7 @@ function startSolve(){
 function stopSolve(){
   const ms = Math.round(performance.now() - t0);
   cancelAnimationFrame(raf);
-  state = "stopped";
+  state = "done";           // the next solve starts only from the Restart button
   document.body.classList.remove("running");
   const before = T.summary(data.solves);
   const s = {ms, pen: inspPen, scr: scramble.join(" "), at: Date.now()};
@@ -499,19 +503,24 @@ function release(){
   if (state === "ready" || state === "inspReady") { startSolve(); return; }
   if (state === "holding") { cancel(); return; }
   if (state === "inspHold") { state = "inspecting"; timeEl.classList.remove("hold"); return; }
-  if (state === "stopped") state = "idle";
+}
+function restart(){
+  clearTimeout(holdTimer); cancelAnimationFrame(raf);
+  state = "idle"; lastPB = [];
+  setTime("0.00"); hint(); renderQuick();
 }
 
 const typing = (el) => el && el.closest && el.closest("input,select,textarea");
 document.addEventListener("keydown", (e) => {
   if (typing(e.target)) return;
   if (e.key === "Escape") {
-    if (state !== "idle" && state !== "stopped") { cancel(); e.preventDefault(); return; }
+    if (state !== "idle" && state !== "done") { cancel(); e.preventDefault(); return; }
     if (document.body.classList.contains("panel")) { closePanel(); return; }
   }
   if (state === "running") { if (!e.repeat) { e.preventDefault(); stopSolve(); } return; }
   if (e.code === "Space") {
     e.preventDefault();
+    if (state === "done") return;          // stopped: only Restart starts again
     if (!e.repeat) { document.activeElement?.blur?.(); press(); }
     return;
   }
@@ -520,7 +529,6 @@ document.addEventListener("keydown", (e) => {
 document.addEventListener("keyup", (e) => {
   if (typing(e.target)) return;
   if (e.code === "Space") { e.preventDefault(); release(); }
-  else if (state === "stopped") state = "idle";
 });
 
 // touch / mouse: the whole clock area is the button; anywhere stops a running solve
@@ -534,7 +542,7 @@ document.addEventListener("pointerdown", (e) => {
 document.addEventListener("pointerup", (e) => {
   if (state === "idle" && !e.target.closest("#stage")) return;
   if (state === "armInsp" || state === "holding" || state === "ready" ||
-      state === "inspHold" || state === "inspReady" || state === "stopped") release();
+      state === "inspHold" || state === "inspReady") release();
 });
 document.addEventListener("pointercancel", () => { if (state === "holding") cancel(); });
 $("stage").addEventListener("contextmenu", (e) => e.preventDefault());
@@ -550,14 +558,18 @@ function renderQuick(){
   $("qCount").textContent = s.count;
   const last = data.solves[data.solves.length - 1];
   const box = $("last");
+  if (!last && state === "done") { state = "idle"; hint(); }   // the solve was deleted
   if (!last || state === "running") { box.innerHTML = ""; return; }
   box.innerHTML =
+    (state === "done" ? `<button class="btn primary big" id="restartBtn">↻ Restart</button>` : "") +
     (lastPB.length ? `<span class="badge">New best ${lastPB.join(" + ")}!</span>` : "") +
     `<button class="btn sm" data-pen="+2" aria-pressed="${last.pen === "+2"}">+2</button>` +
     `<button class="btn sm" data-pen="DNF" aria-pressed="${last.pen === "DNF"}">DNF</button>` +
     `<button class="btn sm danger" data-del="1">Delete</button>`;
   box.querySelectorAll("[data-pen]").forEach((b) => b.onclick = () => { setPen(data.solves.length - 1, b.dataset.pen); b.blur(); });
   box.querySelector("[data-del]").onclick = () => delSolve(data.solves.length - 1);
+  const rb = box.querySelector("#restartBtn");
+  if (rb) rb.onclick = (e) => { e.currentTarget.blur(); restart(); };
 }
 function setPen(i, pen){
   const s = data.solves[i]; if (!s) return;
@@ -808,7 +820,7 @@ $("optLen").onchange = (e) => { data.opts.len = +e.target.value; save(); newScra
 $("clearAll").onclick = () => {
   if (!data.solves.length) return;
   if (!confirm(`Delete all ${data.solves.length} solves from this device? This cannot be undone.`)) return;
-  data.solves = []; save(); lastPB = []; setTime("0.00"); renderAll();
+  data.solves = []; save(); lastPB = []; state = "idle"; setTime("0.00"); hint(); renderAll();
 };
 
 /* ---------------- boot ---------------- */
