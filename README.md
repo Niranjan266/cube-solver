@@ -440,6 +440,18 @@ a trained model against the classical detector with `tools/bench_vision.py`.
 
 ---
 
+## The timer
+
+`/timer` (linked from the top bar) is a speedcubing timer on its own page:
+
+- **Hold space (or touch and hold) until the time turns green, let go to start**; any key or tap stops it. `Esc` cancels.
+- A fresh **scramble** for every solve, with an optional picture of the scrambled cube.
+- Optional **15-second inspection** (over 15 s is +2, over 17 s is DNF), and **+2 / DNF / delete** on any solve.
+- The **Progress, Solves and Stats** buttons open a side panel: every time with Ao5 and Ao12 trend lines, an average per day, how your times spread, and best / current single, Ao5, Ao12, Ao50 and Ao100 (trimmed the way competitions count them).
+
+Solves are saved in the browser on that device only, and nothing is sent to the server.
+The numbers live in `frontend/js/timer-stats.js` and are checked by `frontend/test/timer.test.mjs`.
+
 ## The solving guide
 
 `/guide` (linked from the top bar) teaches four methods step by step, in
@@ -474,6 +486,7 @@ npm install jsdom                       # once
 node frontend/test/engine.test.mjs      # the JS engine and both browser solvers
 node frontend/test/scanner.test.mjs     # the live scanner on 400 simulated scans
 node frontend/test/guide.test.mjs       # every sequence in the solving guide, on the engine
+node frontend/test/timer.test.mjs       # timer averages, penalties, days, scrambles
 node frontend/test/smoke.mjs --offline  # canned replies, no server needed
 node frontend/test/smoke.mjs            # against a server on :8000
 ```

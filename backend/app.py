@@ -239,3 +239,7 @@ if os.path.isdir(FRONTEND):
     @app.get("/guide")
     def guide():
         return FileResponse(os.path.join(FRONTEND, "guide.html"))
+
+    @app.get("/timer")
+    def timer():
+        return FileResponse(os.path.join(FRONTEND, "timer.html"))
