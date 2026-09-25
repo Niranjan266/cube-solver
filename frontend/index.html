@@ -3,8 +3,71 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Cube Solver</title>
-<meta name="description" content="Show it your Rubik's cube, follow the arrow, done in about 20 turns.">
+<title>Rubik's Cube Solver Online – Scan with Your Camera | Cube Solver</title>
+<meta name="description" content="Free online Rubik's cube solver. Show each side to your camera or enter the colours, then follow the 3D arrow: solved in about 20 moves. Beginner and CFOP modes.">
+<link rel="canonical" href="https://cube.niranjand.in/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Cube Solver">
+<meta property="og:title" content="Rubik's Cube Solver Online – Scan with Your Camera | Cube Solver">
+<meta property="og:description" content="Free online Rubik's cube solver. Show each side to your camera or enter the colours, then follow the 3D arrow: solved in about 20 moves. Beginner and CFOP modes.">
+<meta property="og:url" content="https://cube.niranjand.in/">
+<meta property="og:image" content="https://cube.niranjand.in/static/icons/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Cube Solver: a Rubik's cube solver that reads your cube with the camera">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Rubik's Cube Solver Online – Scan with Your Camera | Cube Solver">
+<meta name="twitter:description" content="Free online Rubik's cube solver. Show each side to your camera or enter the colours, then follow the 3D arrow: solved in about 20 moves. Beginner and CFOP modes.">
+<meta name="twitter:image" content="https://cube.niranjand.in/static/icons/og-image.png">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "WebSite",
+   "@id": "https://cube.niranjand.in/#website",
+   "name": "Cube Solver",
+   "url": "https://cube.niranjand.in/",
+   "inLanguage": "en"
+  },
+  {
+   "@type": "WebApplication",
+   "applicationCategory": "GameApplication",
+   "operatingSystem": "Any (web browser)",
+   "browserRequirements": "Requires JavaScript and WebGL",
+   "isAccessibleForFree": true,
+   "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+   },
+   "author": {
+    "@type": "Person",
+    "name": "Niranjan D",
+    "url": "https://cube.niranjand.in/"
+   },
+   "name": "Cube Solver – Rubik's Cube Solver",
+   "url": "https://cube.niranjand.in/",
+   "description": "Scan a Rubik's cube with your camera or enter the colours by hand, then follow a 3D animation that solves it in about 20 moves. Beginner (layer by layer) and CFOP modes.",
+   "featureList": [
+    "Camera scanning of all six sides",
+    "Solutions in about 20 moves",
+    "Beginner layer-by-layer and CFOP modes",
+    "Step-by-step 3D animation with turn arrows",
+    "Adjustable speed from 0.01x to 2x",
+    "Light and dark themes"
+   ],
+   "screenshot": "https://cube.niranjand.in/static/icons/og-image.png"
+  }
+ ]
+}
+</script>
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#0e1116" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#f3f4f6" media="(prefers-color-scheme: light)">
@@ -375,6 +438,7 @@
     .tools{width:auto;gap:8px}
     #btnManual{width:44px;min-width:44px;padding:0;font:700 17px var(--display)}
     #lnkGuide,#lnkTimer{width:44px;min-width:44px;padding:0}
+    .brand h1{white-space:nowrap;font-size:17px}
 
     main{display:flex;flex-direction:column;gap:14px;padding:14px 16px 20px;overflow:auto;
          overscroll-behavior:contain;grid-template-columns:none}
@@ -384,7 +448,7 @@
     body[data-screen=check] [data-on~=check],
     body[data-screen=solve] [data-on~=solve]{display:flex !important}
     .screenhead{flex-direction:column;gap:2px;order:0}
-    .screenhead h1{font-size:26px;letter-spacing:-.02em}
+    .screenhead h2{font-size:26px;letter-spacing:-.02em;margin:0}
     .screenhead p{margin:0;color:var(--muted);font-size:15px}
     .card{border-radius:20px;box-shadow:none;flex:none !important}
     .card-h{padding:16px 16px 0}
@@ -483,7 +547,7 @@
 <main>
   <!-- ══════════ LEFT: get the cube in ══════════ -->
   <div class="col">
-    <div class="screenhead" data-on="scan"><h1>Scan your cube</h1><p>Any side, any order, any way up.</p></div>
+    <div class="screenhead" data-on="scan"><h2>Scan your cube</h2><p>Any side, any order, any way up.</p></div>
     <section class="card incard" data-on="scan" style="flex:1">
       <div class="card-h">
         <h2>Your cube</h2>
@@ -566,8 +630,8 @@
 
   <!-- ══════════ MIDDLE: the cube ══════════ -->
   <div class="col">
-    <div class="screenhead" data-on="check"><h1>Check it matches</h1><p id="checkSub">Compare with the cube in your hands, then solve.</p></div>
-    <div class="screenhead" data-on="solve"><h1 id="solveHead">Solve</h1></div>
+    <div class="screenhead" data-on="check"><h2>Check it matches</h2><p id="checkSub">Compare with the cube in your hands, then solve.</p></div>
+    <div class="screenhead" data-on="solve"><h2 id="solveHead">Solve</h2></div>
     <section class="card stagecard" id="stageCard" data-on="check solve" data-view="classic">
       <div id="stage"></div>
       <div id="stageCubing"></div>
@@ -670,7 +734,7 @@
         <i style="background:#ffd400"></i><i style="background:#1668d8"></i><i style="background:#e03030"></i>
         <i style="background:#f07818"></i><i style="background:#26a844"></i><i style="background:#ffd400"></i>
       </div>
-      <div><h1 style="font-size:16px" id="sheetTitle">How to read the turns</h1>
+      <div><h2 style="font-size:16px;margin:0" id="sheetTitle">How to read the turns</h2>
       <div class="sub">Two minutes and you will never need this page again.</div></div>
       <button class="btn sm" id="btnCloseManual" style="margin-left:auto">Close</button>
     </div>
