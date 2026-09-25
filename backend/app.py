@@ -15,14 +15,15 @@ POST /api/scramble            a random cube, for trying the app without a cube
 
 from __future__ import annotations
 
+import datetime
 import os
 import threading
 from typing import Dict, List, Optional
 
 import numpy as np
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import FastAPI, File, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -32,6 +33,8 @@ from cube.validate import CubeError, validate
 from vision import detect, yolo
 
 FACE_ORDER = "URFDLB"
+SITE = "https://cube.niranjand.in"       # the address search engines should use
+PAGES = ["/", "/guide", "/timer"]        # the public pages, for the sitemap
 FRONTEND = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend")
 
 app = FastAPI(title="Rubik's Cube Solver", version="2.0")
@@ -43,6 +46,26 @@ app.add_middleware(
 )
 
 _tables_ready = threading.Event()
+
+
+@app.middleware("http")
+async def _one_address(request: Request, call_next):
+    """
+    Search engines should see one copy of the site. The production
+    vercel.app address sends page visits to the real domain with a permanent
+    redirect; other vercel.app addresses (preview builds) ask not to be
+    indexed. API calls are left alone so nothing that posts data breaks.
+    """
+    host = request.headers.get("host", "").split(":")[0].lower()
+    on_vercel = host.endswith(".vercel.app")
+    if (on_vercel and host == os.environ.get("PRIMARY_VERCEL_HOST", "cube-solver-ochre.vercel.app")
+            and request.method in ("GET", "HEAD") and request.url.path in PAGES + ["/manual"]):
+        target = SITE + request.url.path + (("?" + request.url.query) if request.url.query else "")
+        return RedirectResponse(target, status_code=301)
+    response = await call_next(request)
+    if on_vercel:
+        response.headers["X-Robots-Tag"] = "noindex"
+    return response
 
 
 @app.on_event("startup")
@@ -235,6 +258,44 @@ if os.path.isdir(FRONTEND):
     @app.get("/manual")
     def manual():
         return FileResponse(os.path.join(FRONTEND, "index.html"))
+
+    @app.get("/robots.txt", include_in_schema=False)
+    def robots():
+        return PlainTextResponse(
+            "User-agent: *\nAllow: /\nDisallow: /api/\n\n"
+            f"Sitemap: {SITE}/sitemap.xml\n")
+
+    @app.get("/sitemap.xml", include_in_schema=False)
+    def sitemap():
+        def lastmod(page):
+            name = {"/": "index.html", "/guide": "guide.html", "/timer": "timer.html"}[page]
+            t = os.path.getmtime(os.path.join(FRONTEND, name))
+            return datetime.datetime.fromtimestamp(t, datetime.timezone.utc).date().isoformat()
+        urls = "".join(
+            f"<url><loc>{SITE}{p}</loc><lastmod>{lastmod(p)}</lastmod></url>" for p in PAGES)
+        return Response(
+            '<?xml version="1.0" encoding="UTF-8"?>'
+            f'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{urls}</urlset>',
+            media_type="application/xml")
+
+    @app.get("/site.webmanifest", include_in_schema=False)
+    def manifest():
+        return JSONResponse({
+            "name": "Cube Solver", "short_name": "Cube Solver",
+            "description": "Scan your Rubik's cube and follow the arrow to solve it.",
+            "start_url": "/", "scope": "/", "display": "standalone",
+            "background_color": "#0e1116", "theme_color": "#0e1116",
+            "icons": [
+                {"src": "/static/icons/icon-192.png", "sizes": "192x192", "type": "image/png"},
+                {"src": "/static/icons/icon-512.png", "sizes": "512x512", "type": "image/png"},
+                {"src": "/static/icons/icon-maskable-512.png", "sizes": "512x512",
+                 "type": "image/png", "purpose": "maskable"},
+            ],
+        }, media_type="application/manifest+json")
+
+    @app.get("/favicon.ico", include_in_schema=False)
+    def favicon():
+        return FileResponse(os.path.join(FRONTEND, "favicon.ico"), media_type="image/x-icon")
 
     @app.get("/guide")
     def guide():
