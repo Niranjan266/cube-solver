@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="supported-color-schemes" content="light dark">
+<title>{{subject}}</title>
+<!--
+  Cube Solver - support message email.
+  Filled in by backend/support.py (render); every value is HTML-escaped first.
+  Table layout and inline styles on purpose: that is what email apps render
+  reliably (Gmail, Outlook, Apple Mail). Colours match the site's tokens.
+-->
+<style>
+  @media (prefers-color-scheme: dark) {
+    .bg { background:#0e1116 !important; }
+    .card { background:#161a21 !important; border-color:#262c36 !important; }
+    .ink { color:#eef1f5 !important; }
+    .muted { color:#9aa4b2 !important; }
+    .msg { background:#1d222b !important; color:#eef1f5 !important; }
+    .rule { border-color:#262c36 !important; }
+    .chip { background:#262c36 !important; color:#eef1f5 !important; }
+    .hdr { background:#1d222b !important; border:1px solid #262c36 !important; border-bottom:0 !important; }
+    .link { color:#8db4ff !important; }
+  }
+  @media only screen and (max-width:620px) {
+    .wrap { width:100% !important; }
+    .pad { padding-left:20px !important; padding-right:20px !important; }
+    .btn a { display:block !important; }
+  }
+</style>
+</head>
+<body style="margin:0;padding:0;background:#f3f4f6;" class="bg">
+<!-- preview line shown next to the subject in the inbox -->
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">{{preheader}}</div>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f3f4f6;" class="bg">
+  <tr><td align="center" style="padding:28px 12px;">
+
+    <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" class="wrap" style="width:600px;max-width:600px;">
+
+      <!-- header: logo + name on the app's dark bar -->
+      <tr><td style="background:#0e1116;border-radius:18px 18px 0 0;padding:18px 28px;" class="hdr pad">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+          <td style="vertical-align:middle;"><img src="https://cube.niranjand.in/static/icons/icon-192.png" width="36" height="36" alt="" style="display:block;border:0;border-radius:9px;"></td>
+          <td style="vertical-align:middle;padding-left:12px;font:700 18px/1.2 'Space Grotesk','DM Sans',Segoe UI,Helvetica,Arial,sans-serif;color:#eef1f5;">Cube Solver <span style="font-weight:500;font-size:14px;color:#9aa4b2;">· Support</span></td>
+        </tr></table>
+      </td></tr>
+
+      <!-- body -->
+      <tr><td style="background:#ffffff;border:1px solid #e3e6eb;border-top:0;border-radius:0 0 18px 18px;padding:28px;" class="card pad">
+
+        <!-- what kind of message -->
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+          <td style="background:{{kind_bg}};color:{{kind_color}};border-radius:999px;padding:5px 12px;font:700 13px/1 'DM Sans',Segoe UI,Helvetica,Arial,sans-serif;">{{kind_icon}}&nbsp; {{kind}}</td>
+        </tr></table>
+
+        <h1 class="ink" style="margin:16px 0 4px;font:700 24px/1.25 'Space Grotesk','DM Sans',Segoe UI,Helvetica,Arial,sans-serif;color:#111418;letter-spacing:-.01em;">New message from {{name}}</h1>
+        <p class="muted" style="margin:0 0 22px;font:14px/1.5 'DM Sans',Segoe UI,Helvetica,Arial,sans-serif;color:#5d6673;">{{received}}</p>
+
+        <!-- details -->
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="font:15px/1.5 'DM Sans',Segoe UI,Helvetica,Arial,sans-serif;">
+          <tr>
+            <td class="muted rule" style="width:96px;padding:10px 0;border-bottom:1px solid #e3e6eb;color:#5d6673;vertical-align:top;">Name</td>
+            <td class="ink rule" style="padding:10px 0;border-bottom:1px solid #e3e6eb;color:#111418;font-weight:600;">{{name}}</td>
+          </tr>
+          <tr>
+            <td class="muted rule" style="padding:10px 0;border-bottom:1px solid #e3e6eb;color:#5d6673;vertical-align:top;">Email</td>
+            <td class="rule" style="padding:10px 0;border-bottom:1px solid #e3e6eb;"><a href="mailto:{{email}}" class="link" style="color:#2459e0;text-decoration:none;font-weight:600;">{{email}}</a></td>
+          </tr>
+          {{cubes_row}}
+          {{page_row}}
+        </table>
+
+        <!-- the message itself -->
+        <p class="muted" style="margin:24px 0 8px;font:600 13px/1 'DM Sans',Segoe UI,Helvetica,Arial,sans-serif;color:#5d6673;text-transform:uppercase;letter-spacing:.06em;">Message</p>
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+          <td class="msg" style="background:#f7f8fa;border-left:4px solid #2459e0;border-radius:12px;padding:16px 18px;font:15px/1.6 'DM Sans',Segoe UI,Helvetica,Arial,sans-serif;color:#111418;">{{message}}</td>
+        </tr></table>
+
+        <!-- reply -->
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-top:24px;" class="btn"><tr>
+          <td style="background:#2459e0;border-radius:12px;">
+            <a href="mailto:{{email}}?subject={{reply_subject}}" style="display:inline-block;padding:13px 22px;font:700 15px/1 'DM Sans',Segoe UI,Helvetica,Arial,sans-serif;color:#ffffff;text-decoration:none;">Reply to {{first_name}}</a>
+          </td>
+        </tr></table>
+        <p class="muted" style="margin:10px 0 0;font:13px/1.5 'DM Sans',Segoe UI,Helvetica,Arial,sans-serif;color:#7b8491;">Or just press Reply: it goes straight to {{first_name}}.</p>
+      </td></tr>
+
+      <!-- footer: the six cube colours, then where it came from -->
+      <tr><td align="center" style="padding:20px 12px 0;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+          <td style="width:14px;height:4px;background:#e5383b;border-radius:2px;"></td><td style="width:4px;"></td>
+          <td style="width:14px;height:4px;background:#ff8a1f;border-radius:2px;"></td><td style="width:4px;"></td>
+          <td style="width:14px;height:4px;background:#ffd60a;border-radius:2px;"></td><td style="width:4px;"></td>
+          <td style="width:14px;height:4px;background:#22b04b;border-radius:2px;"></td><td style="width:4px;"></td>
+          <td style="width:14px;height:4px;background:#1e6fe0;border-radius:2px;"></td><td style="width:4px;"></td>
+          <td style="width:14px;height:4px;background:#d9dde3;border-radius:2px;"></td>
+        </tr></table>
+        <p class="muted" style="margin:12px 0 0;font:13px/1.5 'DM Sans',Segoe UI,Helvetica,Arial,sans-serif;color:#7b8491;">
+          Sent from the support form on <a href="https://cube.niranjand.in/support" style="color:#7b8491;">cube.niranjand.in</a>
+        </p>
+      </td></tr>
+
+    </table>
+  </td></tr>
+</table>
+</body>
+</html>

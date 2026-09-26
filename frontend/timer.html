@@ -491,7 +491,20 @@ let state = "idle", holdTimer = 0, t0 = 0, inspT0 = 0, raf = 0, inspPen = "";
 const timeEl = $("time");
 
 function setTime(txt, cls = ""){ timeEl.textContent = txt; timeEl.className = "time" + (cls ? " " + cls : ""); }
+// phones and tablets get words for a touch screen, not for a keyboard
+const TOUCH = matchMedia("(hover: none) and (pointer: coarse)").matches;
 function hint(){
+  if (TOUCH) {
+    const t = {
+      idle: data.opts.insp ? "Tap the screen to start inspecting"
+          : data.opts.hold ? "Touch and hold until the time turns green, then let go"
+          : "Tap the screen to start · tap again to stop",
+      inspecting: data.opts.hold ? "Touch and hold until green, then let go to start" : "Tap to start the solve",
+      done: "Stopped. Tap <b>Restart</b> when you are ready for the next solve",
+    }[state];
+    $("hint").innerHTML = t || "";
+    return;
+  }
   const h = {
     idle: data.opts.insp
       ? "Press <kbd>Space</kbd> (or tap) to start inspecting"

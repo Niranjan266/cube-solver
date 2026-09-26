@@ -157,7 +157,7 @@
   /* ------------------------------------------------------------------ top bar */
   .topbar{display:flex;align-items:center;gap:14px;height:68px;padding:0 24px;
           background:var(--surface);border-bottom:1px solid var(--line)}
-  .brand{display:flex;align-items:center;gap:12px;min-width:0;width:320px}
+  .brand{display:flex;align-items:center;gap:12px;min-width:0;flex:1 1 0}
   .logo{width:34px;height:34px;flex:none;display:grid;grid-template-columns:repeat(3,1fr);gap:2px;
         padding:4px;border-radius:9px;background:#15181e}
   .logo i{border-radius:2px}
@@ -173,7 +173,9 @@
   .stepper span[data-state=active] b{background:var(--accent);color:var(--on-accent)}
   .stepper span[data-state=done]{color:var(--muted)}
   .stepper span[data-state=done] b{background:var(--good);color:#fff}
-  .tools{display:flex;align-items:center;justify-content:flex-end;gap:10px;width:320px}
+  /* brand and tools share the spare room equally, so the stepper stays centred;
+     the tools never shrink below their buttons, the brand's tagline gives way */
+  .tools{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex:1 0 0}
   .status{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--muted);
           padding:7px 12px;border-radius:999px;border:1px solid var(--line);white-space:nowrap}
   .status i{width:8px;height:8px;border-radius:50%;background:var(--faint)}
@@ -243,6 +245,14 @@
   .actions .wide{grid-column:1 / -1}
   .actions2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:8px;margin-top:8px}
   .actions2 .btn{padding:0 12px}
+  /* the buttons you need first sit right under the camera, on every screen size
+     (below the tip they were hidden inside the card's scroll); tiles and tip follow */
+  #tab-scan{display:flex;flex-direction:column}
+  #tab-scan > .lockwrap{order:1}
+  #tab-scan > .actions{order:2}
+  #tab-scan > .actions2{order:3}
+  #tab-scan > .facerow{order:4}
+  #tab-scan > .tip{order:5}
 
   /* ------------------------------------------------------------------ flat map */
   /* a face is 3 sticker rows, plus one row for its label when labels show */
@@ -370,6 +380,9 @@
   .steps .head b{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent-ink);font-weight:700}
   .steps .head small{display:block;font-size:12.5px;color:var(--muted);margin-top:1px;line-height:1.4}
   .empty{color:var(--muted);font-size:14px;padding:34px 18px;text-align:center;line-height:1.6;cursor:default}
+  .steps{display:flex;flex-direction:column}
+  .steps > *{flex:none}
+  .steps li.empty{display:block;min-height:0;margin:auto 0;background:none}
   .empty svg.i{width:30px;height:30px;display:block;margin:0 auto 10px;color:var(--faint)}
 
   /* ------------------------------------------------------------------ messages */
@@ -414,12 +427,23 @@
   .facemap b{display:block;font-size:15px;margin-bottom:1px;color:var(--ink)}
 
   /* ------------------------------------------------------------------ medium screens */
+  /* laptops: Timer, Support and Guide become icons (their titles say what they are) */
+  @media (max-width:1500px){
+    #lnkTimer .long,#lnkSupport .long,#lnkGuide .long{display:none}
+    #lnkTimer,#lnkSupport,#lnkGuide{width:44px;min-width:44px;padding:0}
+  }
+  .brand > div{min-width:0;overflow:hidden}
   @media (max-width:1240px){
-    main{grid-template-columns:340px minmax(0,1fr);overflow:auto}
+    /* two columns; the top row keeps a real height (it used to be squeezed to a
+       sliver with scrollbars) and the page scrolls down to the turns */
+    main{grid-template-columns:340px minmax(0,1fr);overflow:auto;align-content:start;
+         grid-template-rows:minmax(640px, calc(100dvh - 68px - 44px)) auto}
     .col.right{grid-column:1 / -1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
     .col.right > .card{min-height:420px}
+    /* before a solve there is no "Do this turn" card: the turn list takes the row */
+    .col.right > #moveCard[style*="display:none"] + .turnscard,
+    .col.right > #moveCard[style*="display: none"] + .turnscard{grid-column:1 / -1;min-height:200px}
     .stepper{display:none}
-    .brand,.tools{width:auto}
     .tools{margin-left:auto}
   }
 

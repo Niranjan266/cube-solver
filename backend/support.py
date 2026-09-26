@@ -23,6 +23,7 @@ import os
 import re
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from collections import defaultdict, deque
 from typing import List
@@ -81,24 +82,60 @@ def rate_limited(ip: str) -> bool:
     return False
 
 
-def _email(body: SupportIn) -> dict:
+TEMPLATE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates", "support_email.html")
+# badge colours per kind: (background, text, icon)
+BADGE = {"bug": ("#fdecec", "#c62828", "&#128030;"), "problem": ("#fdf3e3", "#b45309", "&#129300;"),
+         "request": ("#e9effd", "#2459e0", "&#129513;")}
+
+
+def render(body: SupportIn, received: str) -> str:
+    """The HTML email for one message, from templates/support_email.html."""
+    e = lambda v: html.escape(v, quote=True)
+    row = lambda label, value: (
+        "<tr><td class='muted rule' style='padding:10px 0;border-bottom:1px solid #e3e6eb;color:#5d6673;"
+        f"vertical-align:top;'>{label}</td><td class='ink rule' style='padding:10px 0;border-bottom:1px solid "
+        f"#e3e6eb;color:#111418;'>{value}</td></tr>")
+    chips = "".join(
+        "<span class='chip' style='display:inline-block;margin:0 6px 6px 0;padding:4px 10px;border-radius:999px;"
+        f"background:#eceff3;color:#111418;font-size:13px;font-weight:600;'>{e(c)}</span>" for c in body.cubes)
+    bg, color, icon = BADGE[body.kind]
     kind = KINDS[body.kind]
-    subject = f"[Cube Solver] {kind}" + (f": {', '.join(body.cubes)}" if body.cubes else "") + f" from {body.name}"
-    rows = [("Type", kind), ("Name", body.name), ("Email", body.email)]
+    fields = {
+        "subject": e(subject(body)), "kind": e(kind), "kind_bg": bg, "kind_color": color, "kind_icon": icon,
+        "name": e(body.name), "first_name": e(body.name.split()[0] if body.name.split() else body.name),
+        "email": e(body.email), "received": e(received),
+        "reply_subject": urllib.parse.quote(f"Re: your Cube Solver {kind.lower()}"),
+        "message": e(body.message or "(no message)").replace("\n", "<br>"),
+        "preheader": e((body.message or ", ".join(body.cubes) or kind)[:120]),
+        "cubes_row": row("Cubes", chips) if body.cubes else "",
+        "page_row": row("Page", e(body.page)) if body.page else "",
+    }
+    with open(TEMPLATE, encoding="utf-8") as f:
+        out = f.read()
+    for k, v in fields.items():
+        out = out.replace("{{" + k + "}}", v)
+    return out
+
+
+def subject(body: SupportIn) -> str:
+    s = f"[Cube Solver] {KINDS[body.kind]}" + (f": {', '.join(body.cubes)}" if body.cubes else "") + f" from {body.name}"
+    return s[:180]
+
+
+def _email(body: SupportIn) -> dict:
+    received = time.strftime("Received %d %b %Y, %H:%M UTC", time.gmtime())
+    rows = [("Type", KINDS[body.kind]), ("Name", body.name), ("Email", body.email)]
     if body.cubes:
         rows.append(("Cubes", ", ".join(body.cubes)))
     if body.page:
         rows.append(("Page", body.page))
-    table = "".join(f"<tr><td style='padding:4px 12px 4px 0;color:#667'>{k}</td><td>{html.escape(v)}</td></tr>"
-                    for k, v in rows)
-    msg = html.escape(body.message or "(no message)").replace("\n", "<br>")
     text = "\n".join(f"{k}: {v}" for k, v in rows) + "\n\n" + (body.message or "(no message)")
     return {
         "from": os.environ.get("SUPPORT_FROM", "Cube Solver <onboarding@resend.dev>"),
         "to": [os.environ["SUPPORT_EMAIL"]],
         "reply_to": body.email,
-        "subject": subject[:180],
-        "html": f"<table style='font:14px sans-serif'>{table}</table><p style='font:14px sans-serif'>{msg}</p>",
+        "subject": subject(body),
+        "html": render(body, received),
         "text": text,
     }
 
