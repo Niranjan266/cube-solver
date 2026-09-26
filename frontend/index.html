@@ -437,7 +437,7 @@
     /* two columns; the top row keeps a real height (it used to be squeezed to a
        sliver with scrollbars) and the page scrolls down to the turns */
     main{grid-template-columns:340px minmax(0,1fr);overflow:auto;align-content:start;
-         grid-template-rows:minmax(640px, calc(100dvh - 68px - 44px)) auto}
+         grid-template-rows:minmax(640px, calc(100svh - 68px - 44px)) auto}
     .col.right{grid-column:1 / -1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
     .col.right > .card{min-height:420px}
     /* before a solve there is no "Do this turn" card: the turn list takes the row */
@@ -483,7 +483,8 @@
     .onlyphone{display:flex}
 
     /* Check: the cube, the map, then how to solve it */
-    .stagecard{order:1;flex:none;height:clamp(250px, 42dvh, 380px);border-radius:22px}
+    /* one height on Check and Solve, so the cube does not jump as you start */
+    .stagecard{order:1;flex:none;height:clamp(230px, 36svh, 330px);border-radius:22px}
     .mapcard{order:2}
     .mapcard .body{padding:14px 16px;gap:14px}
     .methodcard{order:3}
@@ -492,7 +493,6 @@
     .badge{display:none}
 
     /* Solve: a smaller cube, the move card, the list as a sheet */
-    body[data-screen=solve] .stagecard{height:clamp(220px, 33dvh, 300px)}
     body[data-screen=solve] .stage-top,body[data-screen=solve] .stagehint{display:none}
     .movecard{order:2}
     .movecard > .card-h{display:none}
@@ -985,8 +985,12 @@ function stepView(dt){
     VIEW.vry *= f; VIEW.vrx *= f;
     if (Math.abs(VIEW.vry) < 1e-5) VIEW.vry = 0;
     if (Math.abs(VIEW.vrx) < 1e-5) VIEW.vrx = 0;
-    // idle spin: nothing touched for 4 s, no turn on show, not scanning
-    const quiet = performance.now() - VIEW.touched > 4000 && !S.arrowStep && !S.streaming
+    // idle spin: only on the untouched starting cube. Once a side is scanned,
+    // a cube is typed in or a solution is loaded, the cube holds still so you
+    // can compare it with the one in your hands and follow the turns.
+    const fresh = !S.solution && !Object.keys(S.scanSamples || {}).length
+                  && document.body.dataset.screen !== "check" && document.body.dataset.screen !== "solve";
+    const quiet = fresh && performance.now() - VIEW.touched > 4000 && !S.arrowStep && !S.streaming
                   && !animating && !VIEW.homing && !reducedMotion();
     VIEW.idle += ((quiet ? 1 : 0) - VIEW.idle) * 0.03 * k;   // ease in and out of it
     VIEW.ry += 0.0035 * VIEW.idle * k;
@@ -1192,6 +1196,18 @@ const TARGET_QUATERNIONS = {
 };
 
 let scanAnimTimer = null;
+
+/**
+ * Square the cube up and stop everything that moves it on its own - the
+ * scan swing, drag momentum and idle spin - so a solution plays on a cube
+ * that holds still. The camera stays wherever you put it.
+ */
+function holdStill(){
+  if (scanAnimTimer){ cancelAnimationFrame(scanAnimTimer); scanAnimTimer = null; }
+  if (typeof cubeRoot !== "undefined" && cubeRoot) cubeRoot.quaternion.identity();
+  VIEW.vry = VIEW.vrx = 0; VIEW.idle = 0;
+}
+
 function animateScanRotation(targetFace) {
   if (scanAnimTimer) cancelAnimationFrame(scanAnimTimer);
   const targetQ = TARGET_QUATERNIONS[targetFace];
@@ -2248,6 +2264,7 @@ function renderSolution(){
     track.appendChild(seg);
   });
 
+  holdStill();
   paintCube(d.start);
   highlight();
   syncTwisty();
@@ -2316,6 +2333,7 @@ async function stepForward(){
   const d = S.solution;
   if (!d || S.index >= d.moveCount || animating) return false;
   const step = d.steps[S.index];
+  holdStill();
   clearArrow();
   speak(step);
   const ms = speed().turnMs;
@@ -2336,6 +2354,7 @@ function jumpTo(i){
   const d = S.solution; if (!d) return;
   S.playing = false; $("btnPlay").textContent = "▶ Play";
   S.index = Math.max(0, Math.min(d.moveCount, i));
+  holdStill();
   paintCube(stateAt(S.index));
   highlight();
   syncTwisty();
@@ -2495,7 +2514,7 @@ function switchTab(name){
     b.setAttribute("aria-selected", b.dataset.tab === name));
   $("tab-scan").style.display = name === "scan" ? "" : "none";
   $("tab-hand").style.display = name === "hand" ? "" : "none";
-  if (name === "scan") updateTip(); else animateScanRotation("F");
+  if (name === "scan") updateTip(); else if (name === "solve") holdStill(); else animateScanRotation("F");
   if (typeof updatePip === "function") updatePip();
 }
 function buildSwatches(){
