@@ -2162,9 +2162,11 @@ async function solve(){
       const t0 = performance.now();
       const sol = E.buildSolution(facelets, E.solveCfop(facelets), {mode:"cfop"});
       showSolution(sol, "browser");
-      return note("solveMsg","ok", sol.moveCount === 0 ? "That cube is already solved."
+      note("solveMsg","ok", sol.moveCount === 0 ? "That cube is already solved."
         : `<b>${sol.moveCount} turns</b> in four stages: cross, first two layers, `
-          + `top colour, finish. <small>(${Math.round(performance.now()-t0)} ms, in your browser)</small>`);
+          + `top colour, finish. <small>(${Math.round(performance.now()-t0)} ms, in your browser)</small>`
+          + shortestOffer(facelets, sol.moveCount));
+      return bindShortestOffer();
     } catch (e) { return note("solveMsg","err", e.message); }
   }
 
@@ -2173,8 +2175,10 @@ async function solve(){
     if (stale()) return;
     if (r.solution && checked(r.solution)){
       showSolution(r.solution, "server");
-      return note("solveMsg","ok", r.solution.moveCount === 0 ? "That cube is already solved."
-        : `<b>${r.solution.moveCount} turns</b>, one named stage at a time.`);
+      note("solveMsg","ok", r.solution.moveCount === 0 ? "That cube is already solved."
+        : `<b>${r.solution.moveCount} turns</b>, one named stage at a time.`
+          + shortestOffer(facelets, r.solution.moveCount));
+      return bindShortestOffer();
     }
     return note("solveMsg","err", r.error === "offline"
       ? "The Beginner method runs on the server, which is not answering. "
@@ -2233,6 +2237,23 @@ async function solve(){
   note("solveMsg","ok", `<b>${local.moveCount} turns</b> and you are done. <small>`
     + (remote ? "Checked by a deeper search and by the server — this is the shortest they found."
               : "Solved offline in your browser.") + "</small>");
+}
+
+/*
+ * Beginner and CFOP teach a method, so they take 50-100+ turns by design.
+ * Beside their answer, say how few Shortest needs and offer to switch.
+ */
+function shortestOffer(facelets, methodTurns){
+  let n;
+  try { n = E.solveShortest(facelets).length; } catch (e) { return ""; }
+  if (!n || n >= methodTurns) return "";
+  return `<br><button class="btn primary" id="toShortest" style="margin-top:10px;min-height:38px;padding:0 14px;font-size:14px">`
+    + `Switch to Shortest: about ${n} turns</button> <small>This method teaches the steps, so it `
+    + `takes more turns.</small>`;
+}
+function bindShortestOffer(){
+  const b = $("toShortest");
+  if (b) b.onclick = () => { setMode("quick"); solve(); };
 }
 
 /*
@@ -2567,7 +2588,6 @@ function buildSwatches(){
 }
 function setMode(m){
   S.mode = m;
-  store.set("mode", m);
   document.querySelectorAll(".mode").forEach(b => b.setAttribute("aria-pressed", b.dataset.mode === m));
 }
 
@@ -2645,8 +2665,9 @@ function setStatus(kind, text){
   initThree();
   renderFaceRow(); updateTip(); buildSwatches(); buildManual();
   const askedMode = new URLSearchParams(location.search).get("mode");
-  setMode(["quick","learn","cfop"].includes(askedMode) ? askedMode
-        : ["quick","learn","cfop"].includes(store.get("mode")) ? store.get("mode") : "quick");
+  // Shortest every time the app opens; Beginner / CFOP (e.g. from a guide link)
+  // are for that visit only, so nobody gets stuck on 60-turn answers
+  setMode(["quick","learn","cfop"].includes(askedMode) ? askedMode : "quick");
   setSpeed(store.get("speed") || 1);
   setZoom(parseFloat(store.get("zoom")) || 1); VIEW.zoom = VIEW.zoomTo;
   setFacelets(SOLVED);
