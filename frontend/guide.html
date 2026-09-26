@@ -239,6 +239,10 @@
   tr:last-child td{border-bottom:0}
   .tablewrap{overflow-x:auto;border-radius:16px}
   .sources li{margin:4px 0}
+  .faq{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+  .qa h3{font-size:17px;margin-bottom:6px}
+  .qa p{margin:0}
+  @media (max-width:760px){ .faq{grid-template-columns:minmax(0,1fr)} }
   footer{border-top:1px solid var(--line);padding:24px 0 40px;color:var(--muted);font-size:14px}
 
   @media (max-width:960px){
@@ -375,6 +379,12 @@
         </div>
       </section>
 
+      <section class="block" id="faq">
+        <div class="kicker">Quick answers</div>
+        <h2>Questions people ask</h2>
+        <div class="faq" id="faqList"></div>
+      </section>
+
       <section class="block" id="sources">
         <div class="kicker">Further reading</div>
         <h2>Sources</h2>
@@ -391,7 +401,7 @@
 <script>
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
-const {METHODS, SOURCES} = window.GUIDE;
+const {METHODS, SOURCES, FAQ} = window.GUIDE;
 
 /* ---- theme: shared with the app (same saved choice) ---- */
 function applyTheme(t){
@@ -451,7 +461,7 @@ $("picker").innerHTML = METHODS.map((m, i) => `
   </a>`).join("");
 
 const toc = [["start","Start here"], ...METHODS.map(m => [m.id, m.short]),
-             ["compare","Comparing"], ["which","Which to learn"], ["practice","Practice"], ["sources","Sources"]];
+             ["compare","Comparing"], ["which","Which to learn"], ["practice","Practice"], ["faq","FAQ"], ["sources","Sources"]];
 $("toc").innerHTML = toc.map(([id, t]) => `<a href="#${id}" data-id="${id}">${esc(t)}</a>`).join("");
 $("chips").innerHTML = toc.slice(0, 6).map(([id, t]) => `<a href="#${id}">${esc(t)}</a>`).join("");
 
@@ -501,6 +511,7 @@ $("methods").innerHTML = METHODS.map((m, mi) => `
 $("compareTable").innerHTML = `<thead><tr><th>Method</th><th>Difficulty</th><th>Turns</th><th>To learn</th><th>Algorithms</th><th>Best for</th></tr></thead>
   <tbody>${METHODS.map(m => `<tr><td><a href="#${m.id}"><b>${esc(m.short)}</b></a></td><td>${dots(m.level)}</td>
     <td>${esc(m.moves)}</td><td>${esc(m.learn)}</td><td>${esc(String(m.algs))}</td><td>${esc(m.bestFor)}</td></tr>`).join("")}</tbody>`;
+$("faqList").innerHTML = FAQ.map(f => `<div class="card qa"><h3>${esc(f.q)}</h3><p>${f.a}</p></div>`).join("");
 $("sourceList").innerHTML = SOURCES.map(s => `<li><a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.name)}</a></li>`).join("");
 
 /* ---- Watch: the sequence on a real 3D cube (cubing.js, loaded on first use) ---- */

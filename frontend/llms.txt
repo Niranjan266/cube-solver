@@ -1,0 +1,23 @@
+# Cube Solver
+
+> Cube Solver (https://cube.niranjand.in) is a free web app that solves a 3×3 Rubik's cube. You show each side of the cube to your phone or computer camera (or upload photos, or enter the colours by hand), and it shows every turn as a 3D animation with an arrow, usually about 20 moves. The site also has a step-by-step solving guide (beginner, CFOP, Roux and ZZ methods) and a speedcubing timer. No account or sign-up is needed.
+
+## Pages
+
+- [Rubik's cube solver](https://cube.niranjand.in/): scan the cube with a camera, check the colours, then follow the 3D arrow turn by turn. Three modes: Shortest (about 20 moves, two-phase algorithm), Beginner (layer by layer, every stage named) and CFOP (the method speedcubers use).
+- [How to solve a Rubik's cube: the guide](https://cube.niranjand.in/guide): written for people who have never solved a cube. It starts with the pieces and the move notation, then teaches the beginner layer-by-layer method, CFOP, Roux and ZZ step by step, with each move sequence playable on a 3D cube and checked on the site's own cube engine.
+- [Cube timer](https://cube.niranjand.in/timer): a speedcubing timer with a random scramble for each solve, optional 15-second WCA inspection, +2 and DNF penalties, Ao5 / Ao12 / Ao50 / Ao100 averages, and charts of times over solves, average per day and the spread of times. Solve times are stored only in the user's browser.
+
+## Facts
+
+- Any position of a 3×3 Rubik's cube can be solved in 20 moves or fewer (God's number, proven in 2010). The Shortest mode typically finds solutions of about 20 moves.
+- Camera scanning works in any order and any orientation; the colours are read in the browser from the live camera picture. The video is not uploaded; only the 54 colour readings are sent to the server to double-check them.
+- The solver runs both in the browser and on the server and keeps the shorter answer.
+- Turn playback speed can be set from 0.01× to 2×; the 3D arrow shows the direction of each turn.
+- Move notation: R, L, U, D, F, B are the right, left, up, down, front and back faces; a letter alone is a clockwise quarter turn as you look at that face, an apostrophe (R') is anticlockwise, and a 2 (R2) is a half turn.
+- Free to use, no account, works on phones and computers in a web browser. Made by Niranjan D.
+
+## Optional
+
+- [Source code on GitHub](https://github.com/Niranjan266/cube-solver)
+- [Sitemap](https://cube.niranjand.in/sitemap.xml)

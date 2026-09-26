@@ -35,6 +35,7 @@ from vision import detect, yolo
 FACE_ORDER = "URFDLB"
 SITE = "https://cube.niranjand.in"       # the address search engines should use
 PAGES = ["/", "/guide", "/timer"]        # the public pages, for the sitemap
+INDEXNOW_KEY = "f6281d28f6fb57169945d09bead0bbd5"   # public by design (IndexNow)
 FRONTEND = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend")
 
 app = FastAPI(title="Rubik's Cube Solver", version="2.0")
@@ -261,9 +262,23 @@ if os.path.isdir(FRONTEND):
 
     @app.get("/robots.txt", include_in_schema=False)
     def robots():
+        # AI assistants' crawlers are welcome too: being quoted by them is the point
+        ai = ["GPTBot", "OAI-SearchBot", "ChatGPT-User", "ClaudeBot", "Claude-SearchBot",
+              "PerplexityBot", "Google-Extended", "Applebot-Extended", "Bingbot"]
         return PlainTextResponse(
             "User-agent: *\nAllow: /\nDisallow: /api/\n\n"
-            f"Sitemap: {SITE}/sitemap.xml\n")
+            + "".join(f"User-agent: {b}\nAllow: /\nDisallow: /api/\n\n" for b in ai)
+            + f"Sitemap: {SITE}/sitemap.xml\n")
+
+    @app.get("/llms.txt", include_in_schema=False)
+    def llms():
+        with open(os.path.join(FRONTEND, "llms.txt"), encoding="utf-8") as f:
+            return PlainTextResponse(f.read(), media_type="text/markdown; charset=utf-8")
+
+    @app.get(f"/{INDEXNOW_KEY}.txt", include_in_schema=False)
+    def indexnow_key():
+        # proves to Bing / IndexNow that this site asked for its pages to be re-read
+        return PlainTextResponse(INDEXNOW_KEY)
 
     @app.get("/sitemap.xml", include_in_schema=False)
     def sitemap():
@@ -299,7 +314,10 @@ if os.path.isdir(FRONTEND):
 
     @app.get("/guide")
     def guide():
-        return FileResponse(os.path.join(FRONTEND, "guide.html"))
+        # the pre-rendered copy has the whole guide in its HTML, for crawlers
+        # that do not run JavaScript (tools/prerender-guide.mjs)
+        static = os.path.join(FRONTEND, "guide.static.html")
+        return FileResponse(static if os.path.exists(static) else os.path.join(FRONTEND, "guide.html"))
 
     @app.get("/timer")
     def timer():
