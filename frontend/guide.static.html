@@ -1,0 +1,1336 @@
+<!doctype html>
+<!-- generated from guide.html by tools/prerender-guide.mjs - edit that file, not this one -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>How to Solve a Rubik's Cube: Beginner, CFOP, Roux & ZZ Guide</title>
+<meta name="description" content="Learn to solve a Rubik's cube step by step, even if you've never held one: the beginner method, then CFOP, Roux and ZZ, every move shown on a 3D cube.">
+<link rel="canonical" href="https://cube.niranjand.in/guide">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Cube Solver">
+<meta property="og:title" content="How to Solve a Rubik's Cube: Beginner, CFOP, Roux & ZZ Guide">
+<meta property="og:description" content="Learn to solve a Rubik's cube step by step, even if you've never held one: the beginner method, then CFOP, Roux and ZZ, every move shown on a 3D cube.">
+<meta property="og:url" content="https://cube.niranjand.in/guide">
+<meta property="og:image" content="https://cube.niranjand.in/static/icons/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Cube Solver: a Rubik's cube solver that reads your cube with the camera">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="How to Solve a Rubik's Cube: Beginner, CFOP, Roux & ZZ Guide">
+<meta name="twitter:description" content="Learn to solve a Rubik's cube step by step, even if you've never held one: the beginner method, then CFOP, Roux and ZZ, every move shown on a 3D cube.">
+<meta name="twitter:image" content="https://cube.niranjand.in/static/icons/og-image.png">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "WebSite",
+   "@id": "https://cube.niranjand.in/#website",
+   "name": "Cube Solver",
+   "url": "https://cube.niranjand.in/",
+   "inLanguage": "en"
+  },
+  {
+   "@type": "Article",
+   "headline": "How to solve a Rubik's cube",
+   "url": "https://cube.niranjand.in/guide",
+   "description": "A step-by-step guide to solving the Rubik's cube: the beginner layer-by-layer method, CFOP, Roux and ZZ, with every move sequence shown on a 3D cube.",
+   "image": "https://cube.niranjand.in/static/icons/og-image.png",
+   "inLanguage": "en",
+   "author": {
+    "@type": "Person",
+    "name": "Niranjan D",
+    "url": "https://cube.niranjand.in/"
+   },
+   "publisher": {
+    "@type": "Person",
+    "name": "Niranjan D",
+    "url": "https://cube.niranjand.in/"
+   },
+   "isPartOf": {
+    "@id": "https://cube.niranjand.in/#website"
+   },
+   "about": [
+    {
+     "@type": "Thing",
+     "name": "Rubik's Cube"
+    },
+    {
+     "@type": "Thing",
+     "name": "CFOP method"
+    },
+    {
+     "@type": "Thing",
+     "name": "Roux method"
+    },
+    {
+     "@type": "Thing",
+     "name": "ZZ method"
+    }
+   ]
+  },
+  {
+   "@type": "BreadcrumbList",
+   "itemListElement": [
+    {
+     "@type": "ListItem",
+     "position": 1,
+     "name": "Cube Solver",
+     "item": "https://cube.niranjand.in/"
+    },
+    {
+     "@type": "ListItem",
+     "position": 2,
+     "name": "Solving guide",
+     "item": "https://cube.niranjand.in/guide"
+    }
+   ]
+  }
+ ]
+}
+</script>
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#0e1116" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f3f4f6" media="(prefers-color-scheme: light)">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* the app's own tokens (keep in step with index.html) */
+  :root{
+    --bg:#f3f4f6; --surface:#ffffff; --surface-2:#f7f8fa; --surface-3:#eceff3;
+    --line:#e3e6eb; --line-strong:#cfd4dc;
+    --ink:#111418; --muted:#5d6673; --faint:#7b8491;
+    --accent:#2459e0; --accent-2:#1d4ac0; --accent-soft:rgba(36,89,224,.09); --accent-ink:#2459e0; --on-accent:#fff;
+    --good:#15803d; --good-soft:rgba(21,128,61,.08); --warn-soft:rgba(217,119,6,.11);
+    --shadow:0 1px 2px rgba(16,24,40,.05);
+    --font:"DM Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+    --display:"Space Grotesk","DM Sans",ui-sans-serif,system-ui,sans-serif;
+    --mono:ui-monospace,"SF Mono","Cascadia Code",Consolas,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0e1116; --surface:#161a21; --surface-2:#1d222b; --surface-3:#262c36;
+      --line:#262c36; --line-strong:#353d4c;
+      --ink:#eef1f5; --muted:#9aa4b2; --faint:#7d8795;
+      --accent:#4c8dff; --accent-2:#6ea3ff; --accent-soft:rgba(76,141,255,.14); --accent-ink:#8db4ff; --on-accent:#06101f;
+      --good:#3dd68c; --good-soft:rgba(61,214,140,.12); --warn-soft:rgba(240,181,74,.13);
+      --shadow:0 1px 2px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0e1116; --surface:#161a21; --surface-2:#1d222b; --surface-3:#262c36;
+    --line:#262c36; --line-strong:#353d4c;
+    --ink:#eef1f5; --muted:#9aa4b2; --faint:#7d8795;
+    --accent:#4c8dff; --accent-2:#6ea3ff; --accent-soft:rgba(76,141,255,.14); --accent-ink:#8db4ff; --on-accent:#06101f;
+    --good:#3dd68c; --good-soft:rgba(61,214,140,.12); --warn-soft:rgba(240,181,74,.13);
+    --shadow:0 1px 2px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;scroll-padding-top:84px}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 var(--font);-webkit-font-smoothing:antialiased}
+  h1,h2,h3,h4{font-family:var(--display);letter-spacing:-.015em;margin:0;line-height:1.2}
+  a{color:var(--accent-ink)}
+  code,.mono{font-family:var(--mono);font-size:.92em;background:var(--surface-3);padding:1px 6px;border-radius:6px}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:8px}
+  button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+  svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 16px;
+       border-radius:14px;background:var(--surface);border:1px solid var(--line);font-weight:600;font-size:14.5px;
+       text-decoration:none;color:var(--ink);white-space:nowrap}
+  .btn:hover{background:var(--surface-2);border-color:var(--line-strong)}
+  .btn.primary{background:var(--accent);border-color:transparent;color:var(--on-accent)}
+  .btn.primary:hover{background:var(--accent-2)}
+  .btn.sm{min-height:36px;padding:0 12px;font-size:13.5px;border-radius:11px}
+
+  /* ---------- top bar */
+  .topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;height:64px;padding:0 24px;
+          background:color-mix(in srgb, var(--surface) 92%, transparent);backdrop-filter:blur(12px);
+          border-bottom:1px solid var(--line)}
+  .brand{display:flex;align-items:center;gap:11px;text-decoration:none;color:var(--ink);flex:1;min-width:0}
+  .logo{width:32px;height:32px;flex:none;display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:4px;border-radius:9px;background:#15181e}
+  .logo i{border-radius:2px}
+  .brand b{font-family:var(--display);font-size:18px}
+  .brand span{color:var(--muted);font-size:14px}
+
+  /* ---------- layout */
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+  .hero{padding:48px 0 28px}
+  .hero h1{font-size:clamp(32px,5vw,48px);letter-spacing:-.03em}
+  .hero p.lead{font-size:18px;color:var(--muted);max-width:680px;margin:12px 0 0}
+  .picker{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:28px 0 0}
+  .pick{display:flex;flex-direction:column;gap:6px;padding:18px;border-radius:20px;background:var(--surface);
+        border:1px solid var(--line);text-decoration:none;color:var(--ink);box-shadow:var(--shadow);transition:.15s}
+  .pick:hover{border-color:var(--accent);transform:translateY(-1px)}
+  .pick b{font-family:var(--display);font-size:19px}
+  .pick small{color:var(--muted);font-size:14px;line-height:1.45}
+  .pick .tag{align-self:flex-start;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent-ink)}
+  .dots{display:flex;gap:4px}
+  .dots i{width:9px;height:9px;border-radius:50%;background:var(--surface-3)}
+  .dots i.on{background:var(--accent)}
+
+  .layout{display:grid;grid-template-columns:230px minmax(0,1fr);gap:36px;padding:24px 0 80px}
+  .toc{position:sticky;top:84px;align-self:start;display:flex;flex-direction:column;gap:2px;font-size:14.5px}
+  .toc a{display:block;padding:8px 12px;border-radius:10px;text-decoration:none;color:var(--muted);font-weight:500}
+  .toc a:hover{background:var(--surface);color:var(--ink)}
+  .toc a.on{background:var(--accent-soft);color:var(--accent-ink);font-weight:700}
+  .toc .sub{padding-left:24px;font-size:13.5px}
+  .chips{display:none}
+
+  section.block{margin:0 0 56px}
+  section.block > h2{font-size:30px;margin:0 0 6px}
+  .kicker{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-ink);margin-bottom:6px}
+  .lead2{color:var(--muted);font-size:17px;margin:0 0 20px;max-width:760px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:22px;box-shadow:var(--shadow)}
+  .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+  .grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+  .card h3{font-size:18px;margin-bottom:6px}
+  .card p{margin:0 0 8px;color:var(--muted)}
+  .card p b{color:var(--ink)}
+
+  /* pieces illustration */
+  .pieces{display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:center}
+  .pieces svg{width:210px;height:auto}
+  .legend{display:flex;flex-direction:column;gap:12px}
+  .legend div{display:flex;gap:12px;align-items:flex-start}
+  .legend i{width:18px;height:18px;border-radius:5px;flex:none;margin-top:3px}
+
+  /* notation */
+  .moves{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+  .mv{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 8px;text-align:center}
+  .mv svg{width:100%;max-width:110px;height:auto;display:block;margin:0 auto 4px}
+  .mv b{font-family:var(--display);font-size:20px;display:block}
+  .mv small{display:block;color:var(--muted);font-size:12.5px;line-height:1.35}
+
+  /* method */
+  .mhead{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;margin:14px 0 18px}
+  .stat{display:flex;flex-direction:column;gap:2px;font-size:13px;color:var(--muted)}
+  .stat b{font-size:15px;color:var(--ink)}
+  .holding{display:flex;gap:12px;padding:14px 16px;border-radius:14px;background:var(--accent-soft);color:var(--ink);font-size:15px;margin-bottom:18px}
+  .steps{display:flex;flex-direction:column;gap:14px;counter-reset:st}
+  .step{display:grid;grid-template-columns:44px minmax(0,1fr);gap:14px}
+  .step .n{width:44px;height:44px;border-radius:14px;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;
+           font:700 18px var(--display)}
+  .step h3{font-size:20px}
+  .goal{font-size:15px;color:var(--good);font-weight:600;margin:4px 0 8px}
+  .step p,.step li{color:var(--muted)}
+  .step p b,.step li b{color:var(--ink)}
+  .tipbox{display:flex;gap:10px;padding:11px 13px;border-radius:12px;background:var(--warn-soft);font-size:14.5px;margin:10px 0 0}
+  .algs{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin-top:14px}
+  .alg{display:flex;flex-direction:column;gap:8px;padding:14px;border-radius:16px;background:var(--surface-2);border:1px solid var(--line)}
+  .alg h4{font-size:16px}
+  .seq{display:flex;flex-wrap:wrap;gap:5px}
+  .seq span{font:700 15px var(--mono);padding:4px 8px;border-radius:8px;background:var(--surface);border:1px solid var(--line);min-width:32px;text-align:center}
+  .alg p{margin:0;font-size:14px;color:var(--muted)}
+  .alg .row{display:flex;gap:8px;flex-wrap:wrap}
+  .player{border-radius:14px;overflow:hidden;background:var(--surface);border:1px solid var(--line);min-height:0}
+  .player twisty-player{width:100%;height:240px}
+  .player .msg{padding:14px;font-size:14px;color:var(--muted)}
+
+  table{width:100%;border-collapse:collapse;font-size:15px;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+  th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:12.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);background:var(--surface-2)}
+  tr:last-child td{border-bottom:0}
+  .tablewrap{overflow-x:auto;border-radius:16px}
+  .sources li{margin:4px 0}
+  .faq{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+  .qa h3{font-size:17px;margin-bottom:6px}
+  .qa p{margin:0}
+  @media (max-width:760px){ .faq{grid-template-columns:minmax(0,1fr)} }
+  footer{border-top:1px solid var(--line);padding:24px 0 40px;color:var(--muted);font-size:14px}
+
+  @media (max-width:960px){
+    .picker{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .layout{grid-template-columns:minmax(0,1fr)}
+    .toc{display:none}
+    .chips{display:flex;gap:8px;overflow-x:auto;position:sticky;top:var(--barH, 64px);z-index:10;padding:10px 0;
+           background:var(--bg);scrollbar-width:none}
+    .chips a{flex:none;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);
+             text-decoration:none;color:var(--ink);font-weight:600;font-size:14px}
+    .moves{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .grid3{grid-template-columns:minmax(0,1fr)}
+  }
+  @media (max-width:960px){ html{scroll-padding-top:128px} }
+  @media (max-width:640px){
+    html{scroll-padding-top:120px}
+    :root{--barH:56px}
+    .topbar{padding:0 12px 0 16px;height:56px}
+    .brand > span:not(.logo){display:none}
+    .wrap{padding:0 16px}
+    .hero{padding:28px 0 18px}
+    .picker,.grid2{grid-template-columns:minmax(0,1fr)}
+    .pieces{grid-template-columns:minmax(0,1fr)}
+    .pieces svg{margin:0 auto;width:180px}
+    .step{grid-template-columns:minmax(0,1fr)}
+    .step .n{width:38px;height:38px;border-radius:12px;font-size:16px}
+    .algs{grid-template-columns:minmax(0,1fr)}
+    section.block > h2{font-size:26px}
+    #themeBtn .lbl,#openSolver .lbl,#openTimer .lbl{display:none}
+  }
+</style>
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@type": "FAQPage",
+ "mainEntity": [
+  {
+   "@type": "Question",
+   "name": "What is the fewest number of moves needed to solve a Rubik's cube?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Every position of a 3×3 Rubik's cube can be solved in 20 moves or fewer (counting a half turn as one move). This limit, known as God's number, was proven in 2010. The Shortest mode of Cube Solver uses the two-phase algorithm and usually finds a solution of about 20 moves."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "How long does it take to learn to solve a Rubik's cube?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "With the beginner layer-by-layer method, most people solve their first cube within an afternoon to a few days. It needs only 7 short move sequences. The CFOP speedsolving method takes longer: the 2-look version uses 16 sequences, and full CFOP uses about 78."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "What is the easiest way to solve a Rubik's cube for beginners?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "The layer-by-layer (beginner) method: make a white cross, finish the white layer, solve the middle layer, then the yellow top in four short steps. It is the first method taught in this guide, and the solver can show every turn of it on your own cube in Beginner mode."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "Which method do the fastest speedcubers use?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "CFOP (Cross, F2L, OLL, PLL) is the most widely used speedsolving method. Roux and ZZ are also used by some of the fastest solvers. This guide explains all three, plus the beginner method."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "How does Cube Solver read the colours of my cube?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Show each side of the cube to your camera, in any order and any way up. The colours are read in your browser from the live camera picture; the video is not uploaded, only the 54 colour readings are sent to the server to double-check them. You can also upload photos of the six sides or enter the colours by hand."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "Is Cube Solver free? Do I need an account?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Cube Solver is free and needs no account or sign-up. The solver, the guide and the timer all work in a web browser on a phone or a computer. The timer saves your solve times in your own browser only."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "Why does the solver say my cube cannot be solved?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Usually one sticker was read as the wrong colour, often red and orange under warm light. Use Fix a colour to correct it. If a piece was taken out and put back the wrong way, or a corner was twisted by hand, the cube really cannot be solved until that piece is put back correctly."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "What do R, U, F and the apostrophe mean in cube moves?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Each letter names a face: R right, L left, U up (top), D down, F front, B back. A letter alone means turn that face a quarter turn clockwise as you look at it; an apostrophe (R') means anticlockwise; a 2 (R2) means a half turn."
+   }
+  }
+ ]
+}
+</script>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="/">
+    <span class="logo" aria-hidden="true">
+      <i style="background:#e5383b"></i><i style="background:#f4f5f7"></i><i style="background:#22b04b"></i>
+      <i style="background:#ffd60a"></i><i style="background:#1e6fe0"></i><i style="background:#e5383b"></i>
+      <i style="background:#ff8a1f"></i><i style="background:#22b04b"></i><i style="background:#ffd60a"></i>
+    </span>
+    <b>Cube Solver</b><span>· Guide</span>
+  </a>
+  <a class="btn sm" id="openTimer" href="/timer"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg><span class="lbl">Timer</span></a>
+  <a class="btn sm primary" id="openSolver" href="/"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z"/></svg><span class="lbl">Open the solver</span></a>
+  <button class="btn sm" id="themeBtn" aria-label="Switch light or dark">◐ <span class="lbl">Theme</span></button>
+</header>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="kicker">The guide</div>
+    <h1>How to solve a Rubik's cube</h1>
+    <p class="lead">Never held one before? Start at the top and go step by step — you will
+    solve it with the beginner method in an afternoon. Already can? Pick a faster method below.
+    Every move sequence here can be watched on a 3D cube.</p>
+    <div class="picker" id="picker">
+  <a class="pick" href="#beginner">
+    <span class="tag">Start here</span>
+    <b>Beginner</b><span class="dots" aria-label="difficulty 1 of 3"><i class="on"></i><i class=""></i><i class=""></i></span>
+    <small>The one to learn first. Solve the cube one layer at a time, bottom to top.</small>
+  </a>
+  <a class="pick" href="#cfop">
+    
+    <b>CFOP</b><span class="dots" aria-label="difficulty 3 of 3"><i class="on"></i><i class="on"></i><i class="on"></i></span>
+    <small>What most speedcubers use. Cross, First two layers, Orient and Permute the last layer.</small>
+  </a>
+  <a class="pick" href="#roux">
+    
+    <b>Roux</b><span class="dots" aria-label="difficulty 3 of 3"><i class="on"></i><i class="on"></i><i class="on"></i></span>
+    <small>Build two blocks on the sides, then finish with the middle slice. Few moves, lots of thinking.</small>
+  </a>
+  <a class="pick" href="#zz">
+    
+    <b>ZZ</b><span class="dots" aria-label="difficulty 3 of 3"><i class="on"></i><i class="on"></i><i class="on"></i></span>
+    <small>Fix every edge's orientation first, then solve the rest turning only three faces.</small>
+  </a></div>
+  </div>
+</div>
+
+<div class="wrap">
+  <nav class="chips" id="chips" aria-label="Jump to"><a href="#start">Start here</a><a href="#beginner">Beginner</a><a href="#cfop">CFOP</a><a href="#roux">Roux</a><a href="#zz">ZZ</a><a href="#compare">Comparing</a></nav>
+  <div class="layout">
+    <nav class="toc" id="toc" aria-label="Contents"><a href="#start" data-id="start">Start here</a><a href="#beginner" data-id="beginner">Beginner</a><a href="#cfop" data-id="cfop">CFOP</a><a href="#roux" data-id="roux">Roux</a><a href="#zz" data-id="zz">ZZ</a><a href="#compare" data-id="compare">Comparing</a><a href="#which" data-id="which">Which to learn</a><a href="#practice" data-id="practice">Practice</a><a href="#faq" data-id="faq">FAQ</a><a href="#sources" data-id="sources">Sources</a></nav>
+    <main id="content">
+
+      <section class="block" id="start">
+        <div class="kicker">Before you start</div>
+        <h2>Start here</h2>
+        <p class="lead2">Five minutes on what the cube actually is makes every method easier.</p>
+
+        <div class="card pieces">
+          <svg viewBox="0 0 220 220" role="img" aria-label="A cube face showing a centre, edges and corners">
+            <g transform="translate(20,20)">
+              <rect x="0" y="0" width="180" height="180" rx="16" fill="#15181e"/>
+              <rect x="8" y="8" width="52" height="52" rx="9" fill="#ff8a1f"/>
+              <rect x="64" y="8" width="52" height="52" rx="9" fill="#22b04b"/>
+              <rect x="120" y="8" width="52" height="52" rx="9" fill="#ff8a1f"/>
+              <rect x="8" y="64" width="52" height="52" rx="9" fill="#22b04b"/>
+              <rect x="64" y="64" width="52" height="52" rx="9" fill="#e5383b"/>
+              <rect x="120" y="64" width="52" height="52" rx="9" fill="#22b04b"/>
+              <rect x="8" y="120" width="52" height="52" rx="9" fill="#ff8a1f"/>
+              <rect x="64" y="120" width="52" height="52" rx="9" fill="#22b04b"/>
+              <rect x="120" y="120" width="52" height="52" rx="9" fill="#ff8a1f"/>
+              <circle cx="90" cy="90" r="9" fill="#fff" opacity=".9"/>
+            </g>
+          </svg>
+          <div class="legend">
+            <div><i style="background:#e5383b"></i><span><b>Centres</b> (1 per side, 6 in all) never move against each other. The centre decides a side's colour: the side with the red centre <b>is</b> the red side.</span></div>
+            <div><i style="background:#22b04b"></i><span><b>Edges</b> (12) sit between two centres and have <b>two</b> colours.</span></div>
+            <div><i style="background:#ff8a1f"></i><span><b>Corners</b> (8) have <b>three</b> colours.</span></div>
+            <div><span>So you are not moving stickers around — you are moving <b>pieces</b> into place. A white-red edge can only ever go between the white and red centres.</span></div>
+          </div>
+        </div>
+
+        <h3 style="margin:28px 0 8px;font-size:21px">Reading the moves</h3>
+        <p class="lead2" style="font-size:16px">Each letter is a side, seen from where you are:
+        <b>U</b>p, <b>D</b>own, <b>R</b>ight, <b>L</b>eft, <b>F</b>ront, <b>B</b>ack. A letter alone
+        means a quarter turn <b>clockwise, as if you were looking straight at that side</b>.
+        <code>'</code> (say “prime”) means anticlockwise, and <code>2</code> means a half turn.</p>
+        <div class="moves" id="moveGrid"><div class="mv"><svg viewBox="0 0 130 130" role="img" aria-label="U: top layer, front row slides left"><rect x="30" y="30" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"></rect><rect x="54" y="30" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"></rect><rect x="78" y="30" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"></rect><rect x="30" y="54" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"></rect><rect x="54" y="54" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"></rect><rect x="78" y="54" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"></rect><rect x="30" y="78" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"></rect><rect x="54" y="78" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"></rect><rect x="78" y="78" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"></rect><line x1="106" y1="18" x2="38" y2="18" stroke="#3b82f6" stroke-width="6" stroke-linecap="round"></line>
+          <polygon points="24,18 38,12.5 38,23.5" fill="#3b82f6"></polygon></svg>
+   <b>U</b><small>top layer<br>front row slides left</small></div><div class="mv"><svg viewBox="0 0 130 130" role="img" aria-label="D: bottom layer, front row slides right"><rect x="30" y="30" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"></rect><rect x="54" y="30" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"></rect><rect x="78" y="30" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"></rect><rect x="30" y="54" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"></rect><rect x="54" y="54" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"></rect><rect x="78" y="54" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"></rect><rect x="30" y="78" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"></rect><rect x="54" y="78" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"></rect><rect x="78" y="78" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"></rect><line x1="24" y1="112" x2="92" y2="112" stroke="#3b82f6" stroke-width="6" stroke-linecap="round"></line>
+          <polygon points="106,112 92,117.5 92,106.5" fill="#3b82f6"></polygon></svg>
+   <b>D</b><small>bottom layer<br>front row slides right</small></div><div class="mv"><svg viewBox="0 0 130 130" role="img" aria-label="R: right side, rolls up at the front"><rect x="30" y="30" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"></rect><rect x="54" y="30" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"></rect><rect x="78" y="30" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"></rect><rect x="30" y="54" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"></rect><rect x="54" y="54" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"></rect><rect x="78" y="54" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"></rect><rect x="30" y="78" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"></rect><rect x="54" y="78" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"></rect><rect x="78" y="78" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"></rect><line x1="116" y1="106" x2="116" y2="38" stroke="#3b82f6" stroke-width="6" stroke-linecap="round"></line>
+          <polygon points="116,24 121.5,38 110.5,38" fill="#3b82f6"></polygon></svg>
+   <b>R</b><small>right side<br>rolls up at the front</small></div><div class="mv"><svg viewBox="0 0 130 130" role="img" aria-label="L: left side, rolls down at the front"><rect x="30" y="30" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"></rect><rect x="54" y="30" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"></rect><rect x="78" y="30" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"></rect><rect x="30" y="54" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"></rect><rect x="54" y="54" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"></rect><rect x="78" y="54" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"></rect><rect x="30" y="78" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"></rect><rect x="54" y="78" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"></rect><rect x="78" y="78" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"></rect><line x1="14" y1="24" x2="14" y2="92" stroke="#3b82f6" stroke-width="6" stroke-linecap="round"></line>
+          <polygon points="14,106 8.5,92 19.5,92" fill="#3b82f6"></polygon></svg>
+   <b>L</b><small>left side<br>rolls down at the front</small></div><div class="mv"><svg viewBox="0 0 130 130" role="img" aria-label="F: front, clockwise, like a clock"><rect x="30" y="30" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"></rect><rect x="54" y="30" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"></rect><rect x="78" y="30" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"></rect><rect x="30" y="54" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"></rect><rect x="54" y="54" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"></rect><rect x="78" y="54" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"></rect><rect x="30" y="78" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"></rect><rect x="54" y="78" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"></rect><rect x="78" y="78" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"></rect><path d="M 26.488437297634633 33.11176489327482 A 50 50 0 0 1 106.26678074548391 36.76787633024823" fill="none" stroke="#3b82f6" stroke-width="6" stroke-linecap="round"></path><line x1="106.26678074548391" y1="36.76787633024823" x2="106.26678074548391" y2="36.76787633024823" stroke="#3b82f6" stroke-width="6" stroke-linecap="round"></line>
+          <polygon points="114.17177537301441,48.32257493898372 101.72743486348068,39.873409933920925 110.80612662748715,33.66234272657553" fill="#3b82f6"></polygon></svg>
+   <b>F</b><small>front<br>clockwise, like a clock</small></div><div class="mv"><svg viewBox="0 0 130 130" role="img" aria-label="B: back, looks anticlockwise from the front"><rect x="30" y="30" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"></rect><rect x="54" y="30" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"></rect><rect x="78" y="30" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"></rect><rect x="30" y="54" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"></rect><rect x="54" y="54" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"></rect><rect x="78" y="54" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"></rect><rect x="30" y="78" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"></rect><rect x="54" y="78" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"></rect><rect x="78" y="78" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"></rect><path d="M 106.26678074548391 36.76787633024823 A 50 50 0 0 0 26.488437297634633 33.11176489327482" fill="none" stroke="#3b82f6" stroke-width="6" stroke-linecap="round"></path><line x1="26.488437297634633" y1="33.11176489327482" x2="26.488437297634633" y2="33.11176489327482" stroke="#3b82f6" stroke-width="6" stroke-linecap="round"></line>
+          <polygon points="17.559731467751583,43.895002449937124 22.25216540037444,29.604059031535048 30.724709194894825,36.61947075501459" fill="#3b82f6"></polygon></svg>
+   <b>B</b><small>back<br>looks anticlockwise from the front</small></div></div>
+        <div class="grid3" style="margin-top:14px">
+          <div class="card"><h3>Hold it still</h3><p>Pick a front and <b>keep it facing you</b>. Moves only make sense if the cube does not turn in your hands.</p></div>
+          <div class="card"><h3>Algorithms are recipes</h3><p>A sequence like <code>R U R' U'</code> is a fixed recipe that does one job. You do not need to understand it — just do it exactly, in order.</p></div>
+          <div class="card"><h3>Extra letters</h3><p><code>M</code> turns the middle slice (the same way as <code>L</code>). A lower-case letter like <code>r</code> turns that side <b>and</b> the middle slice together.</p></div>
+        </div>
+      </section>
+
+      <div id="methods">
+  <section class="block" id="beginner">
+    <div class="kicker">Method 1</div>
+    <h2>Beginner (layer by layer)</h2>
+    <p class="lead2">The one to learn first. Solve the cube one layer at a time, bottom to top.</p>
+    <div class="mhead">
+      <div class="stat">Difficulty <span class="dots" aria-label="difficulty 1 of 3"><i class="on"></i><i class=""></i><i class=""></i></span></div>
+      <div class="stat">Turns per solve<b>about 100–150</b></div>
+      <div class="stat">Time to learn<b>an afternoon</b></div>
+      <div class="stat">Algorithms<b>7</b></div>
+      <a class="btn sm" href="/?mode=learn" style="margin-left:auto">Solve my cube this way →</a>
+    </div>
+    <div class="holding"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z"></path></svg><div>Hold the cube with the <b>white centre on the bottom</b> and <b>yellow on top</b> for most of the solve. Whatever faces you is the front.</div></div>
+    <div class="steps">
+      
+        <article class="step card" id="beginner-1">
+          <div class="n" aria-hidden="true">1</div>
+          <div>
+            <h3>The daisy</h3>
+            <div class="goal">Goal: Four white edges around the yellow centre, like petals round a flower.</div>
+            <p>Turn the cube so <b>yellow is on top</b>. Find the four edge pieces that have
+      white on them, and bring each one up so its white sticker sits next to the
+      yellow centre. When a white edge is in the way, turn the top layer to make
+      room first. You do not need any sequence for this — just turn and watch.</p>
+            <div class="tipbox"><b>Tip</b><span>If a petal is already in place, turn the top (U) to move it out of the way before you bring the next one up.</span></div>
+            
+          </div>
+        </article>
+        <article class="step card" id="beginner-2">
+          <div class="n" aria-hidden="true">2</div>
+          <div>
+            <h3>The white cross</h3>
+            <div class="goal">Goal: A white plus sign on the bottom, each arm matching the centre beside it.</div>
+            <p>Look at one petal. Its other sticker (not the white one) has a colour.
+      Turn the top layer until that sticker sits above the centre of the same
+      colour. Then turn that face twice (for example <code>F2</code>) — the petal
+      flips down to the bottom. Do the same for all four petals.</p>
+      <p>Turn the cube over (white on the bottom): you should see a white cross
+      whose arms line up with the side centres.</p>
+            <div class="tipbox"><b>Tip</b><span>Always match first, then turn the face twice. That order is the whole trick.</span></div>
+            
+          </div>
+        </article>
+        <article class="step card" id="beginner-3">
+          <div class="n" aria-hidden="true">3</div>
+          <div>
+            <h3>The white corners</h3>
+            <div class="goal">Goal: The whole bottom layer done: white face plus a matching row on each side.</div>
+            <p>Find a corner in the top layer that has white on it. Turn the top until
+      that corner sits directly <b>above the spot where it belongs</b> — the spot
+      between the two centres that match its other two colours. Hold the cube so
+      that spot is at the <b>front-right-bottom</b>.</p>
+      <p>Now repeat the four-move sequence below until the corner drops in with
+      white facing down. It takes 1, 3 or 5 repeats. Then go to the next corner.</p>
+            <div class="tipbox"><b>Tip</b><span>This sequence is so common it has a nickname: “the sexy move”. Doing it six times in a row puts everything back as it was — handy if you get lost.</span></div>
+            <div class="algs">
+              <div class="alg">
+                <h4>Corner in, one step at a time</h4>
+                <div class="seq" aria-label="R U R' U'"><span>R</span><span>U</span><span>R'</span><span>U'</span></div>
+                <p>Repeat until the white corner is in place and white faces down.</p>
+                <div class="row">
+                  <button class="btn sm watch" data-alg="R U R' U'" data-st="F2L" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"></path></svg>Watch</button>
+                  <button class="btn sm copy" data-alg="R U R' U'">Copy</button>
+                </div>
+                <div class="player" hidden=""></div>
+              </div></div>
+          </div>
+        </article>
+        <article class="step card" id="beginner-4">
+          <div class="n" aria-hidden="true">4</div>
+          <div>
+            <h3>The middle layer</h3>
+            <div class="goal">Goal: The first two layers finished — only the top is left.</div>
+            <p>Turn the cube so <b>yellow is on top</b> and white on the bottom. Find an
+      edge in the top layer that has <b>no yellow</b>. Turn the top until that edge's
+      front sticker matches the front centre, making an upside-down “T”.</p>
+      <p>Now look at its top sticker: if it matches the <b>right</b> centre, the edge
+      goes right; if it matches the <b>left</b> centre, it goes left. Use the matching
+      sequence. If an edge is stuck in the middle layer the wrong way round, do
+      either sequence once to pop it out, then insert it properly.</p>
+            <div class="tipbox"><b>Tip</b><span>Both sequences are the same idea, mirrored: move the slot away, bring the edge over, put the slot back.</span></div>
+            <div class="algs">
+              <div class="alg">
+                <h4>Edge goes to the right</h4>
+                <div class="seq" aria-label="U R U' R' U' F' U F"><span>U</span><span>R</span><span>U'</span><span>R'</span><span>U'</span><span>F'</span><span>U</span><span>F</span></div>
+                <p>Front sticker matches the front; top sticker matches the right centre.</p>
+                <div class="row">
+                  <button class="btn sm watch" data-alg="U R U' R' U' F' U F" data-st="F2L" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"></path></svg>Watch</button>
+                  <button class="btn sm copy" data-alg="U R U' R' U' F' U F">Copy</button>
+                </div>
+                <div class="player" hidden=""></div>
+              </div>
+              <div class="alg">
+                <h4>Edge goes to the left</h4>
+                <div class="seq" aria-label="U' L' U L U F U' F'"><span>U'</span><span>L'</span><span>U</span><span>L</span><span>U</span><span>F</span><span>U'</span><span>F'</span></div>
+                <p>Front sticker matches the front; top sticker matches the left centre.</p>
+                <div class="row">
+                  <button class="btn sm watch" data-alg="U' L' U L U F U' F'" data-st="F2L" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"></path></svg>Watch</button>
+                  <button class="btn sm copy" data-alg="U' L' U L U F U' F'">Copy</button>
+                </div>
+                <div class="player" hidden=""></div>
+              </div></div>
+          </div>
+        </article>
+        <article class="step card" id="beginner-5">
+          <div class="n" aria-hidden="true">5</div>
+          <div>
+            <h3>The yellow cross</h3>
+            <div class="goal">Goal: A yellow plus sign on top (the corners can be anything).</div>
+            <p>Look at the top. You will see one of four shapes made by the yellow edges:
+      a <b>dot</b> (just the centre), an <b>L</b>, a <b>line</b>, or already a
+      <b>cross</b>.</p>
+      <p>Hold an <b>L</b> so it points to the back-left (the corner of the L at the
+      back-left), and a <b>line</b> so it runs left to right. Then do the sequence.
+      Dot → L → line → cross: each go moves you one shape along.</p>
+            <div class="tipbox"><b>Tip</b><span>From a dot, do it once, hold the L correctly, and carry on.</span></div>
+            <div class="algs">
+              <div class="alg">
+                <h4>Dot → L → line → cross</h4>
+                <div class="seq" aria-label="F R U R' U' F'"><span>F</span><span>R</span><span>U</span><span>R'</span><span>U'</span><span>F'</span></div>
+                <p>Hold an L at the back-left, a line left-to-right.</p>
+                <div class="row">
+                  <button class="btn sm watch" data-alg="F R U R' U' F'" data-st="OLL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"></path></svg>Watch</button>
+                  <button class="btn sm copy" data-alg="F R U R' U' F'">Copy</button>
+                </div>
+                <div class="player" hidden=""></div>
+              </div></div>
+          </div>
+        </article>
+        <article class="step card" id="beginner-6">
+          <div class="n" aria-hidden="true">6</div>
+          <div>
+            <h3>Line up the yellow edges</h3>
+            <div class="goal">Goal: Each yellow edge's side colour matches the centre below it.</div>
+            <p>Turn the top layer until at least two edges match their side centres.
+      If two <b>neighbouring</b> edges match, hold them at the <b>back and right</b>.
+      If two <b>opposite</b> edges match, do the sequence once from anywhere, then
+      look again.</p>
+      <p>Do the sequence, then turn the top if needed until all four line up.</p>
+            <div class="tipbox"><b>Tip</b><span>The first seven moves are the Sune — a sequence that comes back in every advanced method, so it is worth learning well.</span></div>
+            <div class="algs">
+              <div class="alg">
+                <h4>Swap two yellow edges</h4>
+                <div class="seq" aria-label="R U R' U R U2 R' U"><span>R</span><span>U</span><span>R'</span><span>U</span><span>R</span><span>U2</span><span>R'</span><span>U</span></div>
+                <p>Matching pair at the back and the right; the front and left edges swap.</p>
+                <div class="row">
+                  <button class="btn sm watch" data-alg="R U R' U R U2 R' U" data-st="LL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"></path></svg>Watch</button>
+                  <button class="btn sm copy" data-alg="R U R' U R U2 R' U">Copy</button>
+                </div>
+                <div class="player" hidden=""></div>
+              </div></div>
+          </div>
+        </article>
+        <article class="step card" id="beginner-7">
+          <div class="n" aria-hidden="true">7</div>
+          <div>
+            <h3>Put the yellow corners in place</h3>
+            <div class="goal">Goal: Every yellow corner in its correct spot (it may still be twisted).</div>
+            <p>A corner is “in place” when it sits between the three centres of its
+      colours, even if it is twisted. Find one corner that is already in place and
+      hold it at the <b>front-right</b>. Do the sequence (once or twice) until all
+      four are in place. If none is in place, do it once from anywhere first.</p>
+            <div class="tipbox"><b>Tip</b><span>It cycles the other three corners round, and leaves the front-right one alone.</span></div>
+            <div class="algs">
+              <div class="alg">
+                <h4>Cycle three corners</h4>
+                <div class="seq" aria-label="U R U' L' U R' U' L"><span>U</span><span>R</span><span>U'</span><span>L'</span><span>U</span><span>R'</span><span>U'</span><span>L</span></div>
+                <p>The corner at the front-right stays put.</p>
+                <div class="row">
+                  <button class="btn sm watch" data-alg="U R U' L' U R' U' L" data-st="LL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"></path></svg>Watch</button>
+                  <button class="btn sm copy" data-alg="U R U' L' U R' U' L">Copy</button>
+                </div>
+                <div class="player" hidden=""></div>
+              </div></div>
+          </div>
+        </article>
+        <article class="step card" id="beginner-8">
+          <div class="n" aria-hidden="true">8</div>
+          <div>
+            <h3>Twist the last corners</h3>
+            <div class="goal">Goal: Solved!</div>
+            <p>Turn the cube over so <b>yellow faces down</b> and <b>white is on top</b>.
+      Hold a corner that needs twisting at the <b>front-right-bottom</b>. Repeat the
+      sequence two or four times until yellow faces down on that corner. The rest of
+      the cube will look scrambled — <b>that is normal, keep going</b>.</p>
+      <p>Now turn only the <b>bottom layer</b> (<code>D</code>) to bring the next
+      twisted corner to the front-right-bottom, and repeat. When the last corner is
+      done, one final turn of the bottom layer solves the cube.</p>
+            <div class="tipbox"><b>Tip</b><span>Never turn the whole cube during this step — only the bottom layer. The mess fixes itself at the end.</span></div>
+            <div class="algs">
+              <div class="alg">
+                <h4>Twist a corner</h4>
+                <div class="seq" aria-label="R' D' R D"><span>R'</span><span>D'</span><span>R</span><span>D</span></div>
+                <p>Repeat 2 or 4 times per corner. Six repeats undo it completely.</p>
+                <div class="row">
+                  <button class="btn sm watch" data-alg="R' D' R D" data-st="full" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"></path></svg>Watch</button>
+                  <button class="btn sm copy" data-alg="R' D' R D">Copy</button>
+                </div>
+                <div class="player" hidden=""></div>
+              </div></div>
+          </div>
+        </article>
+    </div>
+  </section>
+  <section class="block" id="cfop">
+    <div class="kicker">Method 2</div>
+    <h2>CFOP (Fridrich)</h2>
+    <p class="lead2">What most speedcubers use. Cross, First two layers, Orient and Permute the last layer.</p>
+    <div class="mhead">
+      <div class="stat">Difficulty <span class="dots" aria-label="difficulty 3 of 3"><i class="on"></i><i class="on"></i><i class="on"></i></span></div>
+      <div class="stat">Turns per solve<b>about 55–60</b></div>
+      <div class="stat">Time to learn<b>a few weeks (2-look) to months (full)</b></div>
+      <div class="stat">Algorithms<b>16 to start, 78 in full</b></div>
+      <a class="btn sm" href="/?mode=cfop" style="margin-left:auto">Solve my cube with CFOP →</a>
+    </div>
+    <div class="holding"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z"></path></svg><div>Build the cross on the <b>bottom</b> and keep it there, so you can see the rest of the cube while you work.</div></div>
+    <div class="steps">
+      
+        <article class="step card" id="cfop-1">
+          <div class="n" aria-hidden="true">1</div>
+          <div>
+            <h3>C — Cross</h3>
+            <div class="goal">Goal: The white cross on the bottom, in one go.</div>
+            <p>Same cross as the beginner method, but built directly on the bottom
+      instead of via a daisy. Good crosses take 8 moves or fewer. Plan the whole
+      cross while inspecting the cube, before you start turning.</p>
+            <div class="tipbox"><b>Tip</b><span>Practise solving the cross without looking at the bottom — it is the single biggest early improvement.</span></div>
+            
+          </div>
+        </article>
+        <article class="step card" id="cfop-2">
+          <div class="n" aria-hidden="true">2</div>
+          <div>
+            <h3>F2L — First two layers</h3>
+            <div class="goal">Goal: The four bottom corners and four middle edges, as four corner-and-edge pairs.</div>
+            <p>Instead of a corner then an edge, CFOP joins each bottom corner with the
+      middle edge that belongs next to it, and drops the <b>pair</b> in at once. It
+      is mostly intuitive: bring the two pieces together in the top layer, then
+      insert them together.</p>
+      <p>The basic idea: hide the slot, join the pair, bring the slot back. The three
+      short moves below are the building blocks almost every case is made from.</p>
+            <div class="tipbox"><b>Tip</b><span>Learn to solve pairs slowly and without pausing before learning more cases. Smooth beats fast.</span></div>
+            <div class="algs">
+              <div class="alg">
+                <h4>Insert a ready pair (right)</h4>
+                <div class="seq" aria-label="U R U' R'"><span>U</span><span>R</span><span>U'</span><span>R'</span></div>
+                <p>Pair joined at the front-top, slot at the front-right.</p>
+                <div class="row">
+                  <button class="btn sm watch" data-alg="U R U' R'" data-st="F2L" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"></path></svg>Watch</button>
+                  <button class="btn sm copy" data-alg="U R U' R'">Copy</button>
+                </div>
+                <div class="player" hidden=""></div>
+              </div>
+              <div class="alg">
+                <h4>Insert a ready pair (right, other way)</h4>
+                <div class="seq" aria-label="R U R'"><span>R</span><span>U</span><span>R'</span></div>
+                <p>Pair at the right-top, pointing towards you.</p>
+                <div class="row">
+                  <button class="btn sm watch" data-alg="R U R'" data-st="F2L" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"></path></svg>Watch</button>
+                  <button class="btn sm copy" data-alg="R U R'">Copy</button>
+                </div>
+                <div class="player" hidden=""></div>
+              </div>
+              <div class="alg">
+                <h4>Insert a ready pair (left)</h4>
+                <div class="seq" aria-label="U' L' U L"><span>U'</span><span>L'</span><span>U</span><span>L</span></div>
+                <p>The mirror, for slots on the left.</p>
+                <div class="row">
+                  <button class="btn sm watch" data-alg="U' L' U L" data-st="F2L" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"></path></svg>Watch</button>
+                  <button class="btn sm copy" data-alg="U' L' U L">Copy</button>
+                </div>
+                <div class="player" hidden=""></div>
+              </div></div>
+          </div>
+        </article>
+        <article class="step card" id="cfop-3">
+          <div class="n" aria-hidden="true">3</div>
+          <div>
+            <h3>OLL — make the top one colour (2-look)</h3>
+            <div class="goal">Goal: The whole top face yellow.</div>
+            <p><b>Look 1 — the yellow edges.</b> Exactly the beginner's yellow cross,
+      with a faster move for the L shape.</p>
+      <p><b>Look 2 — the yellow corners.</b> With the cross done, the corners show one
+      of seven patterns. Each has its own sequence. Learn Sune and Anti-Sune first:
+      they are the most common and every other one can be reached through them.</p>
+            <div class="tipbox"><b>Tip</b><span>Full OLL is 57 cases done in one look. Most people stay with 2-look for months — that is fine.</span></div>
+            <div class="algs">
+              <div class="alg">
+                <h4>Line → cross</h4>
+                <div class="seq" aria-label="F R U R' U' F'"><span>F</span><span>R</span><span>U</span><span>R'</span><span>U'</span><span>F'</span></div>
+                <p>Line held left to right.</p>
+                <div class="row">
+                  <button class="btn sm watch" data-alg="F R U R' U' F'" data-st="OLL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"></path></svg>Watch</button>
+                  <button class="btn sm copy" data-alg="F R U R' U' F'">Copy</button>
+                </div>
+                <div class="player" hidden=""></div>
+              </div>
+              <div class="alg">
+                <h4>L → cross</h4>
+                <div class="seq" aria-label="F U R U' R' F'"><span>F</span><span>U</span><span>R</span><span>U'</span><span>R'</span><span>F'</span></div>
+                <p>L held at the back-left (its arms pointing back and left).</p>
+                <div class="row">
+                  <button class="btn sm watch" data-alg="F U R U' R' F'" data-st="OLL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"></path></svg>Watch</button>
+                  <button class="btn sm copy" data-alg="F U R U' R' F'">Copy</button>
+                </div>
+                <div class="player" hidden=""></div>
+              </div>
+              <div class="alg">
+                <h4>Sune</h4>
+                <div class="seq" aria-label="R U R' U R U2 R'"><span>R</span><span>U</span><span>R'</span><span>U</span><span>R</span><span>U2</span><span>R'</span></div>
+                <p>One yellow corner on top — hold it at the front-left.</p>
+                <div class="row">
+                  <button class="btn sm watch" data-alg="R U R' U R U2 R'" data-st="OLL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"></path></svg>Watch</button>
+                  <button class="btn sm copy" data-alg="R U R' U R U2 R'">Copy</button>
+                </div>
+                <div class="player" hidden=""></div>
+              </div>
+              <div class="alg">
+                <h4>Anti-Sune</h4>
+                <div class="seq" aria-label="R U2 R' U' R U' R'"><span>R</span><span>U2</span><span>R'</span><span>U'</span><span>R</span><span>U'</span><span>R'</span></div>
+                <p>One yellow corner on top — hold it at the back-right.</p>
+                <div class="row">
+                  <button class="btn sm watch" data-alg="R U2 R' U' R U' R'" data-st="OLL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"></path></svg>Watch</button>
+                  <button class="btn sm copy" data-alg="R U2 R' U' R U' R'">Copy</button>
+                </div>
+                <div class="player" hidden=""></div>
+              </div>
+              <div class="alg">
+                <h4>H</h4>
+                <div class="seq" aria-label="R U R' U R U' R' U R U2 R'"><span>R</span><span>U</span><span>R'</span><span>U</span><span>R</span><span>U'</span><span>R'</span><span>U</span><span>R</span><span>U2</span><span>R'</span></div>
+                <p>No yellow corners on top; left and right sides show two yellows each.</p>
+                <div class="row">
+                  <button class="btn sm watch" data-alg="R U R' U R U' R' U R U2 R'" data-st="OLL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"></path></svg>Watch</button>
+                  <button class="btn sm copy" data-alg="R U R' U R U' R' U R U2 R'">Copy</button>
+                </div>
+                <div class="player" hidden=""></div>
+              </div>
+              <div class="alg">
+                <h4>Pi</h4>
+                <div class="seq" aria-label="R U2 R2 U' R2 U' R2 U2 R"><span>R</span><span>U2</span><span>R2</span><span>U'</span><span>R2</span><span>U'</span><span>R2</span><span>U2</span><span>R</span></div>
+                <p>No yellow corners on top; yellows on the left side face left.</p>
+                <div class="row">
+                  <button class="btn sm watch" data-alg="R U2 R2 U' R2 U' R2 U2 R" data-st="OLL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"></path></svg>Watch</button>
+                  <button class="btn sm copy" data-alg="R U2 R2 U' R2 U' R2 U2 R">Copy</button>
+                </div>
+                <div class="player" hidden=""></div>
+              </div>
+              <div class="alg">
+                <h4>Headlights</h4>
+                <div class="seq" aria-label="R2 D R' U2 R D' R' U2 R'"><span>R2</span><span>D</span><span>R'</span><span>U2</span><span>R</span><span>D'</span><span>R'</span><span>U2</span><span>R'</span></div>
+                <p>Two yellow corners at the back; two yellows facing you.</p>
+                <div class="row">
+                  <button class="btn sm watch" data-alg="R2 D R' U2 R D' R' U2 R'" data-st="OLL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"></path></svg>Watch</button>
+                  <button class="btn sm copy" data-alg="R2 D R' U2 R D' R' U2 R'">Copy</button>
+                </div>
+                <div class="player" hidden=""></div>
+              </div>
+              <div class="alg">
+                <h4>Chameleon</h4>
+                <div class="seq" aria-label="r U R' U' r' F R F'"><span>r</span><span>U</span><span>R'</span><span>U'</span><span>r'</span><span>F</span><span>R</span><span>F'</span></div>
+                <p>Two yellow corners on top, both on the right; the other two show yellow at the front and back.</p>
+                <div class="row">
+                  <button class="btn sm watch" data-alg="r U R' U' r' F R F'" data-st="OLL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"></path></svg>Watch</button>
+                  <button class="btn sm copy" data-alg="r U R' U' r' F R F'">Copy</button>
+                </div>
+                <div class="player" hidden=""></div>
+              </div>
+              <div class="alg">
+                <h4>Bowtie</h4>
+                <div class="seq" aria-label="F' r U R' U' r' F R"><span>F'</span><span>r</span><span>U</span><span>R'</span><span>U'</span><span>r'</span><span>F</span><span>R</span></div>
+                <p>Two yellow corners on top, diagonal: back-right and front-left.</p>
+                <div class="row">
+                  <button class="btn sm watch" data-alg="F' r U R' U' r' F R" data-st="OLL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"></path></svg>Watch</button>
+                  <button class="btn sm copy" data-alg="F' r U R' U' r' F R">Copy</button>
+                </div>
+                <div class="player" hidden=""></div>
+              </div></div>
+          </div>
+        </article>
+        <article class="step card" id="cfop-4">
+          <div class="n" aria-hidden="true">4</div>
+          <div>
+            <h3>PLL — move the top pieces home (2-look)</h3>
+            <div class="goal">Goal: Solved.</div>
+            <p><b>Look 1 — the corners.</b> Look for two corners on one side with matching
+      colours (“headlights”). If you find them, hold them on the <b>left</b> and do
+      the T-perm. If there are none anywhere, do the Y-perm.</p>
+      <p><b>Look 2 — the edges.</b> Now only the edges are left: three of them need
+      cycling one way or the other (Ua, Ub), or they swap in pairs (H, Z).</p>
+            <div class="tipbox"><b>Tip</b><span>Full PLL is 21 cases. Of all the full sets, it is the one most worth learning early.</span></div>
+            <div class="algs">
+              <div class="alg">
+                <h4>T-perm (swap two corners)</h4>
+                <div class="seq" aria-label="R U R' U' R' F R2 U' R' U' R U R' F'"><span>R</span><span>U</span><span>R'</span><span>U'</span><span>R'</span><span>F</span><span>R2</span><span>U'</span><span>R'</span><span>U'</span><span>R</span><span>U</span><span>R'</span><span>F'</span></div>
+                <p>Headlights (a matching pair of corners) on the left; it swaps the two corners on the right.</p>
+                <div class="row">
+                  <button class="btn sm watch" data-alg="R U R' U' R' F R2 U' R' U' R U R' F'" data-st="PLL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"></path></svg>Watch</button>
+                  <button class="btn sm copy" data-alg="R U R' U' R' F R2 U' R' U' R U R' F'">Copy</button>
+                </div>
+                <div class="player" hidden=""></div>
+              </div>
+              <div class="alg">
+                <h4>Y-perm (swap diagonal corners)</h4>
+                <div class="seq" aria-label="F R U' R' U' R U R' F' R U R' U' R' F R F'"><span>F</span><span>R</span><span>U'</span><span>R'</span><span>U'</span><span>R</span><span>U</span><span>R'</span><span>F'</span><span>R</span><span>U</span><span>R'</span><span>U'</span><span>R'</span><span>F</span><span>R</span><span>F'</span></div>
+                <p>No headlights anywhere.</p>
+                <div class="row">
+                  <button class="btn sm watch" data-alg="F R U' R' U' R U R' F' R U R' U' R' F R F'" data-st="PLL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"></path></svg>Watch</button>
+                  <button class="btn sm copy" data-alg="F R U' R' U' R U R' F' R U R' U' R' F R F'">Copy</button>
+                </div>
+                <div class="player" hidden=""></div>
+              </div>
+              <div class="alg">
+                <h4>Ua (cycle three edges)</h4>
+                <div class="seq" aria-label="R U' R U R U R U' R' U' R2"><span>R</span><span>U'</span><span>R</span><span>U</span><span>R</span><span>U</span><span>R</span><span>U'</span><span>R'</span><span>U'</span><span>R2</span></div>
+                <p>One edge already right — hold it at the back. Ua and Ub cycle the other three in opposite directions: if one makes it worse, the other is the one you need.</p>
+                <div class="row">
+                  <button class="btn sm watch" data-alg="R U' R U R U R U' R' U' R2" data-st="PLL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"></path></svg>Watch</button>
+                  <button class="btn sm copy" data-alg="R U' R U R U R U' R' U' R2">Copy</button>
+                </div>
+                <div class="player" hidden=""></div>
+              </div>
+              <div class="alg">
+                <h4>Ub (cycle three edges, the other way)</h4>
+                <div class="seq" aria-label="R2 U R U R' U' R' U' R' U R'"><span>R2</span><span>U</span><span>R</span><span>U</span><span>R'</span><span>U'</span><span>R'</span><span>U'</span><span>R'</span><span>U</span><span>R'</span></div>
+                <p>Solved edge at the back.</p>
+                <div class="row">
+                  <button class="btn sm watch" data-alg="R2 U R U R' U' R' U' R' U R'" data-st="PLL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"></path></svg>Watch</button>
+                  <button class="btn sm copy" data-alg="R2 U R U R' U' R' U' R' U R'">Copy</button>
+                </div>
+                <div class="player" hidden=""></div>
+              </div>
+              <div class="alg">
+                <h4>H (swap opposite edges)</h4>
+                <div class="seq" aria-label="M2 U M2 U2 M2 U M2"><span>M2</span><span>U</span><span>M2</span><span>U2</span><span>M2</span><span>U</span><span>M2</span></div>
+                <p>Every side shows a stripe of the opposite colour. M turns the middle slice (like L).</p>
+                <div class="row">
+                  <button class="btn sm watch" data-alg="M2 U M2 U2 M2 U M2" data-st="PLL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"></path></svg>Watch</button>
+                  <button class="btn sm copy" data-alg="M2 U M2 U2 M2 U M2">Copy</button>
+                </div>
+                <div class="player" hidden=""></div>
+              </div>
+              <div class="alg">
+                <h4>Z (swap neighbouring edges)</h4>
+                <div class="seq" aria-label="M' U M2 U M2 U M' U2 M2 U'"><span>M'</span><span>U</span><span>M2</span><span>U</span><span>M2</span><span>U</span><span>M'</span><span>U2</span><span>M2</span><span>U'</span></div>
+                <p>Two neighbouring pairs of edges swap. M turns the middle slice, the same way as L.</p>
+                <div class="row">
+                  <button class="btn sm watch" data-alg="M' U M2 U M2 U M' U2 M2 U'" data-st="PLL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"></path></svg>Watch</button>
+                  <button class="btn sm copy" data-alg="M' U M2 U M2 U M' U2 M2 U'">Copy</button>
+                </div>
+                <div class="player" hidden=""></div>
+              </div></div>
+          </div>
+        </article>
+    </div>
+  </section>
+  <section class="block" id="roux">
+    <div class="kicker">Method 3</div>
+    <h2>Roux</h2>
+    <p class="lead2">Build two blocks on the sides, then finish with the middle slice. Few moves, lots of thinking.</p>
+    <div class="mhead">
+      <div class="stat">Difficulty <span class="dots" aria-label="difficulty 3 of 3"><i class="on"></i><i class="on"></i><i class="on"></i></span></div>
+      <div class="stat">Turns per solve<b>about 45–50</b></div>
+      <div class="stat">Time to learn<b>weeks</b></div>
+      <div class="stat">Algorithms<b>a handful to start, 42 in full</b></div>
+      
+    </div>
+    <div class="holding"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z"></path></svg><div>The two blocks sit on the <b>left</b> and <b>right</b>, at the bottom. The top layer and the middle slice (M) stay free until the end.</div></div>
+    <div class="steps">
+      
+        <article class="step card" id="roux-1">
+          <div class="n" aria-hidden="true">1</div>
+          <div>
+            <h3>First block (left)</h3>
+            <div class="goal">Goal: A 1×2×3 block on the bottom-left: the left centre with its 5 pieces.</div>
+            <p>Solve a block three pieces long, two tall and one wide on the <b>left</b>
+      side, at the bottom — the left centre, the bottom-left edge, and the two
+      corner-and-edge pairs in front of and behind it. It is built fully
+      intuitively, a bit like F2L pairs.</p>
+            <div class="tipbox"><b>Tip</b><span>Start by placing the bottom-left edge next to the left centre, then add one pair at the front and one at the back.</span></div>
+            
+          </div>
+        </article>
+        <article class="step card" id="roux-2">
+          <div class="n" aria-hidden="true">2</div>
+          <div>
+            <h3>Second block (right)</h3>
+            <div class="goal">Goal: The same block on the right, without breaking the first.</div>
+            <p>Build the mirror block on the <b>right</b>. You may now use only the right
+      layer (<code>R</code>, <code>r</code>), the top (<code>U</code>) and the middle
+      slice (<code>M</code>) — any other turn would break the first block.</p>
+            <div class="tipbox"><b>Tip</b><span>M turns are your friend here: they move pieces between front and back without touching either block.</span></div>
+            
+          </div>
+        </article>
+        <article class="step card" id="roux-3">
+          <div class="n" aria-hidden="true">3</div>
+          <div>
+            <h3>CMLL — the top corners</h3>
+            <div class="goal">Goal: The four top corners oriented and in place, all at once.</div>
+            <p>With both blocks built, solve the four top corners. The edges and centres
+      of the M slice can be anything — Roux ignores them until the last step, which
+      is why its corner algorithms are short.</p>
+      <p>A gentle way in (2-look): first make the top corners yellow on top with the
+      OLL corner sequences (Sune and friends), then swap corners with a corner swap.
+      Full CMLL does both in one look.</p>
+            <div class="tipbox"><b>Tip</b><span>Sune and Anti-Sune use only R and U turns, so they never touch your blocks.</span></div>
+            <div class="algs">
+              <div class="alg">
+                <h4>Sune</h4>
+                <div class="seq" aria-label="R U R' U R U2 R'"><span>R</span><span>U</span><span>R'</span><span>U</span><span>R</span><span>U2</span><span>R'</span></div>
+                <p>One yellow corner on top — hold it at the front-left.</p>
+                <div class="row">
+                  <button class="btn sm watch" data-alg="R U R' U R U2 R'" data-st="CMLL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"></path></svg>Watch</button>
+                  <button class="btn sm copy" data-alg="R U R' U R U2 R'">Copy</button>
+                </div>
+                <div class="player" hidden=""></div>
+              </div>
+              <div class="alg">
+                <h4>Anti-Sune</h4>
+                <div class="seq" aria-label="R U2 R' U' R U' R'"><span>R</span><span>U2</span><span>R'</span><span>U'</span><span>R</span><span>U'</span><span>R'</span></div>
+                <p>One yellow corner on top — hold it at the back-right.</p>
+                <div class="row">
+                  <button class="btn sm watch" data-alg="R U2 R' U' R U' R'" data-st="CMLL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"></path></svg>Watch</button>
+                  <button class="btn sm copy" data-alg="R U2 R' U' R U' R'">Copy</button>
+                </div>
+                <div class="player" hidden=""></div>
+              </div>
+              <div class="alg">
+                <h4>Swap two corners (T-perm)</h4>
+                <div class="seq" aria-label="R U R' U' R' F R2 U' R' U' R U R' F'"><span>R</span><span>U</span><span>R'</span><span>U'</span><span>R'</span><span>F</span><span>R2</span><span>U'</span><span>R'</span><span>U'</span><span>R</span><span>U</span><span>R'</span><span>F'</span></div>
+                <p>Corners already yellow on top: swaps the two corners on the right. The edges do not matter yet in Roux.</p>
+                <div class="row">
+                  <button class="btn sm watch" data-alg="R U R' U' R' F R2 U' R' U' R U R' F'" data-st="CMLL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"></path></svg>Watch</button>
+                  <button class="btn sm copy" data-alg="R U R' U' R' F R2 U' R' U' R U R' F'">Copy</button>
+                </div>
+                <div class="player" hidden=""></div>
+              </div></div>
+          </div>
+        </article>
+        <article class="step card" id="roux-4">
+          <div class="n" aria-hidden="true">4</div>
+          <div>
+            <h3>LSE — the last six edges</h3>
+            <div class="goal">Goal: Solved, using only M and U.</div>
+            <p>Six edges are left (four on top, two in the M slice at the front and back
+      bottom), plus the M-slice centres. Everything is done with only
+      <code>M</code> and <code>U</code> turns, in three parts:</p>
+      <ol><li><b>Orient</b> the edges: make every edge's “good” colour face up or
+      down (short patterns like <code>M' U M'</code> flip them in groups).</li>
+      <li><b>Left and right edges:</b> put the top-left and top-right edges in place.</li>
+      <li><b>The M slice:</b> cycle the last four edges home with <code>M2</code> and
+      <code>U2</code> moves.</li></ol>
+            <div class="tipbox"><b>Tip</b><span>LSE is best learned by playing: do M and U turns slowly and watch where each edge goes.</span></div>
+            <div class="algs">
+              <div class="alg">
+                <h4>Swap opposite edges (M-slice)</h4>
+                <div class="seq" aria-label="M2 U M2 U2 M2 U M2"><span>M2</span><span>U</span><span>M2</span><span>U2</span><span>M2</span><span>U</span><span>M2</span></div>
+                <p>The H-perm, done with M and U only — typical of LSE.</p>
+                <div class="row">
+                  <button class="btn sm watch" data-alg="M2 U M2 U2 M2 U M2" data-st="L6E" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"></path></svg>Watch</button>
+                  <button class="btn sm copy" data-alg="M2 U M2 U2 M2 U M2">Copy</button>
+                </div>
+                <div class="player" hidden=""></div>
+              </div></div>
+          </div>
+        </article>
+    </div>
+  </section>
+  <section class="block" id="zz">
+    <div class="kicker">Method 4</div>
+    <h2>ZZ</h2>
+    <p class="lead2">Fix every edge's orientation first, then solve the rest turning only three faces.</p>
+    <div class="mhead">
+      <div class="stat">Difficulty <span class="dots" aria-label="difficulty 3 of 3"><i class="on"></i><i class="on"></i><i class="on"></i></span></div>
+      <div class="stat">Turns per solve<b>about 50–55</b></div>
+      <div class="stat">Time to learn<b>weeks</b></div>
+      <div class="stat">Algorithms<b>same last layer as CFOP</b></div>
+      
+    </div>
+    <div class="holding"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z"></path></svg><div>Keep one grip the whole time: after the first step you only ever turn <b>L</b>, <b>U</b> and <b>R</b>.</div></div>
+    <div class="steps">
+      
+        <article class="step card" id="zz-1">
+          <div class="n" aria-hidden="true">1</div>
+          <div>
+            <h3>EOLine</h3>
+            <div class="goal">Goal: Every edge “oriented”, plus the front-bottom and back-bottom edges placed.</div>
+            <p>An edge is <b>oriented</b> (good) if it can be solved using only
+      <code>R</code>, <code>L</code>, <code>U</code> and <code>D</code> turns — those
+      turns never flip an edge; only <code>F</code> and <code>B</code> do (a quarter
+      turn of F or B flips four edges).</p>
+      <p>In this step you spot the bad edges and fix them with F or B turns, and at
+      the same time place the two bottom edges at the front and back (the “line”).
+      From then on, F and B are never needed again.</p>
+            <div class="tipbox"><b>Tip</b><span>A quick check: an edge is bad if its top/bottom-colour sticker faces a side, or its front/back-colour sticker faces up or down.</span></div>
+            
+          </div>
+        </article>
+        <article class="step card" id="zz-2">
+          <div class="n" aria-hidden="true">2</div>
+          <div>
+            <h3>F2L with three faces</h3>
+            <div class="goal">Goal: The first two layers, turning only L, U and R.</div>
+            <p>Build a 1×2×3 block on the left and one on the right (around the line),
+      like Roux's blocks — but because every edge is already oriented, only
+      <code>L</code>, <code>U</code> and <code>R</code> turns are needed. No cube
+      rotations, no F or B turns: that is what makes ZZ turning so smooth.</p>
+            <div class="tipbox"><b>Tip</b><span>Solve one side's block completely, then the other: you can turn freely on the side you are not building.</span></div>
+            
+          </div>
+        </article>
+        <article class="step card" id="zz-3">
+          <div class="n" aria-hidden="true">3</div>
+          <div>
+            <h3>Last layer</h3>
+            <div class="goal">Goal: Solved.</div>
+            <p>Because every edge was oriented in step one, the top edges are <b>already
+      yellow on top</b>: you skip OLL's first look entirely. Finish with the corner
+      OLL cases (Sune and friends) and then PLL, exactly as in CFOP.</p>
+      <p>Advanced ZZ solvers use ZBLL to finish the whole last layer in one algorithm,
+      but that set is large — the 2-look route is plenty for a long time.</p>
+            <div class="tipbox"><b>Tip</b><span>Nothing new to learn here if you already know CFOP's last layer.</span></div>
+            <div class="algs">
+              <div class="alg">
+                <h4>Sune</h4>
+                <div class="seq" aria-label="R U R' U R U2 R'"><span>R</span><span>U</span><span>R'</span><span>U</span><span>R</span><span>U2</span><span>R'</span></div>
+                <p>One yellow corner on top — hold it at the front-left.</p>
+                <div class="row">
+                  <button class="btn sm watch" data-alg="R U R' U R U2 R'" data-st="OLL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"></path></svg>Watch</button>
+                  <button class="btn sm copy" data-alg="R U R' U R U2 R'">Copy</button>
+                </div>
+                <div class="player" hidden=""></div>
+              </div>
+              <div class="alg">
+                <h4>T-perm</h4>
+                <div class="seq" aria-label="R U R' U' R' F R2 U' R' U' R U R' F'"><span>R</span><span>U</span><span>R'</span><span>U'</span><span>R'</span><span>F</span><span>R2</span><span>U'</span><span>R'</span><span>U'</span><span>R</span><span>U</span><span>R'</span><span>F'</span></div>
+                <p>Headlights (a matching pair of corners) on the left; it swaps the two corners on the right.</p>
+                <div class="row">
+                  <button class="btn sm watch" data-alg="R U R' U' R' F R2 U' R' U' R U R' F'" data-st="PLL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"></path></svg>Watch</button>
+                  <button class="btn sm copy" data-alg="R U R' U' R' F R2 U' R' U' R U R' F'">Copy</button>
+                </div>
+                <div class="player" hidden=""></div>
+              </div></div>
+          </div>
+        </article>
+    </div>
+  </section></div>
+
+      <section class="block" id="compare">
+        <div class="kicker">Side by side</div>
+        <h2>Comparing the methods</h2>
+        <p class="lead2">They all solve the same cube. They differ in how many moves, how much to memorise, and how they feel.</p>
+        <div class="tablewrap"><table id="compareTable"><thead><tr><th>Method</th><th>Difficulty</th><th>Turns</th><th>To learn</th><th>Algorithms</th><th>Best for</th></tr></thead>
+  <tbody><tr><td><a href="#beginner"><b>Beginner</b></a></td><td><span class="dots" aria-label="difficulty 1 of 3"><i class="on"></i><i class=""></i><i class=""></i></span></td>
+    <td>about 100–150</td><td>an afternoon</td><td>7</td><td>Anyone who has never solved a cube.</td></tr><tr><td><a href="#cfop"><b>CFOP</b></a></td><td><span class="dots" aria-label="difficulty 3 of 3"><i class="on"></i><i class="on"></i><i class="on"></i></span></td>
+    <td>about 55–60</td><td>a few weeks (2-look) to months (full)</td><td>16 to start, 78 in full</td><td>Anyone who can already solve with the beginner method and wants to get fast.</td></tr><tr><td><a href="#roux"><b>Roux</b></a></td><td><span class="dots" aria-label="difficulty 3 of 3"><i class="on"></i><i class="on"></i><i class="on"></i></span></td>
+    <td>about 45–50</td><td>weeks</td><td>a handful to start, 42 in full</td><td>People who like puzzles more than memorising, and one-handed solving.</td></tr><tr><td><a href="#zz"><b>ZZ</b></a></td><td><span class="dots" aria-label="difficulty 3 of 3"><i class="on"></i><i class="on"></i><i class="on"></i></span></td>
+    <td>about 50–55</td><td>weeks</td><td>same last layer as CFOP</td><td>People who like smooth, rotation-free turning and planning ahead.</td></tr></tbody></table></div>
+      </section>
+
+      <section class="block" id="which">
+        <div class="kicker">Choosing</div>
+        <h2>Which one should I learn?</h2>
+        <div class="grid2">
+          <div class="card"><h3>New to the cube</h3><p>Learn the <b>Beginner</b> method first — every other method builds on what it teaches.</p></div>
+          <div class="card"><h3>Want to get fast</h3><p>Move to <b>CFOP</b> next. Start with the 2-look last layer shown here; it is the most documented method by far.</p></div>
+          <div class="card"><h3>Like thinking, not memorising</h3><p>Try <b>Roux</b>. Fewer moves and fewer algorithms, more planning. Great for one-handed solves.</p></div>
+          <div class="card"><h3>Like smooth, steady turning</h3><p>Try <b>ZZ</b>. After the first step you only turn three sides, with no cube rotations.</p></div>
+        </div>
+      </section>
+
+      <section class="block" id="practice">
+        <div class="kicker">Getting better</div>
+        <h2>Practice tips</h2>
+        <div class="grid3">
+          <div class="card"><h3>Slow is smooth</h3><p>Turn slowly without stopping rather than fast with pauses. Speed comes by itself.</p></div>
+          <div class="card"><h3>One step at a time</h3><p>Practise the step you find hardest on its own. Scramble, solve up to that step, then repeat it.</p></div>
+          <div class="card"><h3>Learn with the app</h3><p>Put your cube into the solver and pick <b>Beginner</b> or <b>CFOP</b> — it shows every turn of that method on your own cube, step by named step.</p></div>
+        </div>
+      </section>
+
+      <section class="block" id="faq">
+        <div class="kicker">Quick answers</div>
+        <h2>Questions people ask</h2>
+        <div class="faq" id="faqList"><div class="card qa"><h3>What is the fewest number of moves needed to solve a Rubik's cube?</h3><p>Every position of a 3×3 Rubik's cube can be solved in 20 moves or fewer (counting a half turn as one move). This limit, known as God's number, was proven in 2010. The <b>Shortest</b> mode of Cube Solver uses the two-phase algorithm and usually finds a solution of about 20 moves.</p></div><div class="card qa"><h3>How long does it take to learn to solve a Rubik's cube?</h3><p>With the beginner layer-by-layer method, most people solve their first cube within an afternoon to a few days. It needs only 7 short move sequences. The CFOP speedsolving method takes longer: the 2-look version uses 16 sequences, and full CFOP uses about 78.</p></div><div class="card qa"><h3>What is the easiest way to solve a Rubik's cube for beginners?</h3><p>The layer-by-layer (beginner) method: make a white cross, finish the white layer, solve the middle layer, then the yellow top in four short steps. It is the first method taught in this guide, and the solver can show every turn of it on your own cube in <b>Beginner</b> mode.</p></div><div class="card qa"><h3>Which method do the fastest speedcubers use?</h3><p>CFOP (Cross, F2L, OLL, PLL) is the most widely used speedsolving method. Roux and ZZ are also used by some of the fastest solvers. This guide explains all three, plus the beginner method.</p></div><div class="card qa"><h3>How does Cube Solver read the colours of my cube?</h3><p>Show each side of the cube to your camera, in any order and any way up. The colours are read in your browser from the live camera picture; the video is not uploaded, only the 54 colour readings are sent to the server to double-check them. You can also upload photos of the six sides or enter the colours by hand.</p></div><div class="card qa"><h3>Is Cube Solver free? Do I need an account?</h3><p>Cube Solver is free and needs no account or sign-up. The solver, the guide and the timer all work in a web browser on a phone or a computer. The timer saves your solve times in your own browser only.</p></div><div class="card qa"><h3>Why does the solver say my cube cannot be solved?</h3><p>Usually one sticker was read as the wrong colour, often red and orange under warm light. Use <b>Fix a colour</b> to correct it. If a piece was taken out and put back the wrong way, or a corner was twisted by hand, the cube really cannot be solved until that piece is put back correctly.</p></div><div class="card qa"><h3>What do R, U, F and the apostrophe mean in cube moves?</h3><p>Each letter names a face: <b>R</b> right, <b>L</b> left, <b>U</b> up (top), <b>D</b> down, <b>F</b> front, <b>B</b> back. A letter alone means turn that face a quarter turn clockwise as you look at it; an apostrophe (<code>R'</code>) means anticlockwise; a 2 (<code>R2</code>) means a half turn.</p></div></div>
+      </section>
+
+      <section class="block" id="sources">
+        <div class="kicker">Further reading</div>
+        <h2>Sources</h2>
+        <p class="lead2" style="font-size:16px">This guide is written in our own words. The move sequences are the standard ones
+        cubers share; we checked every one on this site's own cube engine. These pages go further:</p>
+        <ul class="sources" id="sourceList"><li><a href="https://en.wikipedia.org/wiki/Layer-by-layer_method" target="_blank" rel="noopener">Layer-by-layer method (Wikipedia)</a></li><li><a href="https://assets.ctfassets.net/r3qu44etwf9a/6kAQCoLmbXXu29TTuArrk1/404118e1f9bfb6f9997157a284bbc572/Rubiks_Solution-Guide_3x3.pdf" target="_blank" rel="noopener">Rubik's official 3×3 solution guide (PDF)</a></li><li><a href="https://www.cubeskills.com/uploads/pdf/tutorials/the-beginners-method-for-solving-the-rubiks-cube.pdf" target="_blank" rel="noopener">CubeSkills — the beginner's method (PDF)</a></li><li><a href="https://ruwix.com/the-rubiks-cube/how-to-solve-the-rubiks-cube-beginners-method/" target="_blank" rel="noopener">Ruwix — beginner's method</a></li><li><a href="https://en.wikipedia.org/wiki/CFOP_method" target="_blank" rel="noopener">CFOP method (Wikipedia)</a></li><li><a href="https://jperm.net/3x3/cfop" target="_blank" rel="noopener">J Perm — CFOP</a></li><li><a href="https://jperm.net/algs/2lookoll" target="_blank" rel="noopener">J Perm — 2-look OLL</a></li><li><a href="https://jperm.net/algs/2lookpll" target="_blank" rel="noopener">J Perm — 2-look PLL</a></li><li><a href="https://www.speedsolving.com/wiki/index.php/Roux_method" target="_blank" rel="noopener">Speedsolving wiki — Roux method</a></li><li><a href="https://www.speedsolving.com/wiki/index.php?title=ZZ_method" target="_blank" rel="noopener">Speedsolving wiki — ZZ method</a></li><li><a href="https://www.speedsolving.com/threads/beginners-guide-to-choosing-a-speedsolving-method.43471/" target="_blank" rel="noopener">Speedsolving — choosing a speedsolving method</a></li></ul>
+      </section>
+    </main>
+  </div>
+</div>
+<footer><div class="wrap">Cube Solver · <a href="/">Open the solver</a></div></footer>
+
+<script src="/static/js/guide-data.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
+const {METHODS, SOURCES, FAQ} = window.GUIDE;
+
+/* ---- theme: shared with the app (same saved choice) ---- */
+function applyTheme(t){
+  if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+  else delete document.documentElement.dataset.theme;
+}
+const store = {get: k => { try { return localStorage.getItem("cube." + k); } catch { return null; } },
+               set: (k, v) => { try { localStorage.setItem("cube." + k, v); } catch {} }};
+applyTheme(store.get("theme"));
+$("themeBtn").onclick = () => {
+  const order = [null, "light", "dark"], cur = store.get("theme");
+  const next = order[(order.indexOf(cur === "light" || cur === "dark" ? cur : null) + 1) % 3];
+  store.set("theme", next || ""); applyTheme(next);
+};
+
+/* ---- the six moves, drawn the way you see them ---- */
+const DIA = {cell:"rgba(128,140,160,.22)", line:"rgba(128,140,160,.55)", hi:"rgba(59,130,246,.5)", hiEdge:"#3b82f6"};
+function arrow(x1,y1,x2,y2){
+  const dx=x2-x1, dy=y2-y1, len=Math.hypot(dx,dy)||1, ux=dx/len, uy=dy/len, bx=x2-ux*14, by=y2-uy*14, px=-uy, py=ux;
+  return `<line x1="${x1}" y1="${y1}" x2="${bx}" y2="${by}" stroke="${DIA.hiEdge}" stroke-width="6" stroke-linecap="round"/>
+          <polygon points="${x2},${y2} ${bx+px*5.5},${by+py*5.5} ${bx-px*5.5},${by-py*5.5}" fill="${DIA.hiEdge}"/>`;
+}
+function arc(cw){
+  const cx=65, cy=65, r=50, a0=cw?-2.45:-0.6, a1=cw?-0.6:-2.45;
+  const p=a=>[cx+r*Math.cos(a), cy+r*Math.sin(a)], [sx,sy]=p(a0), [ex,ey]=p(a1);
+  const t=a1+(a1>a0?Math.PI/2:-Math.PI/2);
+  return `<path d="M ${sx} ${sy} A ${r} ${r} 0 0 ${a1>a0?1:0} ${ex} ${ey}" fill="none" stroke="${DIA.hiEdge}" stroke-width="6" stroke-linecap="round"/>`
+       + arrow(ex, ey, ex+Math.cos(t)*14, ey+Math.sin(t)*14);
+}
+function faceGrid(on){
+  let out = "";
+  for (let r=0;r<3;r++) for (let k=0;k<3;k++){
+    const hi = on(r,k);
+    out += `<rect x="${30+k*24}" y="${30+r*24}" width="22" height="22" rx="5" fill="${hi?DIA.hi:DIA.cell}" stroke="${hi?DIA.hiEdge:DIA.line}" stroke-width="${hi?2:1.5}"/>`;
+  }
+  return out;
+}
+const MOVES = [
+  ["U", r=>r===0, arrow(106,18,24,18), "top layer", "front row slides left"],
+  ["D", r=>r===2, arrow(24,112,106,112), "bottom layer", "front row slides right"],
+  ["R", (r,k)=>k===2, arrow(116,106,116,24), "right side", "rolls up at the front"],
+  ["L", (r,k)=>k===0, arrow(14,24,14,106), "left side", "rolls down at the front"],
+  ["F", ()=>true, arc(true), "front", "clockwise, like a clock"],
+  ["B", ()=>true, arc(false), "back", "looks anticlockwise from the front"],
+];
+$("moveGrid").innerHTML = MOVES.map(([m, on, art, who, how]) =>
+  `<div class="mv"><svg viewBox="0 0 130 130" role="img" aria-label="${m}: ${who}, ${how}">${faceGrid(on)}${art}</svg>
+   <b>${m}</b><small>${who}<br>${how}</small></div>`).join("");
+
+/* ---- picker, contents and the methods ---- */
+const dots = n => `<span class="dots" aria-label="difficulty ${n} of 3">${[1,2,3].map(i => `<i class="${i<=n?"on":""}"></i>`).join("")}</span>`;
+$("picker").innerHTML = METHODS.map((m, i) => `
+  <a class="pick" href="#${m.id}">
+    ${i === 0 ? '<span class="tag">Start here</span>' : ""}
+    <b>${esc(m.short)}</b>${dots(m.level)}
+    <small>${esc(m.tagline)}</small>
+  </a>`).join("");
+
+const toc = [["start","Start here"], ...METHODS.map(m => [m.id, m.short]),
+             ["compare","Comparing"], ["which","Which to learn"], ["practice","Practice"], ["faq","FAQ"], ["sources","Sources"]];
+$("toc").innerHTML = toc.map(([id, t]) => `<a href="#${id}" data-id="${id}">${esc(t)}</a>`).join("");
+$("chips").innerHTML = toc.slice(0, 6).map(([id, t]) => `<a href="#${id}">${esc(t)}</a>`).join("");
+
+const TRY = {beginner: ["learn", "Solve my cube this way"], cfop: ["cfop", "Solve my cube with CFOP"]};
+const moveChips = alg => alg.split(/\s+/).map(t => `<span>${esc(t)}</span>`).join("");
+
+$("methods").innerHTML = METHODS.map((m, mi) => `
+  <section class="block" id="${m.id}">
+    <div class="kicker">Method ${mi + 1}</div>
+    <h2>${esc(m.name)}</h2>
+    <p class="lead2">${esc(m.tagline)}</p>
+    <div class="mhead">
+      <div class="stat">Difficulty ${dots(m.level)}</div>
+      <div class="stat">Turns per solve<b>${esc(m.moves)}</b></div>
+      <div class="stat">Time to learn<b>${esc(m.learn)}</b></div>
+      <div class="stat">Algorithms<b>${esc(String(m.algs))}</b></div>
+      ${TRY[m.id] ? `<a class="btn sm" href="/?mode=${TRY[m.id][0]}" style="margin-left:auto">${TRY[m.id][1]} →</a>` : ""}
+    </div>
+    <div class="holding"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z"/></svg><div>${m.holding}</div></div>
+    <div class="steps">
+      ${m.steps.map((s, si) => `
+        <article class="step card" id="${m.id}-${si + 1}">
+          <div class="n" aria-hidden="true">${si + 1}</div>
+          <div>
+            <h3>${esc(s.title)}</h3>
+            <div class="goal">Goal: ${esc(s.goal)}</div>
+            ${s.body}
+            ${s.tip ? `<div class="tipbox"><b>Tip</b><span>${esc(s.tip)}</span></div>` : ""}
+            ${s.algs.length ? `<div class="algs">${s.algs.map((a, ai) => `
+              <div class="alg">
+                <h4>${esc(a.name)}</h4>
+                <div class="seq" aria-label="${esc(a.alg)}">${moveChips(a.alg)}</div>
+                ${a.note ? `<p>${esc(a.note)}</p>` : ""}
+                <div class="row">
+                  <button class="btn sm watch" data-alg="${esc(a.alg)}" data-st="${esc(a.stickering || "full")}"
+                    aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"/></svg>Watch</button>
+                  <button class="btn sm copy" data-alg="${esc(a.alg)}">Copy</button>
+                </div>
+                <div class="player" hidden></div>
+              </div>`).join("")}</div>` : ""}
+          </div>
+        </article>`).join("")}
+    </div>
+  </section>`).join("");
+
+/* ---- comparison ---- */
+$("compareTable").innerHTML = `<thead><tr><th>Method</th><th>Difficulty</th><th>Turns</th><th>To learn</th><th>Algorithms</th><th>Best for</th></tr></thead>
+  <tbody>${METHODS.map(m => `<tr><td><a href="#${m.id}"><b>${esc(m.short)}</b></a></td><td>${dots(m.level)}</td>
+    <td>${esc(m.moves)}</td><td>${esc(m.learn)}</td><td>${esc(String(m.algs))}</td><td>${esc(m.bestFor)}</td></tr>`).join("")}</tbody>`;
+$("faqList").innerHTML = FAQ.map(f => `<div class="card qa"><h3>${esc(f.q)}</h3><p>${f.a}</p></div>`).join("");
+$("sourceList").innerHTML = SOURCES.map(s => `<li><a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.name)}</a></li>`).join("");
+
+/* ---- Watch: the sequence on a real 3D cube (cubing.js, loaded on first use) ---- */
+let twistyReady = null;
+function loadTwisty(){
+  if (!twistyReady) twistyReady = (async () => {
+    const srcs = ["https://cdn.cubing.net/v0/js/cubing/twisty",
+                  "https://cdn.jsdelivr.net/npm/cubing@0.63.6/dist/lib/cubing/twisty/index.js"];
+    let err;
+    for (const s of srcs) { try { await import(s); return; } catch (e) { err = e; } }
+    throw err;
+  })();
+  return twistyReady;
+}
+document.addEventListener("click", async e => {
+  const w = e.target.closest(".watch"), c = e.target.closest(".copy");
+  if (c){
+    try { await navigator.clipboard.writeText(c.dataset.alg); c.textContent = "Copied"; }
+    catch { c.textContent = "Select and copy"; }
+    setTimeout(() => c.textContent = "Copy", 1500);
+    return;
+  }
+  if (!w) return;
+  const box = w.closest(".alg").querySelector(".player");
+  const open = box.hidden;
+  box.hidden = !open;
+  w.setAttribute("aria-expanded", open);
+  if (!open || box.dataset.ready) return;
+  box.innerHTML = '<div class="msg">Loading the 3D cube…</div>';
+  try {
+    await loadTwisty();
+    const tp = document.createElement("twisty-player");
+    tp.puzzle = "3x3x3";
+    tp.alg = w.dataset.alg;
+    tp.experimentalSetupAnchor = "end";             // start from the case, end solved
+    try { tp.experimentalStickering = w.dataset.st; } catch {}
+    tp.background = "none";
+    tp.controlPanel = "bottom-row";
+    tp.hintFacelets = "floating";
+    box.innerHTML = ""; box.appendChild(tp); box.dataset.ready = "1";
+    // cubing.js can draw its first frames before its renderer is ready and
+    // then sit blank until something changes: nudge it while it wakes up
+    // (the same fix the solver page uses)
+    [100, 500, 1200, 2500].forEach(ms => setTimeout(() => dispatchEvent(new Event("resize")), ms));
+    setTimeout(() => { try { tp.play(); } catch {} }, 600);
+  } catch (err) {
+    box.innerHTML = `<div class="msg">Could not load the 3D player (it needs an internet connection).
+      Do the moves on your cube: <code>${esc(w.dataset.alg)}</code></div>`;
+  }
+});
+
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) setTimeout(() => dispatchEvent(new Event("resize")), 60);
+});
+
+/* ---- highlight where you are in the contents ---- */
+const links = [...document.querySelectorAll("#toc a")];
+if ("IntersectionObserver" in window){
+  const io = new IntersectionObserver(es => es.forEach(en => {
+    if (en.isIntersecting) links.forEach(a => a.classList.toggle("on", a.dataset.id === en.target.id));
+  }), {rootMargin: "-30% 0px -60% 0px"});
+  toc.forEach(([id]) => { const el = $(id); if (el) io.observe(el); });
+}
+</script>
+</body>
+</html>

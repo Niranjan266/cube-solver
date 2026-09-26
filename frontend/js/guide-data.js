@@ -370,5 +370,29 @@ const SOURCES = [
   {name: "Speedsolving — choosing a speedsolving method", url: "https://www.speedsolving.com/threads/beginners-guide-to-choosing-a-speedsolving-method.43471/"},
 ];
 
-global.GUIDE = { METHODS, SOURCES };
+/*
+ * Questions people ask. Shown at the end of the guide and also published as
+ * FAQPage structured data (build/prerender-guide.mjs), so keep each answer a
+ * plain, self-contained statement; <b> and <code> are the only markup.
+ */
+const FAQ = [
+  {q: "What is the fewest number of moves needed to solve a Rubik's cube?",
+   a: "Every position of a 3×3 Rubik's cube can be solved in 20 moves or fewer (counting a half turn as one move). This limit, known as God's number, was proven in 2010. The <b>Shortest</b> mode of Cube Solver uses the two-phase algorithm and usually finds a solution of about 20 moves."},
+  {q: "How long does it take to learn to solve a Rubik's cube?",
+   a: "With the beginner layer-by-layer method, most people solve their first cube within an afternoon to a few days. It needs only 7 short move sequences. The CFOP speedsolving method takes longer: the 2-look version uses 16 sequences, and full CFOP uses about 78."},
+  {q: "What is the easiest way to solve a Rubik's cube for beginners?",
+   a: "The layer-by-layer (beginner) method: make a white cross, finish the white layer, solve the middle layer, then the yellow top in four short steps. It is the first method taught in this guide, and the solver can show every turn of it on your own cube in <b>Beginner</b> mode."},
+  {q: "Which method do the fastest speedcubers use?",
+   a: "CFOP (Cross, F2L, OLL, PLL) is the most widely used speedsolving method. Roux and ZZ are also used by some of the fastest solvers. This guide explains all three, plus the beginner method."},
+  {q: "How does Cube Solver read the colours of my cube?",
+   a: "Show each side of the cube to your camera, in any order and any way up. The colours are read in your browser from the live camera picture; the video is not uploaded, only the 54 colour readings are sent to the server to double-check them. You can also upload photos of the six sides or enter the colours by hand."},
+  {q: "Is Cube Solver free? Do I need an account?",
+   a: "Cube Solver is free and needs no account or sign-up. The solver, the guide and the timer all work in a web browser on a phone or a computer. The timer saves your solve times in your own browser only."},
+  {q: "Why does the solver say my cube cannot be solved?",
+   a: "Usually one sticker was read as the wrong colour, often red and orange under warm light. Use <b>Fix a colour</b> to correct it. If a piece was taken out and put back the wrong way, or a corner was twisted by hand, the cube really cannot be solved until that piece is put back correctly."},
+  {q: "What do R, U, F and the apostrophe mean in cube moves?",
+   a: "Each letter names a face: <b>R</b> right, <b>L</b> left, <b>U</b> up (top), <b>D</b> down, <b>F</b> front, <b>B</b> back. A letter alone means turn that face a quarter turn clockwise as you look at it; an apostrophe (<code>R'</code>) means anticlockwise; a 2 (<code>R2</code>) means a half turn."},
+];
+
+global.GUIDE = { METHODS, SOURCES, FAQ };
 })(typeof window !== "undefined" ? window : globalThis);
