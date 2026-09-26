@@ -4,7 +4,7 @@
     "main.py": {
       "maxDuration": 60,
       "memory": 2048,
-      "includeFiles": "{frontend/**,backend/cube/_tables/**}",
+      "includeFiles": "{frontend/**,backend/cube/_tables/**,backend/templates/**}",
       "excludeFiles": "{backend/tests/**,backend/tools/**,backend/data/**,frontend/test/**,node_modules/**,.venv/**,runs/**}"
     }
   }
