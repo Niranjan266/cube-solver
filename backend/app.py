@@ -15,7 +15,6 @@ POST /api/scramble            a random cube, for trying the app without a cube
 
 from __future__ import annotations
 
-import datetime
 import os
 import threading
 from typing import Dict, List, Optional
@@ -30,11 +29,12 @@ from pydantic import BaseModel, Field
 from cube.model import Cube, random_scramble
 from cube.solver import SolveError, solve as solve_cube, warm_up
 from cube.validate import CubeError, validate
+import support
 from vision import detect, yolo
 
 FACE_ORDER = "URFDLB"
 SITE = "https://cube.niranjand.in"       # the address search engines should use
-PAGES = ["/", "/guide", "/timer"]        # the public pages, for the sitemap
+PAGES = ["/", "/guide", "/timer", "/support"]   # the public pages, for the sitemap
 INDEXNOW_KEY = "f6281d28f6fb57169945d09bead0bbd5"   # public by design (IndexNow)
 FRONTEND = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend")
 
@@ -238,6 +238,22 @@ def solve(body: SolveIn) -> Dict:
         )
 
 
+@app.post("/api/support")
+def support_message(body: support.SupportIn, request: Request) -> Dict:
+    if body.website:                       # a bot filled the hidden field: pretend it worked
+        return {"ok": True}
+    try:
+        body = support.check(body)
+    except support.SupportError as exc:
+        raise HTTPException(exc.status, exc.message)
+    ip = (request.headers.get("x-forwarded-for") or (request.client.host if request.client else "")).split(",")[0]
+    if support.rate_limited(ip.strip()):
+        raise HTTPException(429, "That's a lot of messages. Please try again in a few minutes.")
+    if not support.deliver(body):
+        raise HTTPException(503, "Sorry, messages can't be sent right now. Please try again later.")
+    return {"ok": True}
+
+
 @app.post("/api/scramble")
 def scramble(body: ScrambleIn) -> Dict:
     moves = random_scramble(max(1, min(body.moves, 60)))
@@ -282,12 +298,9 @@ if os.path.isdir(FRONTEND):
 
     @app.get("/sitemap.xml", include_in_schema=False)
     def sitemap():
-        def lastmod(page):
-            name = {"/": "index.html", "/guide": "guide.html", "/timer": "timer.html"}[page]
-            t = os.path.getmtime(os.path.join(FRONTEND, name))
-            return datetime.datetime.fromtimestamp(t, datetime.timezone.utc).date().isoformat()
-        urls = "".join(
-            f"<url><loc>{SITE}{p}</loc><lastmod>{lastmod(p)}</lastmod></url>" for p in PAGES)
+        # no <lastmod>: on Vercel every file carries the same made-up date, and
+        # a wrong date is worse than none
+        urls = "".join(f"<url><loc>{SITE}{p}</loc></url>" for p in PAGES)
         return Response(
             '<?xml version="1.0" encoding="UTF-8"?>'
             f'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{urls}</urlset>',
@@ -318,6 +331,10 @@ if os.path.isdir(FRONTEND):
         # that do not run JavaScript (tools/prerender-guide.mjs)
         static = os.path.join(FRONTEND, "guide.static.html")
         return FileResponse(static if os.path.exists(static) else os.path.join(FRONTEND, "guide.html"))
+
+    @app.get("/support")
+    def support_page():
+        return FileResponse(os.path.join(FRONTEND, "support.html"))
 
     @app.get("/timer")
     def timer():

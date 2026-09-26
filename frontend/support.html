@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Support: Report a Bug or Request a Cube | Cube Solver</title>
+<meta name="description" content="Found a bug or want another puzzle solved, like a 2×2 or mirror cube? Tell us here. We read every message.">
+<link rel="canonical" href="https://cube.niranjand.in/support">
+<meta name="robots" content="index, follow">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Cube Solver">
+<meta property="og:title" content="Support: Report a Bug or Request a Cube | Cube Solver">
+<meta property="og:description" content="Found a bug or want another puzzle solved, like a 2×2 or mirror cube? Tell us here. We read every message.">
+<meta property="og:url" content="https://cube.niranjand.in/support">
+<meta property="og:image" content="https://cube.niranjand.in/static/icons/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#0e1116" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f3f4f6" media="(prefers-color-scheme: light)">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* the app's own tokens (keep in step with index.html) */
+  :root{
+    --bg:#f3f4f6; --surface:#ffffff; --surface-2:#f7f8fa; --surface-3:#eceff3;
+    --line:#e3e6eb; --line-strong:#cfd4dc;
+    --ink:#111418; --muted:#5d6673; --faint:#7b8491;
+    --accent:#2459e0; --accent-2:#1d4ac0; --accent-soft:rgba(36,89,224,.09); --accent-ink:#2459e0; --on-accent:#fff;
+    --good:#15803d; --good-soft:rgba(21,128,61,.10); --bad:#c62828; --bad-soft:rgba(198,40,40,.08);
+    --shadow:0 1px 2px rgba(16,24,40,.05);
+    --font:"DM Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+    --display:"Space Grotesk","DM Sans",ui-sans-serif,system-ui,sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0e1116; --surface:#161a21; --surface-2:#1d222b; --surface-3:#262c36;
+      --line:#262c36; --line-strong:#353d4c;
+      --ink:#eef1f5; --muted:#9aa4b2; --faint:#7d8795;
+      --accent:#4c8dff; --accent-2:#6ea3ff; --accent-soft:rgba(76,141,255,.14); --accent-ink:#8db4ff; --on-accent:#06101f;
+      --good:#3dd68c; --good-soft:rgba(61,214,140,.12); --bad:#ff6b6b; --bad-soft:rgba(255,107,107,.12);
+      --shadow:0 1px 2px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0e1116; --surface:#161a21; --surface-2:#1d222b; --surface-3:#262c36;
+    --line:#262c36; --line-strong:#353d4c;
+    --ink:#eef1f5; --muted:#9aa4b2; --faint:#7d8795;
+    --accent:#4c8dff; --accent-2:#6ea3ff; --accent-soft:rgba(76,141,255,.14); --accent-ink:#8db4ff; --on-accent:#06101f;
+    --good:#3dd68c; --good-soft:rgba(61,214,140,.12); --bad:#ff6b6b; --bad-soft:rgba(255,107,107,.12);
+    --shadow:0 1px 2px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 var(--font);-webkit-font-smoothing:antialiased}
+  h1,h2{font-family:var(--display);letter-spacing:-.02em;margin:0;line-height:1.2}
+  a{color:var(--accent-ink)}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:8px}
+  button,input,textarea{font:inherit;color:inherit}
+  button{cursor:pointer;border:0;background:none}
+  svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 14px;
+       border-radius:12px;background:var(--surface);border:1px solid var(--line);font-weight:600;font-size:14px;
+       text-decoration:none;color:var(--ink);white-space:nowrap}
+  .btn:hover{background:var(--surface-2);border-color:var(--line-strong)}
+  .btn.icon{width:40px;padding:0}
+
+  .topbar{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:8px;height:60px;padding:0 20px;
+          background:color-mix(in srgb, var(--surface) 92%, transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .brand{display:flex;align-items:center;gap:11px;text-decoration:none;color:var(--ink);flex:1;min-width:0}
+  .logo{width:30px;height:30px;flex:none;display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:4px;border-radius:9px;background:#15181e}
+  .logo i{border-radius:2px}
+  .brand b{font-family:var(--display);font-size:18px;white-space:nowrap}
+  .brand span{color:var(--muted);font-size:14px}
+
+  main{max-width:560px;margin:0 auto;padding:36px 16px 60px}
+  h1{font-size:clamp(28px,5vw,36px)}
+  .sub{color:var(--muted);margin:6px 0 22px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:var(--shadow)}
+
+  .kinds{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:18px}
+  .kind{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 6px;border-radius:16px;
+        border:1.5px solid var(--line);background:var(--surface-2);font-weight:600;font-size:14.5px;text-align:center}
+  .kind .e{font-size:26px;line-height:1}
+  .kind:hover{border-color:var(--line-strong)}
+  .kind[aria-checked="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-ink)}
+
+  .cubes{display:none;flex-wrap:wrap;gap:8px;margin:0 0 18px}
+  .cubes.on{display:flex}
+  .chip{padding:8px 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface-2);font-weight:600;font-size:14px}
+  .chip[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-ink)}
+
+  label{display:block;font-weight:600;font-size:14px;margin:0 0 6px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+  input,textarea{width:100%;border:1.5px solid var(--line);background:var(--surface-2);border-radius:12px;padding:11px 13px;font-size:15.5px}
+  input:focus,textarea:focus{outline:none;border-color:var(--accent);background:var(--surface)}
+  textarea{min-height:130px;resize:vertical}
+  .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+  .send{width:100%;min-height:50px;margin-top:16px;border-radius:14px;background:var(--accent);color:var(--on-accent);
+        font-weight:700;font-size:16px;display:flex;align-items:center;justify-content:center;gap:8px}
+  .send:hover{background:var(--accent-2)}
+  .send[disabled]{opacity:.6;cursor:wait}
+  .err{display:none;margin-top:12px;padding:10px 12px;border-radius:12px;background:var(--bad-soft);color:var(--bad);font-size:14.5px;font-weight:600}
+  .err.on{display:block}
+
+  .done{display:none;text-align:center;padding:30px 10px}
+  .done .tick{width:72px;height:72px;margin:0 auto 14px;border-radius:50%;background:var(--good-soft);color:var(--good);
+              display:grid;place-items:center;font-size:36px;font-weight:700}
+  .done p{color:var(--muted);margin:6px 0 20px}
+  body.sent form{display:none}
+  body.sent .done{display:block}
+
+  @media (max-width:520px){
+    .topbar{padding:0 10px 0 14px;height:56px}
+    .brand > span:not(.logo){display:none}
+    main{padding-top:24px}
+    .row{grid-template-columns:1fr}
+    .kind{font-size:13.5px;padding:12px 4px}
+  }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="/">
+    <span class="logo" aria-hidden="true">
+      <i style="background:#e5383b"></i><i style="background:#f4f5f7"></i><i style="background:#22b04b"></i>
+      <i style="background:#ffd60a"></i><i style="background:#1e6fe0"></i><i style="background:#e5383b"></i>
+      <i style="background:#ff8a1f"></i><i style="background:#22b04b"></i><i style="background:#ffd60a"></i>
+    </span>
+    <b>Cube Solver</b><span>· Support</span>
+  </a>
+  <a class="btn" href="/" title="Open the solver"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z"/></svg></a>
+  <button class="btn icon" id="themeBtn" title="Light / dark" aria-label="Switch light or dark">◐</button>
+</header>
+
+<main>
+  <h1>How can we help?</h1>
+  <p class="sub">We read every message.</p>
+
+  <div class="card">
+    <form id="form" novalidate>
+      <div class="kinds" role="radiogroup" aria-label="What is it about?">
+        <button type="button" class="kind" role="radio" data-kind="bug" aria-checked="true"><span class="e" aria-hidden="true">🐞</span>Bug</button>
+        <button type="button" class="kind" role="radio" data-kind="problem" aria-checked="false"><span class="e" aria-hidden="true">🤔</span>Problem</button>
+        <button type="button" class="kind" role="radio" data-kind="request" aria-checked="false"><span class="e" aria-hidden="true">🧩</span>Request a cube</button>
+      </div>
+
+      <div class="cubes" id="cubes" role="group" aria-label="Which cubes?"></div>
+
+      <div class="row">
+        <div><label for="name">Name</label><input id="name" autocomplete="name" maxlength="80" required></div>
+        <div><label for="email">Email</label><input id="email" type="email" autocomplete="email" maxlength="160" required></div>
+      </div>
+      <label for="msg" id="msgLabel">What happened?</label>
+      <textarea id="msg" maxlength="4000"></textarea>
+      <div class="hp" aria-hidden="true"><label for="website">Website</label><input id="website" tabindex="-1" autocomplete="off"></div>
+
+      <button class="send" id="send" type="submit">Send</button>
+      <div class="err" id="err" role="alert"></div>
+    </form>
+
+    <div class="done" aria-live="polite">
+      <div class="tick" aria-hidden="true">✓</div>
+      <h2>Thanks!</h2>
+      <p id="doneText">We got your message.</p>
+      <button class="btn" id="again" type="button">Send another</button>
+      <a class="btn" href="/">Back to the solver</a>
+    </div>
+  </div>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch { return null; } },
+  set(k, v){ try { localStorage.setItem(k, v); } catch {} },
+};
+
+/* theme: shared with the app */
+function applyTheme(t){
+  if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+  else delete document.documentElement.dataset.theme;
+}
+applyTheme(store.get("cube.theme"));
+$("themeBtn").onclick = () => {
+  const order = [null, "light", "dark"], cur = store.get("cube.theme");
+  const next = order[(order.indexOf(cur === "light" || cur === "dark" ? cur : null) + 1) % 3];
+  store.set("cube.theme", next || ""); applyTheme(next);
+};
+
+const CUBES = ["2x2", "4x4", "5x5", "Mirror cube", "Pyraminx", "Megaminx", "Skewb", "Square-1", "Other"];
+const LABEL = {"2x2": "2×2", "4x4": "4×4", "5x5": "5×5"};
+$("cubes").innerHTML = CUBES.map((c) =>
+  `<button type="button" class="chip" data-cube="${c}" aria-pressed="false">${LABEL[c] || c}</button>`).join("");
+$("cubes").addEventListener("click", (e) => {
+  const b = e.target.closest(".chip"); if (!b) return;
+  b.setAttribute("aria-pressed", b.getAttribute("aria-pressed") !== "true");
+});
+
+const PROMPT = {
+  bug: ["What happened?", "What did you do, and what went wrong?"],
+  problem: ["What's not working?", "Tell us what you tried."],
+  request: ["Anything else? (optional)", "E.g. how you'd like it to work"],
+};
+let kind = "bug";
+function setKind(k){
+  kind = PROMPT[k] ? k : "bug";
+  document.querySelectorAll(".kind").forEach((b) => b.setAttribute("aria-checked", b.dataset.kind === kind));
+  $("cubes").classList.toggle("on", kind === "request");
+  $("msgLabel").textContent = PROMPT[kind][0];
+  $("msg").placeholder = PROMPT[kind][1];
+}
+document.querySelectorAll(".kind").forEach((b) => b.onclick = () => setKind(b.dataset.kind));
+
+// ?type=request (or bug / problem) opens on that choice
+setKind(new URLSearchParams(location.search).get("type") || "bug");
+$("name").value = store.get("cube.support.name") || "";
+$("email").value = store.get("cube.support.email") || "";
+
+function fail(msg){
+  $("err").textContent = msg; $("err").classList.add("on");
+  $("err").scrollIntoView({block: "nearest", behavior: "smooth"});
+}
+
+$("form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  $("err").classList.remove("on");
+  const cubes = [...document.querySelectorAll(".chip[aria-pressed=true]")].map((b) => b.dataset.cube);
+  const body = {
+    kind, cubes, name: $("name").value.trim(), email: $("email").value.trim(),
+    message: $("msg").value.trim(), website: $("website").value,
+    page: document.referrer && new URL(document.referrer).origin === location.origin ? new URL(document.referrer).pathname : "",
+  };
+  if (!body.name) { $("name").focus(); return fail("Please add your name."); }
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(body.email)) { $("email").focus(); return fail("Please check your email address."); }
+  if (kind === "request" && !cubes.length && !body.message) return fail("Pick a cube or tell us which one.");
+  if (kind !== "request" && body.message.length < 5) { $("msg").focus(); return fail("Please tell us what happened."); }
+
+  $("send").disabled = true; $("send").textContent = "Sending…";
+  try {
+    const r = await fetch("/api/support", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)});
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Something went wrong. Please try again.");
+    store.set("cube.support.name", body.name); store.set("cube.support.email", body.email);
+    $("doneText").textContent = `We'll reply to ${body.email}.`;
+    document.body.classList.add("sent");
+  } catch (err) {
+    fail(err.message === "Failed to fetch" ? "You seem to be offline. Please try again." : err.message);
+  } finally {
+    $("send").disabled = false; $("send").textContent = "Send";
+  }
+});
+
+$("again").onclick = () => {
+  document.body.classList.remove("sent");
+  $("msg").value = "";
+  document.querySelectorAll(".chip").forEach((b) => b.setAttribute("aria-pressed", "false"));
+};
+</script>
+</body>
+</html>
