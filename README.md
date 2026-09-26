@@ -451,6 +451,8 @@ a trained model against the classical detector with `tools/bench_vision.py`.
 | `RESEND_API_KEY` | your Resend API key |
 | `SUPPORT_EMAIL` | where messages go (on Resend's free plan without your own domain, this must be your Resend sign-up email) |
 
+Optional: to send with a template stored in Resend, publish `backend/templates/support_email.html` as a Resend template (its variables are `{{{UPPERCASE}}}`, the syntax Resend uses) and set `RESEND_TEMPLATE` to its id or alias, for example `support-message`. If sending with the template fails, the server sends the same design itself.
+
 Until they are set, the form says it can't send, and each message is still written to the server log. The endpoint has a honeypot field and a per-address rate limit.
 
 ## Search engines and AI assistants
