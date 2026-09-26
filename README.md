@@ -1,5 +1,7 @@
 # Cube Solver
 
+**Try it: [cube.niranjand.in](https://cube.niranjand.in)**, with the [solving guide](https://cube.niranjand.in/guide) and a [speedcubing timer](https://cube.niranjand.in/timer).
+
 Hold your cube up to the camera. It reads each face on its own — no button to
 press — fills the 3D cube in as it goes, and then walks you through **about 20
 turns and never more than 22**, one arrow at a time.
