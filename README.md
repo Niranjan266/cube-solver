@@ -442,6 +442,17 @@ a trained model against the classical detector with `tools/bench_vision.py`.
 
 ---
 
+## Support messages
+
+`/support` lets visitors report a bug or a problem, or request another puzzle (2×2, mirror cube and others). The server emails each message through [Resend](https://resend.com). To switch it on, set these in Vercel (Project → Settings → Environment Variables), then redeploy:
+
+| Variable | Value |
+|---|---|
+| `RESEND_API_KEY` | your Resend API key |
+| `SUPPORT_EMAIL` | where messages go (on Resend's free plan without your own domain, this must be your Resend sign-up email) |
+
+Until they are set, the form says it can't send, and each message is still written to the server log. The endpoint has a honeypot field and a per-address rate limit.
+
 ## Search engines and AI assistants
 
 - Every page has a title, description, canonical URL, social-card image and JSON-LD.
