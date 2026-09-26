@@ -251,14 +251,27 @@ const M2P_ERRORS = {
   5: "One corner is twisted in place, which cannot happen on a real cube.",
   6: "Two pieces are swapped, which cannot happen on a real cube.",
 };
+// Every position can be solved in 20 turns or fewer (God's number), and
+// min2phase finds such an answer in milliseconds; shorter ones are hunted
+// for off the main thread (js/shorter-worker.js), since ruling a length out
+// can take it many seconds.
+const MAX_TURNS = 20;
+
 function solveShortest(facelets){
   if (!min2phaseReady()) throw new Error("the browser solver did not load");
   if (isSolved(facelets)) return [];
-  const raw = global.min2phase.solvePattern(facelets, 1).trim();
+  let raw = global.min2phase.solvePattern(facelets, 1, MAX_TURNS).trim();
+  if (/^Error [78]$/.test(raw))                  // search gave up: take its usual limit
+    raw = global.min2phase.solvePattern(facelets, 1).trim();
   const err = /^Error (\d+)/.exec(raw);
   if (err) throw new Error(M2P_ERRORS[err[1]] || "That cube cannot be solved.");
   if (!raw) throw new Error("That cube cannot be solved - a sticker was probably misread.");
-  const [p1, p2 = ""] = raw.split(".");
+  return parseMin2phase(facelets, raw);
+}
+
+/** min2phase's text ("R U2 .  F' ...") as tagged moves, checked to solve the cube. */
+function parseMin2phase(facelets, raw){
+  const [p1, p2 = ""] = raw.trim().split(".");
   const toks = s => s.trim().split(/\s+/).filter(Boolean);
   const tagged = [...toks(p1).map(m => [m, "quick-1"]),
                   ...toks(p2).map(m => [m, "quick-2"])];
@@ -347,6 +360,6 @@ global.CubeEngine = {
   FACE_ORDER, FACELET, SOLVED, ALL_MOVES, MOVE_PERMS,
   apply, applyAll, isSolved, invert, tidy, tidyTagged, randomScramble,
   describe, buildSolution, STAGES,
-  solveShortest, solveCfop, fromCfop, min2phaseReady,
+  solveShortest, parseMin2phase, MAX_TURNS, solveCfop, fromCfop, min2phaseReady,
 };
 })(typeof window !== "undefined" ? window : globalThis);

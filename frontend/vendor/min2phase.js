@@ -11,6 +11,10 @@
  *      needs no module loader or build step;
  *   2. solvePattern(facelets, verbose) passes min2phase's own verbose flag
  *      through - verbose=1 puts ".  " at the phase-1/phase-2 boundary.
+ *   3. solvePattern(facelets, verbose, maxLength, probeMax) exposes the
+ *      search's length limit (was fixed at 21) and its effort limit (was
+ *      fixed at 1e8 probes). A search that runs out of effort returns
+ *      "Error 8" instead of an answer.
  */
 (function (global) {
 "use strict";
@@ -2236,15 +2240,18 @@ function $search(this$static) {
   return !this$static.solution ? "Error 7" : $toString_2(this$static.solution);
 }
 
-function $solution(this$static, facelets, verbose) {
+function $solution(this$static, facelets, verbose, maxLength, probeMax) {
   var check;
   check = $verify_0(this$static, facelets);
   if (check !== 0) {
     return `Error ${check < 0 ? -check : check}`;
   }
-  this$static.solLen = 22;
+  this$static.solLen = (maxLength | 0) > 0 ? (maxLength | 0) + 1 : 22; // cube-solver: was 22
   this$static.probe = { l: 0, m: 0, h: 0 };
-  this$static.probeMax = { l: 3531008, m: 23, h: 0 };
+  // cube-solver: probe limit as a GWT long {l: low 22 bits, m: next 22 bits}; was 1e8
+  this$static.probeMax = probeMax > 0
+    ? { l: probeMax % 4194304, m: Math.floor(probeMax / 4194304), h: 0 }
+    : { l: 3531008, m: 23, h: 0 };
   this$static.probeMin = { l: 0, m: 0, h: 0 };
   this$static.verbose = verbose | 0; // cube-solver: was 0
   this$static.solution = null;
@@ -2902,8 +2909,8 @@ createForClass("com.google.gwt.user.client.rpc", "XsrfToken", null),
 const initialize = function () {
   init_0(false);
 };
-const solvePattern = function (s, verbose) {
-  return $solution(new Search(), s, verbose); // cube-solver: verbose
+const solvePattern = function (s, verbose, maxLength, probeMax) {
+  return $solution(new Search(), s, verbose, maxLength, probeMax); // cube-solver: verbose, limits
 };
 // cube-solver: classic-script export
 global.min2phase = { initialize: initialize, solvePattern: solvePattern };

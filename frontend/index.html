@@ -2193,12 +2193,21 @@ async function solve(){
     showSolution(local, "browser");
     if (local.moveCount === 0) return note("solveMsg","ok","That cube is already solved.");
     note("solveMsg","ok", `<b>${local.moveCount} turns</b> and you are done. `
-      + `<small>Found in your browser in ${localMs} ms — asking the server whether it can do shorter…</small>`);
+      + `<small>Found in your browser in ${localMs} ms — looking for a shorter one…</small>`);
   }
 
-  const r = await askServer(facelets, "quick");
+  // while the server works, a background worker hunts for something shorter
+  const [r, hunted] = await Promise.all([
+    askServer(facelets, "quick"),
+    local && local.moveCount ? huntShorter(facelets, local.moveCount, HUNT_MS) : null,
+  ]);
   if (stale()) return;
   const remote = r.solution && checked(r.solution) ? r.solution : null;
+  let deeper = null;
+  if (hunted){
+    try { deeper = E.buildSolution(facelets, E.parseMin2phase(facelets, hunted.raw), {mode:"quick"}); }
+    catch (e) { deeper = null; }
+  }
 
   if (!local){
     if (remote){ showSolution(remote, "server");
@@ -2206,20 +2215,47 @@ async function solve(){
     return note("solveMsg","err", (r.invalid && r.error) || (localErr && localErr.message)
       || "Could not solve that cube.");
   }
-  if (remote && remote.moveCount < local.moveCount){
+  // the shortest of: the first answer, the worker's, the server's
+  let best = local, from = "browser";
+  if (deeper && deeper.moveCount < best.moveCount){ best = deeper; from = "browser"; }
+  if (remote && remote.moveCount < best.moveCount){ best = remote; from = "server"; }
+  if (best !== local){
     const untouched = S.index === 0 && !S.playing;
     if (untouched){
-      showSolution(remote, "server");
-      return note("solveMsg","ok", `<b>${remote.moveCount} turns</b> and you are done. `
-        + `<small>The server found ${local.moveCount - remote.moveCount} fewer than the browser's `
-        + `${local.moveCount}, so you get the shorter one.</small>`);
+      showSolution(best, from);
+      return note("solveMsg","ok", `<b>${best.moveCount} turns</b> and you are done. `
+        + `<small>A deeper search found ${local.moveCount - best.moveCount} fewer than the first `
+        + `answer's ${local.moveCount}, so you get the shorter one.</small>`);
     }
-    return note("solveMsg","ok", `<b>${local.moveCount} turns.</b> <small>The server found a `
-      + `${remote.moveCount}-turn answer, but you have already started — press Solve again to switch.</small>`);
+    return note("solveMsg","ok", `<b>${local.moveCount} turns.</b> <small>A ${best.moveCount}-turn `
+      + `answer turned up, but you have already started — press Solve again to switch.</small>`);
   }
   note("solveMsg","ok", `<b>${local.moveCount} turns</b> and you are done. <small>`
-    + (remote ? `Both solvers checked — the server's best was ${remote.moveCount}.`
+    + (remote ? "Checked by a deeper search and by the server — this is the shortest they found."
               : "Solved offline in your browser.") + "</small>");
+}
+
+/*
+ * Hunt for an answer shorter than `below` turns in a background worker for
+ * `ms` milliseconds, then stop it. Resolves with the shortest it found
+ * ({raw, length}) or null. The worker keeps the page responsive: ruling a
+ * length out can take min2phase many seconds.
+ */
+const HUNT_MS = 1600;
+function huntShorter(facelets, below, ms){
+  return new Promise(resolve => {
+    let w, best = null, timer;
+    const finish = () => { clearTimeout(timer); try { w && w.terminate(); } catch {} resolve(best); };
+    try { w = new Worker("/static/js/shorter-worker.js"); }
+    catch (e) { return resolve(null); }
+    w.onmessage = e => {
+      if (e.data.done) return finish();
+      if (!best || e.data.length < best.length) best = e.data;
+    };
+    w.onerror = () => finish();
+    timer = setTimeout(finish, ms);
+    w.postMessage({facelets, below});
+  });
 }
 
 function renderSolution(){
