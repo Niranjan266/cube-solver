@@ -11,10 +11,11 @@ Two environment variables turn it on (set them in Vercel, never in code):
 Optional:
     SUPPORT_FROM      a sender on a domain verified in Resend
                       (default "Cube Solver <onboarding@resend.dev>")
-    RESEND_TEMPLATE   the id or alias of a published Resend template made
-                      from templates/support_email.html (e.g. support-message).
-                      Without it, the server fills that same file itself; if
-                      sending with the template fails, it falls back to that.
+    RESEND_TEMPLATE   the id or alias of the published Resend template made
+                      from templates/support_email.html (default
+                      "support-message"; "none" to not use one). If sending
+                      with the template fails, the server fills that same file
+                      itself and sends it, so nothing is lost.
 
 Every message is also written to the server log, so nothing is lost if email
 is not set up yet or Resend is down.
@@ -151,7 +152,7 @@ def _email(body: SupportIn, use_template: bool) -> dict:
         "subject": subject(body),
     }
     if use_template:
-        email["template"] = {"id": os.environ["RESEND_TEMPLATE"], "variables": variables(body, received)}
+        email["template"] = {"id": template_id(), "variables": variables(body, received)}
         return email
     rows = [("Type", KINDS[body.kind]), ("Name", body.name), ("Email", body.email)]
     if body.cubes:
@@ -161,6 +162,12 @@ def _email(body: SupportIn, use_template: bool) -> dict:
     email["html"] = render(body, received)
     email["text"] = "\n".join(f"{k}: {v}" for k, v in rows) + "\n\n" + (body.message or "(no message)")
     return email
+
+
+def template_id() -> str:
+    """The published Resend template to send with; RESEND_TEMPLATE=none turns it off."""
+    t = os.environ.get("RESEND_TEMPLATE", "support-message").strip()
+    return "" if t.lower() in ("", "none", "off") else t
 
 
 def _send(key: str, email: dict) -> bool:
@@ -186,7 +193,7 @@ def deliver(body: SupportIn) -> bool:
     key, to = os.environ.get("RESEND_API_KEY"), os.environ.get("SUPPORT_EMAIL")
     if not key or not to:
         return False
-    if os.environ.get("RESEND_TEMPLATE") and _send(key, _email(body, use_template=True)):
+    if template_id() and _send(key, _email(body, use_template=True)):
         return True
     # no template set, or the template send failed (not published, a variable
     # missing...): send the same design filled in here, so nothing is lost
