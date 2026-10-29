@@ -3,4 +3,3 @@ node_modules
 backend/data
 runs
 *.pt
-.claude
