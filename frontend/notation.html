@@ -1,0 +1,674 @@
+<!doctype html>
+<!-- written by hand-run generator; edit freely -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rubik's Cube Notation: How to Read Moves &amp; Algorithms</title>
+<meta name="description" content="Rubik's cube notation explained: what R, U, F, R' and R2 mean, wide moves (r, Rw), slice moves (M, E, S), rotations (x, y, z) and how to read an algorithm.">
+<link rel="canonical" href="https://cube.niranjand.in/notation">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Cube Solver">
+<meta property="og:title" content="Rubik's Cube Notation: How to Read Moves &amp; Algorithms">
+<meta property="og:description" content="Rubik's cube notation explained: what R, U, F, R' and R2 mean, wide moves (r, Rw), slice moves (M, E, S), rotations (x, y, z) and how to read an algorithm.">
+<meta property="og:url" content="https://cube.niranjand.in/notation">
+<meta property="og:image" content="https://cube.niranjand.in/static/icons/og-guide.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Rubik's cube notation: the six face turns R, L, U, D, F and B">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Rubik's Cube Notation: How to Read Moves &amp; Algorithms">
+<meta name="twitter:description" content="Rubik's cube notation explained: what R, U, F, R' and R2 mean, wide moves (r, Rw), slice moves (M, E, S), rotations (x, y, z) and how to read an algorithm.">
+<meta name="twitter:image" content="https://cube.niranjand.in/static/icons/og-guide.png">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "WebSite",
+   "@id": "https://cube.niranjand.in/#website",
+   "name": "Cube Solver",
+   "url": "https://cube.niranjand.in/",
+   "inLanguage": "en",
+   "publisher": {
+    "@id": "https://niranjand.in/#person"
+   },
+   "author": {
+    "@id": "https://niranjand.in/#person"
+   }
+  },
+  {
+   "@type": "TechArticle",
+   "@id": "https://cube.niranjand.in/notation#article",
+   "headline": "Rubik's cube notation: how to read moves and algorithms",
+   "url": "https://cube.niranjand.in/notation",
+   "mainEntityOfPage": "https://cube.niranjand.in/notation",
+   "datePublished": "2026-11-08",
+   "dateModified": "2026-11-08",
+   "description": "Rubik's cube notation explained: what R, U, F, R' and R2 mean, wide moves (r, Rw), slice moves (M, E, S), rotations (x, y, z) and how to read an algorithm.",
+   "image": "https://cube.niranjand.in/static/icons/og-guide.png",
+   "inLanguage": "en",
+   "author": {
+    "@id": "https://niranjand.in/#person"
+   },
+   "publisher": {
+    "@id": "https://niranjand.in/#person"
+   },
+   "isPartOf": {
+    "@id": "https://cube.niranjand.in/#website"
+   },
+   "about": [
+    {
+     "@type": "Thing",
+     "name": "Rubik's Cube"
+    },
+    {
+     "@type": "Thing",
+     "name": "Rubik's cube notation"
+    },
+    {
+     "@type": "Thing",
+     "name": "Singmaster notation"
+    }
+   ]
+  },
+  {
+   "@type": "BreadcrumbList",
+   "itemListElement": [
+    {
+     "@type": "ListItem",
+     "position": 1,
+     "name": "Cube Solver",
+     "item": "https://cube.niranjand.in/"
+    },
+    {
+     "@type": "ListItem",
+     "position": 2,
+     "name": "Solving guide",
+     "item": "https://cube.niranjand.in/guide"
+    },
+    {
+     "@type": "ListItem",
+     "position": 3,
+     "name": "Notation",
+     "item": "https://cube.niranjand.in/notation"
+    }
+   ]
+  },
+  {
+   "@type": "Person",
+   "@id": "https://niranjand.in/#person",
+   "name": "Niranjan D",
+   "url": "https://niranjand.in/",
+   "sameAs": [
+    "https://github.com/Niranjan266",
+    "https://www.linkedin.com/in/niranjan-d-54a7a3313/",
+    "https://x.com/Niranjan4407"
+   ]
+  },
+  {
+   "@type": "FAQPage",
+   "@id": "https://cube.niranjand.in/notation#faq",
+   "url": "https://cube.niranjand.in/notation",
+   "mainEntity": [
+    {
+     "@type": "Question",
+     "name": "What does R U R' U' mean on a Rubik's cube?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Turn the right face clockwise, the top face clockwise, the right face anticlockwise, then the top face anticlockwise, in that order. Cubers call it the “sexy move”; it is used to put in the white corners in the beginner method, and doing it six times in a row brings the cube back to where it started."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "What does the apostrophe mean in Rubik's cube notation?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "An apostrophe, said “prime”, means turn that face a quarter turn anticlockwise, as you look straight at it. So R' is the opposite of R, and doing R then R' changes nothing."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "What does a 2 after a letter mean, like R2?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Turn that face twice: a half turn of 180 degrees. Either direction gives the same result, so R2 and R2' mean the same thing."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "What is M in Rubik's cube notation?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "M is the middle slice between the left and right faces. It turns the same way as L: the front of the slice goes down. E is the slice between the top and bottom (turns like D) and S is the slice between the front and back (turns like F)."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "What does a lowercase letter like r or Rw mean?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "A wide turn: the face and the middle slice next to it turn together, two layers at once. On a 3×3 cube r and Rw mean the same thing, and r is the same as R and M' done at the same time."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "What do x, y and z mean in cube notation?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "They turn the whole cube in your hands, not one layer. x turns it the way R turns, y the way U turns and z the way F turns. They do not count as moves."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "How do you reverse a Rubik's cube algorithm?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Read it backwards and swap every turn for its opposite: R becomes R', R' becomes R, and half turns stay as they are. The reverse of R U R' U' is U R U' R'."
+     }
+    }
+   ]
+  }
+ ]
+}
+</script>
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#0e1116" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f3f4f6" media="(prefers-color-scheme: light)">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* the app's own tokens (keep in step with index.html) */
+  :root{
+    --bg:#f3f4f6; --surface:#ffffff; --surface-2:#f7f8fa; --surface-3:#eceff3;
+    --line:#e3e6eb; --line-strong:#cfd4dc;
+    --ink:#111418; --muted:#5d6673; --faint:#7b8491;
+    --accent:#2459e0; --accent-2:#1d4ac0; --accent-soft:rgba(36,89,224,.09); --accent-ink:#2459e0; --on-accent:#fff;
+    --good:#15803d; --good-soft:rgba(21,128,61,.08); --warn-soft:rgba(217,119,6,.11);
+    --shadow:0 1px 2px rgba(16,24,40,.05);
+    --font:"DM Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+    --display:"Space Grotesk","DM Sans",ui-sans-serif,system-ui,sans-serif;
+    --mono:ui-monospace,"SF Mono","Cascadia Code",Consolas,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0e1116; --surface:#161a21; --surface-2:#1d222b; --surface-3:#262c36;
+      --line:#262c36; --line-strong:#353d4c;
+      --ink:#eef1f5; --muted:#9aa4b2; --faint:#7d8795;
+      --accent:#4c8dff; --accent-2:#6ea3ff; --accent-soft:rgba(76,141,255,.14); --accent-ink:#8db4ff; --on-accent:#06101f;
+      --good:#3dd68c; --good-soft:rgba(61,214,140,.12); --warn-soft:rgba(240,181,74,.13);
+      --shadow:0 1px 2px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0e1116; --surface:#161a21; --surface-2:#1d222b; --surface-3:#262c36;
+    --line:#262c36; --line-strong:#353d4c;
+    --ink:#eef1f5; --muted:#9aa4b2; --faint:#7d8795;
+    --accent:#4c8dff; --accent-2:#6ea3ff; --accent-soft:rgba(76,141,255,.14); --accent-ink:#8db4ff; --on-accent:#06101f;
+    --good:#3dd68c; --good-soft:rgba(61,214,140,.12); --warn-soft:rgba(240,181,74,.13);
+    --shadow:0 1px 2px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;scroll-padding-top:84px}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 var(--font);-webkit-font-smoothing:antialiased}
+  h1,h2,h3,h4{font-family:var(--display);letter-spacing:-.015em;margin:0;line-height:1.2}
+  a{color:var(--accent-ink)}
+  code,.mono{font-family:var(--mono);font-size:.92em;background:var(--surface-3);padding:1px 6px;border-radius:6px}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:8px}
+  button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+  svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 16px;
+       border-radius:14px;background:var(--surface);border:1px solid var(--line);font-weight:600;font-size:14.5px;
+       text-decoration:none;color:var(--ink);white-space:nowrap}
+  .btn:hover{background:var(--surface-2);border-color:var(--line-strong)}
+  .btn.primary{background:var(--accent);border-color:transparent;color:var(--on-accent)}
+  .btn.primary:hover{background:var(--accent-2)}
+  .btn.sm{min-height:36px;padding:0 12px;font-size:13.5px;border-radius:11px}
+
+  /* ---------- top bar */
+  .topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;height:64px;padding:0 24px;
+          background:color-mix(in srgb, var(--surface) 92%, transparent);backdrop-filter:blur(12px);
+          border-bottom:1px solid var(--line)}
+  .brand{display:flex;align-items:center;gap:11px;text-decoration:none;color:var(--ink);flex:1;min-width:0}
+  .logo{width:32px;height:32px;flex:none;display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:4px;border-radius:9px;background:#15181e}
+  .logo i{border-radius:2px}
+  .brand b{font-family:var(--display);font-size:18px}
+  .brand span{color:var(--muted);font-size:14px}
+
+  /* ---------- layout */
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+  .hero{padding:48px 0 28px}
+  .hero h1{font-size:clamp(32px,5vw,48px);letter-spacing:-.03em}
+  .hero p.lead{font-size:18px;color:var(--muted);max-width:680px;margin:12px 0 0}
+  .picker{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:28px 0 0}
+  .pick{display:flex;flex-direction:column;gap:6px;padding:18px;border-radius:20px;background:var(--surface);
+        border:1px solid var(--line);text-decoration:none;color:var(--ink);box-shadow:var(--shadow);transition:.15s}
+  .pick:hover{border-color:var(--accent);transform:translateY(-1px)}
+  .pick b{font-family:var(--display);font-size:19px}
+  .pick small{color:var(--muted);font-size:14px;line-height:1.45}
+  .pick .tag{align-self:flex-start;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent-ink)}
+  .dots{display:flex;gap:4px}
+  .dots i{width:9px;height:9px;border-radius:50%;background:var(--surface-3)}
+  .dots i.on{background:var(--accent)}
+
+  .layout{display:grid;grid-template-columns:230px minmax(0,1fr);gap:36px;padding:24px 0 80px}
+  .toc{position:sticky;top:84px;align-self:start;display:flex;flex-direction:column;gap:2px;font-size:14.5px}
+  .toc a{display:block;padding:8px 12px;border-radius:10px;text-decoration:none;color:var(--muted);font-weight:500}
+  .toc a:hover{background:var(--surface);color:var(--ink)}
+  .toc a.on{background:var(--accent-soft);color:var(--accent-ink);font-weight:700}
+  .toc .sub{padding-left:24px;font-size:13.5px}
+  .chips{display:none}
+
+  section.block{margin:0 0 56px}
+  section.block > h2{font-size:30px;margin:0 0 6px}
+  .kicker{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-ink);margin-bottom:6px}
+  .lead2{color:var(--muted);font-size:17px;margin:0 0 20px;max-width:760px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:22px;box-shadow:var(--shadow)}
+  .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+  .grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+  .card h3{font-size:18px;margin-bottom:6px}
+  .card p{margin:0 0 8px;color:var(--muted)}
+  .card p b{color:var(--ink)}
+
+  /* pieces illustration */
+  .pieces{display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:center}
+  .pieces svg{width:210px;height:auto}
+  .legend{display:flex;flex-direction:column;gap:12px}
+  .legend div{display:flex;gap:12px;align-items:flex-start}
+  .legend i{width:18px;height:18px;border-radius:5px;flex:none;margin-top:3px}
+
+  /* notation */
+  .moves{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+  .mv{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 8px;text-align:center}
+  .mv svg{width:100%;max-width:110px;height:auto;display:block;margin:0 auto 4px}
+  .mv b{font-family:var(--display);font-size:20px;display:block}
+  .mv small{display:block;color:var(--muted);font-size:12.5px;line-height:1.35}
+
+  /* method */
+  .mhead{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;margin:14px 0 18px}
+  .stat{display:flex;flex-direction:column;gap:2px;font-size:13px;color:var(--muted)}
+  .stat b{font-size:15px;color:var(--ink)}
+  .holding{display:flex;gap:12px;padding:14px 16px;border-radius:14px;background:var(--accent-soft);color:var(--ink);font-size:15px;margin-bottom:18px}
+  .steps{display:flex;flex-direction:column;gap:14px;counter-reset:st}
+  .step{display:grid;grid-template-columns:44px minmax(0,1fr);gap:14px}
+  .step .n{width:44px;height:44px;border-radius:14px;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;
+           font:700 18px var(--display)}
+  .step h3{font-size:20px}
+  .goal{font-size:15px;color:var(--good);font-weight:600;margin:4px 0 8px}
+  .step p,.step li{color:var(--muted)}
+  .step p b,.step li b{color:var(--ink)}
+  .tipbox{display:flex;gap:10px;padding:11px 13px;border-radius:12px;background:var(--warn-soft);font-size:14.5px;margin:10px 0 0}
+  .algs{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin-top:14px}
+  .alg{display:flex;flex-direction:column;gap:8px;padding:14px;border-radius:16px;background:var(--surface-2);border:1px solid var(--line)}
+  .alg h4{font-size:16px}
+  .seq{display:flex;flex-wrap:wrap;gap:5px}
+  .seq span{font:700 15px var(--mono);padding:4px 8px;border-radius:8px;background:var(--surface);border:1px solid var(--line);min-width:32px;text-align:center}
+  .alg p{margin:0;font-size:14px;color:var(--muted)}
+  .alg .row{display:flex;gap:8px;flex-wrap:wrap}
+  .player{border-radius:14px;overflow:hidden;background:var(--surface);border:1px solid var(--line);min-height:0}
+  .player twisty-player{width:100%;height:240px}
+  .player .msg{padding:14px;font-size:14px;color:var(--muted)}
+
+  table{width:100%;border-collapse:collapse;font-size:15px;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+  th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:12.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);background:var(--surface-2)}
+  tr:last-child td{border-bottom:0}
+  .tablewrap{overflow-x:auto;border-radius:16px}
+  .sources li{margin:4px 0}
+  .faq{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+  .qa h3{font-size:17px;margin-bottom:6px}
+  .qa p{margin:0}
+  @media (max-width:760px){ .faq{grid-template-columns:minmax(0,1fr)} }
+  footer{border-top:1px solid var(--line);padding:24px 0 40px;color:var(--muted);font-size:14px}
+
+  @media (max-width:960px){
+    .picker{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .layout{grid-template-columns:minmax(0,1fr)}
+    .toc{display:none}
+    .chips{display:flex;gap:8px;overflow-x:auto;position:sticky;top:var(--barH, 64px);z-index:10;padding:10px 0;
+           background:var(--bg);scrollbar-width:none}
+    .chips a{flex:none;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);
+             text-decoration:none;color:var(--ink);font-weight:600;font-size:14px}
+    .moves{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .grid3{grid-template-columns:minmax(0,1fr)}
+  }
+  @media (max-width:960px){ html{scroll-padding-top:128px} }
+  @media (max-width:640px){
+    html{scroll-padding-top:120px}
+    :root{--barH:56px}
+    .topbar{padding:0 12px 0 16px;height:56px}
+    .brand > span:not(.logo){display:none}
+    .wrap{padding:0 16px}
+    .hero{padding:28px 0 18px}
+    .picker,.grid2{grid-template-columns:minmax(0,1fr)}
+    .pieces{grid-template-columns:minmax(0,1fr)}
+    .pieces svg{margin:0 auto;width:180px}
+    .step{grid-template-columns:minmax(0,1fr)}
+    .step .n{width:38px;height:38px;border-radius:12px;font-size:16px}
+    .algs{grid-template-columns:minmax(0,1fr)}
+    section.block > h2{font-size:26px}
+    #themeBtn .lbl,#openSolver .lbl,#openTimer .lbl{display:none}
+  }
+</style>
+<style>
+  .ref td code{white-space:nowrap}
+  .ref td:first-child{font:700 16px var(--mono);white-space:nowrap}
+  .prose p,.prose li{color:var(--muted);max-width:780px}
+  .prose p b,.prose li b{color:var(--ink)}
+  .prose h3{font-size:20px;margin:26px 0 6px}
+  .next{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+  .crumbs{font-size:14px;color:var(--muted);margin-bottom:10px}
+  .crumbs a{color:var(--muted)}
+  .alg .seq{cursor:text}
+  @media (max-width:640px){ #openGuide .lbl{display:none} }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="/">
+    <span class="logo" aria-hidden="true">
+      <i style="background:#e5383b"></i><i style="background:#f4f5f7"></i><i style="background:#22b04b"></i>
+      <i style="background:#ffd60a"></i><i style="background:#1e6fe0"></i><i style="background:#e5383b"></i>
+      <i style="background:#ff8a1f"></i><i style="background:#22b04b"></i><i style="background:#ffd60a"></i>
+    </span>
+    <b>Cube Solver</b><span>· Notation</span>
+  </a>
+  <a class="btn sm" id="openGuide" href="/guide"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2zM4 19V5M8 7h6"/></svg><span class="lbl">Guide</span></a>
+  <a class="btn sm primary" id="openSolver" href="/"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z"/></svg><span class="lbl">Open the solver</span></a>
+  <button class="btn sm" id="themeBtn" aria-label="Switch light or dark">◐ <span class="lbl">Theme</span></button>
+</header>
+
+<div class="wrap">
+  <div class="hero">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Cube Solver</a> › <a href="/guide">Solving guide</a> › Notation</nav>
+    <div class="kicker">Notation</div>
+    <h1>Rubik's cube notation: how to read moves and algorithms</h1>
+    <p class="lead">Every cube tutorial writes moves as letters like <code>R U R' U'</code>. This page explains all of it: the six faces, the prime and the 2, wide turns, slice moves, whole-cube rotations and how moves are counted.</p>
+  </div>
+</div>
+
+<div class="wrap">
+  <nav class="chips" aria-label="Jump to"><a href="#faces">Face turns</a><a href="#prime">Prime and 2</a><a href="#wide">Wide moves</a><a href="#slice">Slice moves</a><a href="#rotations">Rotations</a><a href="#reading">Reading algorithms</a></nav>
+  <div class="layout">
+    <nav class="toc" id="toc" aria-label="Contents"><a href="#faces" data-id="faces">Face turns</a><a href="#prime" data-id="prime">Prime and 2</a><a href="#wide" data-id="wide">Wide moves</a><a href="#slice" data-id="slice">Slice moves</a><a href="#rotations" data-id="rotations">Rotations</a><a href="#reading" data-id="reading">Reading algorithms</a><a href="#counting" data-id="counting">Move counts</a><a href="#scrambles" data-id="scrambles">Scrambles</a><a href="#faq" data-id="faq">FAQ</a><a href="#sources" data-id="sources">Sources</a></nav>
+    <main id="content">
+
+      <section class="block" id="faces">
+        <div class="kicker">The basics</div>
+        <h2>The six face turns: R, L, U, D, F and B</h2>
+        <p class="lead2">Rubik's cube notation is the shorthand cubers use to write down moves, so any solution or algorithm can be
+        shared as a line of letters. It is often called Singmaster notation, after the mathematician David Singmaster who devised it.
+        Each capital letter names one side of the cube, as seen from where you are holding it:</p>
+        <div class="tablewrap"><table class="ref">
+          <thead><tr><th>Letter</th><th>Face</th><th>Where it is</th></tr></thead>
+          <tbody>
+            <tr><td>R</td><td>Right</td><td>the right-hand column, facing your right</td></tr>
+            <tr><td>L</td><td>Left</td><td>the left-hand column, facing your left</td></tr>
+            <tr><td>U</td><td>Up</td><td>the top layer</td></tr>
+            <tr><td>D</td><td>Down</td><td>the bottom layer</td></tr>
+            <tr><td>F</td><td>Front</td><td>the side facing you</td></tr>
+            <tr><td>B</td><td>Back</td><td>the side facing away from you</td></tr>
+          </tbody>
+        </table></div>
+        <p class="lead2" style="margin-top:20px">A letter on its own means turn that face a <b>quarter turn clockwise, as if you were
+        looking straight at that face</b>. This is what each one looks like from the front (the blue squares are the pieces that move):</p>
+        <div class="moves">
+<div class="mv"><svg viewBox="0 0 130 130" role="img" aria-label="U: top layer, front row slides left"><rect x="30" y="30" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"/><rect x="54" y="30" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"/><rect x="78" y="30" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"/><rect x="30" y="54" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"/><rect x="54" y="54" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"/><rect x="78" y="54" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"/><rect x="30" y="78" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"/><rect x="54" y="78" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"/><rect x="78" y="78" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"/><line x1="106" y1="18" x2="38" y2="18" stroke="#3b82f6" stroke-width="6" stroke-linecap="round"/>
+          <polygon points="24,18 38,12.5 38,23.5" fill="#3b82f6"/></svg><b>U</b><small>top layer<br>front row slides left</small></div>
+<div class="mv"><svg viewBox="0 0 130 130" role="img" aria-label="D: bottom layer, front row slides right"><rect x="30" y="30" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"/><rect x="54" y="30" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"/><rect x="78" y="30" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"/><rect x="30" y="54" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"/><rect x="54" y="54" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"/><rect x="78" y="54" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"/><rect x="30" y="78" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"/><rect x="54" y="78" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"/><rect x="78" y="78" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"/><line x1="24" y1="112" x2="92" y2="112" stroke="#3b82f6" stroke-width="6" stroke-linecap="round"/>
+          <polygon points="106,112 92,117.5 92,106.5" fill="#3b82f6"/></svg><b>D</b><small>bottom layer<br>front row slides right</small></div>
+<div class="mv"><svg viewBox="0 0 130 130" role="img" aria-label="R: right side, rolls up at the front"><rect x="30" y="30" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"/><rect x="54" y="30" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"/><rect x="78" y="30" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"/><rect x="30" y="54" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"/><rect x="54" y="54" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"/><rect x="78" y="54" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"/><rect x="30" y="78" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"/><rect x="54" y="78" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"/><rect x="78" y="78" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"/><line x1="116" y1="106" x2="116" y2="38" stroke="#3b82f6" stroke-width="6" stroke-linecap="round"/>
+          <polygon points="116,24 121.5,38 110.5,38" fill="#3b82f6"/></svg><b>R</b><small>right side<br>rolls up at the front</small></div>
+<div class="mv"><svg viewBox="0 0 130 130" role="img" aria-label="L: left side, rolls down at the front"><rect x="30" y="30" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"/><rect x="54" y="30" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"/><rect x="78" y="30" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"/><rect x="30" y="54" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"/><rect x="54" y="54" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"/><rect x="78" y="54" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"/><rect x="30" y="78" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"/><rect x="54" y="78" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"/><rect x="78" y="78" width="22" height="22" rx="5" fill="rgba(128,140,160,.22)" stroke="rgba(128,140,160,.55)" stroke-width="1.5"/><line x1="14" y1="24" x2="14" y2="92" stroke="#3b82f6" stroke-width="6" stroke-linecap="round"/>
+          <polygon points="14,106 8.5,92 19.5,92" fill="#3b82f6"/></svg><b>L</b><small>left side<br>rolls down at the front</small></div>
+<div class="mv"><svg viewBox="0 0 130 130" role="img" aria-label="F: front, clockwise, like a clock"><rect x="30" y="30" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"/><rect x="54" y="30" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"/><rect x="78" y="30" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"/><rect x="30" y="54" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"/><rect x="54" y="54" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"/><rect x="78" y="54" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"/><rect x="30" y="78" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"/><rect x="54" y="78" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"/><rect x="78" y="78" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"/><path d="M 26.488437297634633 33.11176489327482 A 50 50 0 0 1 106.26678074548391 36.76787633024823" fill="none" stroke="#3b82f6" stroke-width="6" stroke-linecap="round"/><line x1="106.26678074548391" y1="36.76787633024823" x2="106.26678074548391" y2="36.76787633024823" stroke="#3b82f6" stroke-width="6" stroke-linecap="round"/>
+          <polygon points="114.17177537301441,48.32257493898372 101.72743486348068,39.873409933920925 110.80612662748715,33.66234272657553" fill="#3b82f6"/></svg><b>F</b><small>front<br>clockwise, like a clock</small></div>
+<div class="mv"><svg viewBox="0 0 130 130" role="img" aria-label="B: back, looks anticlockwise from the front"><rect x="30" y="30" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"/><rect x="54" y="30" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"/><rect x="78" y="30" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"/><rect x="30" y="54" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"/><rect x="54" y="54" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"/><rect x="78" y="54" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"/><rect x="30" y="78" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"/><rect x="54" y="78" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"/><rect x="78" y="78" width="22" height="22" rx="5" fill="rgba(59,130,246,.5)" stroke="#3b82f6" stroke-width="2"/><path d="M 106.26678074548391 36.76787633024823 A 50 50 0 0 0 26.488437297634633 33.11176489327482" fill="none" stroke="#3b82f6" stroke-width="6" stroke-linecap="round"/><line x1="26.488437297634633" y1="33.11176489327482" x2="26.488437297634633" y2="33.11176489327482" stroke="#3b82f6" stroke-width="6" stroke-linecap="round"/>
+          <polygon points="17.559731467751583,43.895002449937124 22.25216540037444,29.604059031535048 30.724709194894825,36.61947075501459" fill="#3b82f6"/></svg><b>B</b><small>back<br>looks anticlockwise from the front</small></div>
+        </div>
+      </section>
+
+      <section class="block prose" id="prime">
+        <div class="kicker">Direction</div>
+        <h2>Prime (') and 2: anticlockwise and half turns</h2>
+        <p>Two marks can follow a letter. Using the right face as the example:</p>
+        <div class="tablewrap"><table class="ref">
+          <thead><tr><th>Move</th><th>Say it</th><th>What to do</th></tr></thead>
+          <tbody>
+            <tr><td>R</td><td>“R”</td><td>right face a quarter turn clockwise (the front of it goes up)</td></tr>
+            <tr><td>R'</td><td>“R prime”</td><td>right face a quarter turn anticlockwise (the front of it goes down)</td></tr>
+            <tr><td>R2</td><td>“R two”</td><td>right face a half turn, 180°; either direction gives the same result</td></tr>
+          </tbody>
+        </table></div>
+        <h3>The part that trips everyone up</h3>
+        <p>“Clockwise” always means clockwise <b>when you look straight at that face</b>, not as you see it from the front. So:</p>
+        <ul>
+          <li><b>U</b> moves the front row of the top layer to the <b>left</b>, but <b>D</b> moves the front row of the bottom layer to the <b>right</b>.</li>
+          <li><b>R</b> rolls the right column <b>up</b> at the front, but <b>L</b> rolls the left column <b>down</b> at the front.</li>
+          <li><b>F</b> turns like a clock hand as you face it, but <b>B</b> looks anticlockwise from the front.</li>
+        </ul>
+        <p>Keep the same face towards you the whole time you follow an algorithm: the letters only make sense if the cube does not turn in your hands.</p>
+      </section>
+
+      <section class="block prose" id="wide">
+        <div class="kicker">Two layers at once</div>
+        <h2>Wide moves: r, l, u, d, f, b (Rw, Lw…)</h2>
+        <p>A <b>lowercase</b> letter means a wide turn: that face and the middle slice next to it turn together, as one block of two layers.
+        It is also written with a <b>w</b>: <code>r</code> and <code>Rw</code> mean the same thing on a 3×3 cube. The direction is the same as the
+        capital letter, so <code>r</code> turns like <code>R</code>, <code>r'</code> like <code>R'</code> and <code>r2</code> is a half turn.</p>
+        <p>Wide turns appear in several last-layer algorithms, for example the Chameleon OLL <code>r U R' U' r' F R F'</code>.
+        On bigger cubes such as the 4×4, <code>Rw</code> is the two outer right layers and a number in front (<code>3Rw</code>) says how many layers to turn.</p>
+      </section>
+
+      <section class="block prose" id="slice">
+        <div class="kicker">The middle layers</div>
+        <h2>Slice moves: M, E and S</h2>
+        <div class="tablewrap"><table class="ref">
+          <thead><tr><th>Move</th><th>Slice</th><th>Turns the same way as</th></tr></thead>
+          <tbody>
+            <tr><td>M</td><td>Middle: between L and R</td><td><code>L</code> (the front of the slice goes down)</td></tr>
+            <tr><td>E</td><td>Equator: between U and D</td><td><code>D</code> (the front of the slice goes right)</td></tr>
+            <tr><td>S</td><td>Standing: between F and B</td><td><code>F</code></td></tr>
+          </tbody>
+        </table></div>
+        <p style="margin-top:14px"><code>M'</code>, <code>E'</code>, <code>S'</code> and <code>M2</code>, <code>E2</code>, <code>S2</code> work the same way as for faces.
+        M moves are the heart of the Roux method's last step and of the H-perm <code>M2 U M2 U2 M2 U M2</code>.</p>
+      </section>
+
+      <section class="block prose" id="rotations">
+        <div class="kicker">Turning the whole cube</div>
+        <h2>Cube rotations: x, y and z</h2>
+        <p>These turn the <b>whole cube</b> in your hands; no layer moves against another, so they do not count as moves.</p>
+        <div class="tablewrap"><table class="ref">
+          <thead><tr><th>Rotation</th><th>Turns the whole cube the way…</th></tr></thead>
+          <tbody>
+            <tr><td>x</td><td><code>R</code> turns (the front goes up to the top)</td></tr>
+            <tr><td>y</td><td><code>U</code> turns (the front goes to the left)</td></tr>
+            <tr><td>z</td><td><code>F</code> turns (the top goes to the right)</td></tr>
+          </tbody>
+        </table></div>
+        <p style="margin-top:14px">As usual, <code>y'</code> is the other way and <code>y2</code> is a half rotation. You will most often see
+        <code>y</code> or <code>y'</code> in F2L and OLL algorithms, to bring the right slot to the front.</p>
+      </section>
+
+      <section class="block prose" id="reading">
+        <div class="kicker">Putting it together</div>
+        <h2>How to read an algorithm</h2>
+        <p>An <b>algorithm</b> is a fixed sequence of moves that does one job, read from left to right. Take the Sune, a last-layer algorithm:</p>
+        <div class="algs">
+            <div class="alg" data-alg="R U R' U R U2 R'" data-check="f2l">
+              <h4>Sune</h4>
+              <div class="seq" aria-label="R U R' U R U2 R'"><span>R</span><span>U</span><span>R'</span><span>U</span><span>R</span><span>U2</span><span>R'</span></div>
+              <p>Right clockwise, top clockwise, right anticlockwise, top clockwise, right clockwise, top half turn, right anticlockwise. It turns three top corners without touching the first two layers.</p>
+              <div class="row">
+                <button class="btn sm watch" data-alg="R U R' U R U2 R'" data-st="OLL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"/></svg>Watch</button>
+                <button class="btn sm copy" data-alg="R U R' U R U2 R'">Copy</button>
+              </div>
+              <div class="player" hidden></div>
+            </div>
+          </div>
+        <h3>Brackets and repeats</h3>
+        <p>Brackets group moves that flow together (“triggers”), to make long algorithms easier to remember:
+        <code>(R U R' U') (R' F R F')</code>. A number after a bracket means repeat it: <code>(R U R' U') ×3</code>, sometimes
+        written <code>(R U R' U')3</code>, is the four moves done three times. Spaces are optional, so <code>RUR'U'</code> is the same as <code>R U R' U'</code>.</p>
+        <h3>Reversing an algorithm</h3>
+        <p>To undo an algorithm, read it backwards and swap every turn for its opposite (half turns stay the same). The reverse of
+        <code>R U R' U'</code> is <code>U R U' R'</code>; doing an algorithm and then its reverse leaves the cube exactly as it was.</p>
+        <h3>Triggers with names</h3>
+        <p>A few short sequences come up so often that they have nicknames:</p>
+        <div class="algs">
+            <div class="alg" data-alg="R U R' U'" data-check="order6">
+              <h4>The “sexy move”</h4>
+              <div class="seq" aria-label="R U R' U'"><span>R</span><span>U</span><span>R'</span><span>U'</span></div>
+              <p>The most common trigger of all. Six in a row bring the cube back to the start.</p>
+              <div class="row">
+                <button class="btn sm watch" data-alg="R U R' U'" data-st="F2L" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"/></svg>Watch</button>
+                <button class="btn sm copy" data-alg="R U R' U'">Copy</button>
+              </div>
+              <div class="player" hidden></div>
+            </div>
+            <div class="alg" data-alg="R' F R F'" data-check="order6">
+              <h4>The sledgehammer</h4>
+              <div class="seq" aria-label="R' F R F'"><span>R'</span><span>F</span><span>R</span><span>F'</span></div>
+              <p>Used in many OLL algorithms. It also returns to the start after six repeats.</p>
+              <div class="row">
+                <button class="btn sm watch" data-alg="R' F R F'" data-st="full" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"/></svg>Watch</button>
+                <button class="btn sm copy" data-alg="R' F R F'">Copy</button>
+              </div>
+              <div class="player" hidden></div>
+            </div>
+          </div>
+      </section>
+
+      <section class="block prose" id="counting">
+        <div class="kicker">Move counts</div>
+        <h2>How moves are counted</h2>
+        <p>When people say a solution is “20 moves”, they are usually counting in the <b>half-turn metric</b> (HTM): any turn of one face,
+        a quarter or a half, is one move. In the <b>quarter-turn metric</b> (QTM) a half turn counts as two, and the <b>slice-turn metric</b>
+        (STM) also counts an M, E or S turn as one move.</p>
+        <p>Every position of the 3×3 cube can be solved in <b>20 moves or fewer</b> in the half-turn metric (proven in 2010) and in
+        <b>26 or fewer</b> in the quarter-turn metric (proven in 2014). That limit is known as God's number. The
+        <a href="/">Rubik's cube solver</a> on this site counts in the half-turn metric: its Shortest mode usually finds about 20 moves and never more than 22.</p>
+      </section>
+
+      <section class="block prose" id="scrambles">
+        <div class="kicker">Scrambles</div>
+        <h2>Scramble notation</h2>
+        <p>A scramble is written in the same notation, using only face turns, for example <code>R2 D' B U2 L F' …</code>.
+        It is applied to a solved cube held with <b>white on top and green in front</b>, the standard orientation in competitions.
+        The <a href="/timer">cube timer</a> on this site writes a new random scramble for every solve and draws what the cube should look like after it.</p>
+        <div class="next">
+          <a class="btn" href="/algorithms">Next: the algorithms cheat sheet →</a>
+          <a class="btn" href="/guide">The step-by-step solving guide</a>
+        </div>
+      </section>
+
+      <section class="block" id="faq">
+        <div class="kicker">Quick answers</div>
+        <h2>Questions people ask</h2>
+        <div class="faq">
+          <div class="card qa"><h3>What does R U R' U' mean on a Rubik's cube?</h3><p>Turn the right face clockwise, the top face clockwise, the right face anticlockwise, then the top face anticlockwise, in that order. Cubers call it the “sexy move”; it is used to put in the white corners in the beginner method, and doing it six times in a row brings the cube back to where it started.</p></div>
+          <div class="card qa"><h3>What does the apostrophe mean in Rubik's cube notation?</h3><p>An apostrophe, said “prime”, means turn that face a quarter turn anticlockwise, as you look straight at it. So <code>R'</code> is the opposite of <code>R</code>, and doing <code>R</code> then <code>R'</code> changes nothing.</p></div>
+          <div class="card qa"><h3>What does a 2 after a letter mean, like R2?</h3><p>Turn that face twice: a half turn of 180 degrees. Either direction gives the same result, so <code>R2</code> and <code>R2'</code> mean the same thing.</p></div>
+          <div class="card qa"><h3>What is M in Rubik's cube notation?</h3><p><b>M</b> is the middle slice between the left and right faces. It turns the same way as <code>L</code>: the front of the slice goes down. <b>E</b> is the slice between the top and bottom (turns like <code>D</code>) and <b>S</b> is the slice between the front and back (turns like <code>F</code>).</p></div>
+          <div class="card qa"><h3>What does a lowercase letter like r or Rw mean?</h3><p>A wide turn: the face and the middle slice next to it turn together, two layers at once. On a 3×3 cube <code>r</code> and <code>Rw</code> mean the same thing, and <code>r</code> is the same as <code>R</code> and <code>M'</code> done at the same time.</p></div>
+          <div class="card qa"><h3>What do x, y and z mean in cube notation?</h3><p>They turn the whole cube in your hands, not one layer. <code>x</code> turns it the way <code>R</code> turns, <code>y</code> the way <code>U</code> turns and <code>z</code> the way <code>F</code> turns. They do not count as moves.</p></div>
+          <div class="card qa"><h3>How do you reverse a Rubik's cube algorithm?</h3><p>Read it backwards and swap every turn for its opposite: <code>R</code> becomes <code>R'</code>, <code>R'</code> becomes <code>R</code>, and half turns stay as they are. The reverse of <code>R U R' U'</code> is <code>U R U' R'</code>.</p></div>
+        </div>
+      </section>
+
+      <section class="block" id="sources">
+        <div class="kicker">Further reading</div>
+        <h2>Sources</h2>
+        <p class="lead2" style="font-size:16px">Written in our own words. The move sequences are the standard ones cubers share, and every one on this page is checked on this site's own cube engine. These pages go further:</p>
+        <ul class="sources">
+          <li><a href="https://jperm.net/3x3/moves" target="_blank" rel="noopener">J Perm — Rubik's cube move notation</a></li>
+          <li><a href="https://rubiks.fandom.com/wiki/Notation" target="_blank" rel="noopener">WikiCube — Notation (Singmaster notation)</a></li>
+          <li><a href="https://www.speedsolving.com/wiki/index.php?title=3x3x3_notation" target="_blank" rel="noopener">Speedsolving wiki — 3x3x3 notation</a></li>
+          <li><a href="https://www.cube20.org/" target="_blank" rel="noopener">cube20.org — God's number is 20</a></li>
+          <li><a href="https://www.cube20.org/qtm/" target="_blank" rel="noopener">cube20.org — God's number is 26 in the quarter-turn metric</a></li>
+        </ul>
+      </section>
+    </main>
+  </div>
+</div>
+<footer><div class="wrap">Cube Solver · <a href="/">Rubik's cube solver</a> · <a href="/guide">Solving guide</a> · <a href="/notation">Notation</a> · <a href="/algorithms">Algorithms</a> · <a href="/timer">Timer</a> · <a href="/support">Support &amp; requests</a> · Made by <a href="https://niranjand.in/" rel="author">Niranjan D</a> · Updated <time datetime="2026-11-08">8 November 2026</time></div></footer>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
+function applyTheme(t){
+  if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+  else delete document.documentElement.dataset.theme;
+}
+const store = {get: k => { try { return localStorage.getItem("cube." + k); } catch { return null; } },
+               set: (k, v) => { try { localStorage.setItem("cube." + k, v); } catch {} }};
+applyTheme(store.get("theme"));
+$("themeBtn").onclick = () => {
+  const order = [null, "light", "dark"], cur = store.get("theme");
+  const next = order[(order.indexOf(cur === "light" || cur === "dark" ? cur : null) + 1) % 3];
+  store.set("theme", next || ""); applyTheme(next);
+};
+let twistyReady = null;
+function loadTwisty(){
+  if (!twistyReady) twistyReady = (async () => {
+    const srcs = ["https://cdn.cubing.net/v0/js/cubing/twisty",
+                  "https://cdn.jsdelivr.net/npm/cubing@0.63.6/dist/lib/cubing/twisty/index.js"];
+    let err;
+    for (const s of srcs) { try { await import(s); return; } catch (e) { err = e; } }
+    throw err;
+  })();
+  return twistyReady;
+}
+document.addEventListener("click", async e => {
+  const w = e.target.closest(".watch"), c = e.target.closest(".copy");
+  if (c){
+    try { await navigator.clipboard.writeText(c.dataset.alg); c.textContent = "Copied"; }
+    catch { c.textContent = "Select and copy"; }
+    setTimeout(() => c.textContent = "Copy", 1500);
+    return;
+  }
+  if (!w) return;
+  const box = w.closest(".alg").querySelector(".player");
+  const open = box.hidden;
+  box.hidden = !open;
+  w.setAttribute("aria-expanded", open);
+  if (!open || box.dataset.ready) return;
+  box.innerHTML = '<div class="msg">Loading the 3D cube…</div>';
+  try {
+    await loadTwisty();
+    const tp = document.createElement("twisty-player");
+    tp.puzzle = "3x3x3";
+    tp.alg = w.dataset.alg;
+    tp.experimentalSetupAnchor = "end";
+    try { tp.experimentalStickering = w.dataset.st; } catch {}
+    tp.background = "none";
+    tp.controlPanel = "bottom-row";
+    tp.hintFacelets = "floating";
+    box.innerHTML = ""; box.appendChild(tp); box.dataset.ready = "1";
+    [100, 500, 1200, 2500].forEach(ms => setTimeout(() => dispatchEvent(new Event("resize")), ms));
+    setTimeout(() => { try { tp.play(); } catch {} }, 600);
+  } catch (err) {
+    box.innerHTML = '<div class="msg">Could not load the 3D player (it needs an internet connection). Do the moves on your cube: <code>' + esc(w.dataset.alg) + '</code></div>';
+  }
+});
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) setTimeout(() => dispatchEvent(new Event("resize")), 60);
+});
+const links = [...document.querySelectorAll("#toc a")];
+if ("IntersectionObserver" in window){
+  const io = new IntersectionObserver(es => es.forEach(en => {
+    if (en.isIntersecting) links.forEach(a => a.classList.toggle("on", a.dataset.id === en.target.id));
+  }), {rootMargin: "-30% 0px -60% 0px"});
+  links.forEach(a => { const el = $(a.dataset.id); if (el) io.observe(el); });
+}
+</script>
+</body>
+</html>
