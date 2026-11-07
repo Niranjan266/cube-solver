@@ -34,7 +34,7 @@ from vision import detect, yolo
 
 FACE_ORDER = "URFDLB"
 SITE = "https://cube.niranjand.in"       # the address search engines should use
-PAGES = ["/", "/guide", "/timer", "/support"]   # the public pages, for the sitemap
+PAGES = ["/", "/guide", "/notation", "/algorithms", "/timer", "/support"]   # the public pages, for the sitemap
 INDEXNOW_KEY = "f6281d28f6fb57169945d09bead0bbd5"   # public by design (IndexNow)
 FRONTEND = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend")
 
@@ -333,6 +333,14 @@ if os.path.isdir(FRONTEND):
         # that do not run JavaScript (tools/prerender-guide.mjs)
         static = os.path.join(FRONTEND, "guide.static.html")
         return FileResponse(static if os.path.exists(static) else os.path.join(FRONTEND, "guide.html"))
+
+    @app.api_route("/notation", methods=["GET", "HEAD"])
+    def notation():
+        return FileResponse(os.path.join(FRONTEND, "notation.html"))
+
+    @app.api_route("/algorithms", methods=["GET", "HEAD"])
+    def algorithms():
+        return FileResponse(os.path.join(FRONTEND, "algorithms.html"))
 
     @app.api_route("/support", methods=["GET", "HEAD"])
     def support_page():
