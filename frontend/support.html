@@ -15,7 +15,50 @@
 <meta property="og:image" content="https://cube.niranjand.in/static/icons/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Cube Solver: a Rubik's cube solver that reads your cube with the camera">
+<meta property="og:locale" content="en_US">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Support: Report a Bug or Request a Cube | Cube Solver">
+<meta name="twitter:description" content="Found a bug or want another puzzle solved, like a 2×2 or mirror cube? Tell us here. We read every message.">
+<meta name="twitter:image" content="https://cube.niranjand.in/static/icons/og-image.png">
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "ContactPage",
+   "@id": "https://cube.niranjand.in/support#webpage",
+   "name": "Support: Report a Bug or Request a Cube",
+   "url": "https://cube.niranjand.in/support",
+   "inLanguage": "en",
+   "isPartOf": {"@id": "https://cube.niranjand.in/#website"},
+   "author": {"@id": "https://niranjand.in/#person"}
+  },
+  {
+   "@type": "BreadcrumbList",
+   "itemListElement": [
+    {"@type": "ListItem", "position": 1, "name": "Cube Solver", "item": "https://cube.niranjand.in/"},
+    {"@type": "ListItem", "position": 2, "name": "Support", "item": "https://cube.niranjand.in/support"}
+   ]
+  },
+  {
+   "@type": "WebSite",
+   "@id": "https://cube.niranjand.in/#website",
+   "name": "Cube Solver",
+   "url": "https://cube.niranjand.in/",
+   "inLanguage": "en",
+   "publisher": {"@id": "https://niranjand.in/#person"}
+  },
+  {
+   "@type": "Person",
+   "@id": "https://niranjand.in/#person",
+   "name": "Niranjan D",
+   "url": "https://niranjand.in/",
+   "sameAs": ["https://github.com/Niranjan266", "https://www.linkedin.com/in/niranjan-d-54a7a3313/", "https://x.com/Niranjan4407"]
+  }
+ ]
+}
+</script>
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
@@ -82,6 +125,7 @@
   h1{font-size:clamp(28px,5vw,36px)}
   .sub{color:var(--muted);margin:6px 0 22px}
   .card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:var(--shadow)}
+  .credit{color:var(--muted);font-size:14px;text-align:center;margin:22px 0 0}
 
   .kinds{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:18px}
   .kind{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 6px;border-radius:16px;
@@ -172,6 +216,7 @@
       <a class="btn" href="/">Back to the solver</a>
     </div>
   </div>
+  <p class="credit">Cube Solver · <a href="/guide">Solving guide</a> · <a href="/timer">Timer</a> · Made by <a href="https://niranjand.in/" rel="author">Niranjan D</a></p>
 </main>
 
 <script>

@@ -34,7 +34,13 @@
    "@id": "https://cube.niranjand.in/#website",
    "name": "Cube Solver",
    "url": "https://cube.niranjand.in/",
-   "inLanguage": "en"
+   "inLanguage": "en",
+   "publisher": {
+    "@id": "https://niranjand.in/#person"
+   },
+   "author": {
+    "@id": "https://niranjand.in/#person"
+   }
   },
   {
    "@type": "WebApplication",
@@ -48,22 +54,104 @@
     "priceCurrency": "USD"
    },
    "author": {
-    "@type": "Person",
-    "name": "Niranjan D",
-    "url": "https://cube.niranjand.in/"
+    "@id": "https://niranjand.in/#person"
    },
    "name": "Cube Solver – Rubik's Cube Solver",
    "url": "https://cube.niranjand.in/",
    "description": "Scan a Rubik's cube with your camera or enter the colours by hand, then follow a 3D animation that solves it in about 20 moves. Beginner (layer by layer) and CFOP modes.",
    "featureList": [
-    "Camera scanning of all six sides",
-    "Solutions in about 20 moves",
+    "Camera scanning of all six sides, in any order and any way up",
+    "Upload photos of the sides or enter the colours by hand",
+    "Shortest mode: about 20 turns, never more than 22 (two-phase algorithm)",
     "Beginner layer-by-layer and CFOP modes",
-    "Step-by-step 3D animation with turn arrows",
+    "Step-by-step 3D animation with an arrow for every turn",
     "Adjustable speed from 0.01x to 2x",
     "Light and dark themes"
    ],
-   "screenshot": "https://cube.niranjand.in/static/icons/og-image.png"
+   "screenshot": "https://cube.niranjand.in/static/icons/og-image.png",
+   "@id": "https://cube.niranjand.in#app",
+   "creator": {
+    "@id": "https://niranjand.in/#person"
+   },
+   "inLanguage": "en",
+   "image": "https://cube.niranjand.in/static/icons/icon-512.png",
+   "isPartOf": {
+    "@id": "https://cube.niranjand.in/#website"
+   }
+  },
+  {
+   "@type": "Person",
+   "@id": "https://niranjand.in/#person",
+   "name": "Niranjan D",
+   "url": "https://niranjand.in/",
+   "sameAs": [
+    "https://github.com/Niranjan266",
+    "https://www.linkedin.com/in/niranjan-d-54a7a3313/",
+    "https://x.com/Niranjan4407"
+   ]
+  },
+  {
+   "@type": "FAQPage",
+   "@id": "https://cube.niranjand.in/#faq",
+   "url": "https://cube.niranjand.in/",
+   "mainEntity": [
+    {
+     "@type": "Question",
+     "name": "What is Cube Solver?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Cube Solver is a free online Rubik's cube solver that runs in your web browser. You show each side of a 3×3 cube to your phone or computer camera (or upload photos, or enter the colours by hand), and it shows every turn as a 3D animation with an arrow until the cube is solved."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "How many moves does it take to solve my cube?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "In Shortest mode the solution is about 20 turns and never more than 22. Beginner mode solves it layer by layer, with many more turns but a goal you can see at every stage, and CFOP mode uses the speedcubers' method, about 65 turns."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Is Cube Solver free? Do I need an account?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Yes, it is free and needs no account or sign-up. It works in a web browser on phones and computers; the 3D cube needs JavaScript and WebGL."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Is my camera video uploaded?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "No. When you scan with the camera, the colours are read in your browser from the live picture, and only the 54 colour readings are sent to the server to double-check them. If you upload photos instead, each photo is sent to the server so it can find the nine stickers."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Which cubes can it solve?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "The standard 3×3 Rubik's cube with the usual colour layout: white opposite yellow, green opposite blue, red opposite orange. Other puzzles such as the 2×2 are not supported yet; you can ask for them on the support page."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Why does it say my cube cannot be solved?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Usually one sticker was read as the wrong colour, often red and orange under warm light. Use Fix a colour to correct it. If a piece was taken out and put back the wrong way, or a corner was twisted by hand, the cube really cannot be solved until that piece is put back correctly."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "How can I learn to solve a Rubik's cube myself?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Read the step-by-step solving guide at cube.niranjand.in/guide. It starts with the pieces and the move notation, teaches the beginner layer-by-layer method, then CFOP, Roux and ZZ, with every move shown on a 3D cube."
+     }
+    }
+   ]
   }
  ]
 }
@@ -421,6 +509,8 @@
   .sheet h3:first-child{margin-top:0}
   .sheet p{margin:0 0 10px;color:var(--muted);font-size:14.5px}
   .sheet p b{color:var(--ink)}
+  .sheet h4{font-family:var(--display);font-size:14.5px;margin:16px 0 4px}
+  .sheet .credit{margin-top:24px;padding-top:14px;border-top:1px solid var(--line);font-size:13.5px}
   .facemap{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:10px 0 4px}
   .facemap div{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;
                padding:10px 12px;font-size:13.5px;color:var(--muted)}
@@ -830,6 +920,24 @@
       <p><b>CFOP</b> is the method speedcubers use: <b>C</b>ross, <b>F</b>irst two
       layers (four corner-and-edge pairs), <b>O</b>rient the last layer, <b>P</b>ermute
       the last layer. About 65 turns. You still never rotate the whole cube.</p>
+
+      <h3 id="faq">8. Questions people ask</h3>
+      <h4>What is Cube Solver?</h4>
+      <p>Cube Solver is a free online Rubik's cube solver that runs in your web browser. You show each side of a 3×3 cube to your phone or computer camera (or upload photos, or enter the colours by hand), and it shows every turn as a 3D animation with an arrow until the cube is solved.</p>
+      <h4>How many moves does it take to solve my cube?</h4>
+      <p>In <b>Shortest</b> mode the solution is about 20 turns and never more than 22. <b>Beginner</b> mode solves it layer by layer, with many more turns but a goal you can see at every stage, and <b>CFOP</b> mode uses the speedcubers' method, about 65 turns.</p>
+      <h4>Is Cube Solver free? Do I need an account?</h4>
+      <p>Yes, it is free and needs no account or sign-up. It works in a web browser on phones and computers; the 3D cube needs JavaScript and WebGL.</p>
+      <h4>Is my camera video uploaded?</h4>
+      <p>No. When you scan with the camera, the colours are read in your browser from the live picture, and only the 54 colour readings are sent to the server to double-check them. If you upload photos instead, each photo is sent to the server so it can find the nine stickers.</p>
+      <h4>Which cubes can it solve?</h4>
+      <p>The standard 3×3 Rubik's cube with the usual colour layout: white opposite yellow, green opposite blue, red opposite orange. Other puzzles such as the 2×2 are not supported yet; you can ask for them on the <a href="/support">support page</a>.</p>
+      <h4>Why does it say my cube cannot be solved?</h4>
+      <p>Usually one sticker was read as the wrong colour, often red and orange under warm light. Use <b>Fix a colour</b> to correct it. If a piece was taken out and put back the wrong way, or a corner was twisted by hand, the cube really cannot be solved until that piece is put back correctly.</p>
+      <h4>How can I learn to solve a Rubik's cube myself?</h4>
+      <p>Read the step-by-step solving guide at <a href="/guide">cube.niranjand.in/guide</a>. It starts with the pieces and the move notation, teaches the beginner layer-by-layer method, then CFOP, Roux and ZZ, with every move shown on a 3D cube.</p>
+
+      <p class="credit">Made by <a href="https://niranjand.in/" rel="author">Niranjan D</a> · <a href="https://github.com/Niranjan266/cube-solver">Source on GitHub</a></p>
     </div>
   </div>
 </div>
