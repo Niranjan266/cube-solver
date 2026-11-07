@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Rubik's Cube Timer – Scrambles, Ao5, Ao12 & Charts | Cube Solver</title>
-<meta name="description" content="Free speedcubing timer: press space to start, random scrambles, WCA inspection, +2 and DNF, Ao5, Ao12 and Ao100, and charts of how your times improve.">
+<title>Rubik's Cube Timer with Scramble Generator, Ao5 & Ao12 | Cube Solver</title>
+<meta name="description" content="Free online cube timer for speedcubing: a 3x3 scramble generator, WCA inspection, +2 and DNF, Ao5, Ao12 and Ao100, and charts of how your times improve.">
 <link rel="canonical" href="https://cube.niranjand.in/timer">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Cube Solver">
-<meta property="og:title" content="Rubik's Cube Timer – Scrambles, Ao5, Ao12 & Charts | Cube Solver">
-<meta property="og:description" content="Free speedcubing timer: press space to start, random scrambles, WCA inspection, +2 and DNF, Ao5, Ao12 and Ao100, and charts of how your times improve.">
+<meta property="og:title" content="Rubik's Cube Timer with Scramble Generator, Ao5 & Ao12 | Cube Solver">
+<meta property="og:description" content="Free online cube timer for speedcubing: a 3x3 scramble generator, WCA inspection, +2 and DNF, Ao5, Ao12 and Ao100, and charts of how your times improve.">
 <meta property="og:url" content="https://cube.niranjand.in/timer">
 <meta property="og:image" content="https://cube.niranjand.in/static/icons/og-timer.png">
 <meta property="og:image:width" content="1200">
@@ -18,8 +18,8 @@
 <meta property="og:image:alt" content="Rubik's cube timer with scrambles, WCA inspection, Ao5, Ao12 and progress charts">
 <meta property="og:locale" content="en_US">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Rubik's Cube Timer – Scrambles, Ao5, Ao12 & Charts | Cube Solver">
-<meta name="twitter:description" content="Free speedcubing timer: press space to start, random scrambles, WCA inspection, +2 and DNF, Ao5, Ao12 and Ao100, and charts of how your times improve.">
+<meta name="twitter:title" content="Rubik's Cube Timer with Scramble Generator, Ao5 & Ao12 | Cube Solver">
+<meta name="twitter:description" content="Free online cube timer for speedcubing: a 3x3 scramble generator, WCA inspection, +2 and DNF, Ao5, Ao12 and Ao100, and charts of how your times improve.">
 <meta name="twitter:image" content="https://cube.niranjand.in/static/icons/og-timer.png">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
@@ -60,12 +60,14 @@
    "url": "https://cube.niranjand.in/timer",
    "description": "A speedcubing timer with random scrambles, optional 15-second inspection, +2 and DNF, WCA-style averages and progress charts.",
    "featureList": [
-    "Random scramble for every solve",
+    "Random scramble for every solve (3x3 scramble generator, 15, 20 or 25 turns)",
+    "Picture of the scrambled cube",
     "Optional 15-second WCA inspection",
     "+2 and DNF penalties",
     "Ao5, Ao12, Ao50 and Ao100",
     "Time-over-time, daily average and distribution charts"
    ],
+   "keywords": "Rubik's cube timer, cube timer, speedcubing timer, scramble generator, 3x3 scramble, Ao5, Ao12",
    "@id": "https://cube.niranjand.in/timer#app",
    "creator": {
     "@id": "https://niranjand.in/#person"
@@ -147,6 +149,14 @@
      "acceptedAnswer": {
       "@type": "Answer",
       "text": "Only in your own browser, on this device. There is no account, and Clear every solve in the settings deletes the log."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Can I use it as a Rubik's cube scramble generator?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Yes. Every solve gets a new random 3x3 scramble in standard notation, with a picture of how the cube should look after it (white on top, green in front). Press N or New scramble for another, and choose 15, 20 or 25 turns in the settings. These are random-move scrambles, not the random-state scrambles official WCA competitions use, which is fine for practice."
      }
     }
    ]
@@ -502,7 +512,9 @@
           <p>Yes. Turn on <b>15-second inspection</b> in the settings: going over 15 seconds is a +2 and over 17 seconds is a DNF, like in a competition.</p>
           <h3>Where are my solve times saved?</h3>
           <p>Only in your own browser, on this device. There is no account, and <b>Clear every solve</b> in the settings deletes the log.</p>
-          <p style="margin-top:10px">Want to learn to solve it? Read the <a href="/guide">step-by-step solving guide</a>, or let the <a href="/">Rubik's cube solver</a> show you every turn.</p>
+          <h3>Can I use it as a Rubik's cube scramble generator?</h3>
+          <p>Yes. Every solve gets a new random 3x3 scramble in standard <a href="/notation">notation</a>, with a picture of how the cube should look after it (white on top, green in front). Press <b>N</b> or <b>New scramble</b> for another, and choose 15, 20 or 25 turns in the settings. These are random-move scrambles, not the random-state scrambles official WCA competitions use, which is fine for practice.</p>
+          <p style="margin-top:10px">Want to learn to solve it? Read the <a href="/guide">step-by-step solving guide</a> and the <a href="/algorithms">algorithms cheat sheet</a>, or let the <a href="/">Rubik's cube solver</a> show you every turn.</p>
           <p class="credit">Made by <a href="https://niranjand.in/" rel="author">Niranjan D</a></p>
         </div>
       </section>

@@ -1,0 +1,815 @@
+<!doctype html>
+<!-- written by hand-run generator; edit freely -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rubik's Cube Algorithms Cheat Sheet: Beginner, OLL &amp; PLL</title>
+<meta name="description" content="Every Rubik's cube algorithm you need on one page: the 7 beginner moves, how to solve the last layer, and 2-look OLL and PLL. Watch each one on a 3D cube.">
+<link rel="canonical" href="https://cube.niranjand.in/algorithms">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Cube Solver">
+<meta property="og:title" content="Rubik's Cube Algorithms Cheat Sheet: Beginner, OLL &amp; PLL">
+<meta property="og:description" content="Every Rubik's cube algorithm you need on one page: the 7 beginner moves, how to solve the last layer, and 2-look OLL and PLL. Watch each one on a 3D cube.">
+<meta property="og:url" content="https://cube.niranjand.in/algorithms">
+<meta property="og:image" content="https://cube.niranjand.in/static/icons/og-guide.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Rubik's cube algorithms cheat sheet: beginner method, 2-look OLL and 2-look PLL">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Rubik's Cube Algorithms Cheat Sheet: Beginner, OLL &amp; PLL">
+<meta name="twitter:description" content="Every Rubik's cube algorithm you need on one page: the 7 beginner moves, how to solve the last layer, and 2-look OLL and PLL. Watch each one on a 3D cube.">
+<meta name="twitter:image" content="https://cube.niranjand.in/static/icons/og-guide.png">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "WebSite",
+   "@id": "https://cube.niranjand.in/#website",
+   "name": "Cube Solver",
+   "url": "https://cube.niranjand.in/",
+   "inLanguage": "en",
+   "publisher": {
+    "@id": "https://niranjand.in/#person"
+   },
+   "author": {
+    "@id": "https://niranjand.in/#person"
+   }
+  },
+  {
+   "@type": "TechArticle",
+   "@id": "https://cube.niranjand.in/algorithms#article",
+   "headline": "Rubik's cube algorithms: the cheat sheet",
+   "url": "https://cube.niranjand.in/algorithms",
+   "mainEntityOfPage": "https://cube.niranjand.in/algorithms",
+   "datePublished": "2026-11-08",
+   "dateModified": "2026-11-08",
+   "description": "Every Rubik's cube algorithm you need on one page: the 7 beginner moves, how to solve the last layer, and 2-look OLL and PLL. Watch each one on a 3D cube.",
+   "image": "https://cube.niranjand.in/static/icons/og-guide.png",
+   "inLanguage": "en",
+   "author": {
+    "@id": "https://niranjand.in/#person"
+   },
+   "publisher": {
+    "@id": "https://niranjand.in/#person"
+   },
+   "isPartOf": {
+    "@id": "https://cube.niranjand.in/#website"
+   },
+   "about": [
+    {
+     "@type": "Thing",
+     "name": "Rubik's Cube"
+    },
+    {
+     "@type": "Thing",
+     "name": "Rubik's cube algorithms"
+    },
+    {
+     "@type": "Thing",
+     "name": "Beginner layer-by-layer method"
+    },
+    {
+     "@type": "Thing",
+     "name": "CFOP method"
+    },
+    {
+     "@type": "Thing",
+     "name": "OLL"
+    },
+    {
+     "@type": "Thing",
+     "name": "PLL"
+    }
+   ]
+  },
+  {
+   "@type": "BreadcrumbList",
+   "itemListElement": [
+    {
+     "@type": "ListItem",
+     "position": 1,
+     "name": "Cube Solver",
+     "item": "https://cube.niranjand.in/"
+    },
+    {
+     "@type": "ListItem",
+     "position": 2,
+     "name": "Solving guide",
+     "item": "https://cube.niranjand.in/guide"
+    },
+    {
+     "@type": "ListItem",
+     "position": 3,
+     "name": "Algorithms",
+     "item": "https://cube.niranjand.in/algorithms"
+    }
+   ]
+  },
+  {
+   "@type": "Person",
+   "@id": "https://niranjand.in/#person",
+   "name": "Niranjan D",
+   "url": "https://niranjand.in/",
+   "sameAs": [
+    "https://github.com/Niranjan266",
+    "https://www.linkedin.com/in/niranjan-d-54a7a3313/",
+    "https://x.com/Niranjan4407"
+   ]
+  },
+  {
+   "@type": "FAQPage",
+   "@id": "https://cube.niranjand.in/algorithms#faq",
+   "url": "https://cube.niranjand.in/algorithms",
+   "mainEntity": [
+    {
+     "@type": "Question",
+     "name": "How many algorithms do you need to solve a Rubik's cube?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Seven for the beginner layer-by-layer method on this page. The 2-look last layer used by new speedcubers needs 16 (10 for OLL and 6 for PLL), and full CFOP uses 78: 57 OLL cases and 21 PLL cases, plus F2L, which is mostly solved without memorised algorithms."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "How do you solve the last layer of a Rubik's cube?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "With the beginner method it takes four steps, each with one algorithm: make the yellow cross with F R U R' U' F', line up the yellow edges with R U R' U R U2 R' U, put the corners in place with U R U' L' U R' U' L, then twist them with R' D' R D, turning only the bottom layer between corners."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "What is the easiest Rubik's cube algorithm?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "R U R' U', often called the “sexy move”. It is only four moves, it puts the white corners in during the beginner method, and it is part of many longer algorithms."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "What is 2-look OLL and PLL?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "A shorter way into CFOP's last layer. Instead of learning all 57 OLL and 21 PLL cases, you solve each part in two looks: 2-look OLL makes the top one colour with 10 algorithms (3 for the edges, 7 for the corners), and 2-look PLL moves the pieces home with 6 (2 for the corners, 4 for the edges)."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "What is the T-perm?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "A PLL algorithm, R U R' U' R' F R2 U' R' U' R U R' F', that swaps two neighbouring top corners and two top edges without disturbing the rest of the cube. In 2-look PLL it is used to fix the corners when one side shows matching “headlights”."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Why does my algorithm not work?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Usually the cube was held the wrong way round for the case, or one move was read in the wrong direction. Check the hold described under each algorithm, keep the same face towards you all the way through, and remember that every turn is clockwise as you look at that face. Press Watch to see it done on a 3D cube."
+     }
+    }
+   ]
+  }
+ ]
+}
+</script>
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#0e1116" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f3f4f6" media="(prefers-color-scheme: light)">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* the app's own tokens (keep in step with index.html) */
+  :root{
+    --bg:#f3f4f6; --surface:#ffffff; --surface-2:#f7f8fa; --surface-3:#eceff3;
+    --line:#e3e6eb; --line-strong:#cfd4dc;
+    --ink:#111418; --muted:#5d6673; --faint:#7b8491;
+    --accent:#2459e0; --accent-2:#1d4ac0; --accent-soft:rgba(36,89,224,.09); --accent-ink:#2459e0; --on-accent:#fff;
+    --good:#15803d; --good-soft:rgba(21,128,61,.08); --warn-soft:rgba(217,119,6,.11);
+    --shadow:0 1px 2px rgba(16,24,40,.05);
+    --font:"DM Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+    --display:"Space Grotesk","DM Sans",ui-sans-serif,system-ui,sans-serif;
+    --mono:ui-monospace,"SF Mono","Cascadia Code",Consolas,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0e1116; --surface:#161a21; --surface-2:#1d222b; --surface-3:#262c36;
+      --line:#262c36; --line-strong:#353d4c;
+      --ink:#eef1f5; --muted:#9aa4b2; --faint:#7d8795;
+      --accent:#4c8dff; --accent-2:#6ea3ff; --accent-soft:rgba(76,141,255,.14); --accent-ink:#8db4ff; --on-accent:#06101f;
+      --good:#3dd68c; --good-soft:rgba(61,214,140,.12); --warn-soft:rgba(240,181,74,.13);
+      --shadow:0 1px 2px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0e1116; --surface:#161a21; --surface-2:#1d222b; --surface-3:#262c36;
+    --line:#262c36; --line-strong:#353d4c;
+    --ink:#eef1f5; --muted:#9aa4b2; --faint:#7d8795;
+    --accent:#4c8dff; --accent-2:#6ea3ff; --accent-soft:rgba(76,141,255,.14); --accent-ink:#8db4ff; --on-accent:#06101f;
+    --good:#3dd68c; --good-soft:rgba(61,214,140,.12); --warn-soft:rgba(240,181,74,.13);
+    --shadow:0 1px 2px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;scroll-padding-top:84px}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 var(--font);-webkit-font-smoothing:antialiased}
+  h1,h2,h3,h4{font-family:var(--display);letter-spacing:-.015em;margin:0;line-height:1.2}
+  a{color:var(--accent-ink)}
+  code,.mono{font-family:var(--mono);font-size:.92em;background:var(--surface-3);padding:1px 6px;border-radius:6px}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:8px}
+  button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+  svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 16px;
+       border-radius:14px;background:var(--surface);border:1px solid var(--line);font-weight:600;font-size:14.5px;
+       text-decoration:none;color:var(--ink);white-space:nowrap}
+  .btn:hover{background:var(--surface-2);border-color:var(--line-strong)}
+  .btn.primary{background:var(--accent);border-color:transparent;color:var(--on-accent)}
+  .btn.primary:hover{background:var(--accent-2)}
+  .btn.sm{min-height:36px;padding:0 12px;font-size:13.5px;border-radius:11px}
+
+  /* ---------- top bar */
+  .topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;height:64px;padding:0 24px;
+          background:color-mix(in srgb, var(--surface) 92%, transparent);backdrop-filter:blur(12px);
+          border-bottom:1px solid var(--line)}
+  .brand{display:flex;align-items:center;gap:11px;text-decoration:none;color:var(--ink);flex:1;min-width:0}
+  .logo{width:32px;height:32px;flex:none;display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:4px;border-radius:9px;background:#15181e}
+  .logo i{border-radius:2px}
+  .brand b{font-family:var(--display);font-size:18px}
+  .brand span{color:var(--muted);font-size:14px}
+
+  /* ---------- layout */
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+  .hero{padding:48px 0 28px}
+  .hero h1{font-size:clamp(32px,5vw,48px);letter-spacing:-.03em}
+  .hero p.lead{font-size:18px;color:var(--muted);max-width:680px;margin:12px 0 0}
+  .picker{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:28px 0 0}
+  .pick{display:flex;flex-direction:column;gap:6px;padding:18px;border-radius:20px;background:var(--surface);
+        border:1px solid var(--line);text-decoration:none;color:var(--ink);box-shadow:var(--shadow);transition:.15s}
+  .pick:hover{border-color:var(--accent);transform:translateY(-1px)}
+  .pick b{font-family:var(--display);font-size:19px}
+  .pick small{color:var(--muted);font-size:14px;line-height:1.45}
+  .pick .tag{align-self:flex-start;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent-ink)}
+  .dots{display:flex;gap:4px}
+  .dots i{width:9px;height:9px;border-radius:50%;background:var(--surface-3)}
+  .dots i.on{background:var(--accent)}
+
+  .layout{display:grid;grid-template-columns:230px minmax(0,1fr);gap:36px;padding:24px 0 80px}
+  .toc{position:sticky;top:84px;align-self:start;display:flex;flex-direction:column;gap:2px;font-size:14.5px}
+  .toc a{display:block;padding:8px 12px;border-radius:10px;text-decoration:none;color:var(--muted);font-weight:500}
+  .toc a:hover{background:var(--surface);color:var(--ink)}
+  .toc a.on{background:var(--accent-soft);color:var(--accent-ink);font-weight:700}
+  .toc .sub{padding-left:24px;font-size:13.5px}
+  .chips{display:none}
+
+  section.block{margin:0 0 56px}
+  section.block > h2{font-size:30px;margin:0 0 6px}
+  .kicker{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-ink);margin-bottom:6px}
+  .lead2{color:var(--muted);font-size:17px;margin:0 0 20px;max-width:760px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:22px;box-shadow:var(--shadow)}
+  .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+  .grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+  .card h3{font-size:18px;margin-bottom:6px}
+  .card p{margin:0 0 8px;color:var(--muted)}
+  .card p b{color:var(--ink)}
+
+  /* pieces illustration */
+  .pieces{display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:center}
+  .pieces svg{width:210px;height:auto}
+  .legend{display:flex;flex-direction:column;gap:12px}
+  .legend div{display:flex;gap:12px;align-items:flex-start}
+  .legend i{width:18px;height:18px;border-radius:5px;flex:none;margin-top:3px}
+
+  /* notation */
+  .moves{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+  .mv{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 8px;text-align:center}
+  .mv svg{width:100%;max-width:110px;height:auto;display:block;margin:0 auto 4px}
+  .mv b{font-family:var(--display);font-size:20px;display:block}
+  .mv small{display:block;color:var(--muted);font-size:12.5px;line-height:1.35}
+
+  /* method */
+  .mhead{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;margin:14px 0 18px}
+  .stat{display:flex;flex-direction:column;gap:2px;font-size:13px;color:var(--muted)}
+  .stat b{font-size:15px;color:var(--ink)}
+  .holding{display:flex;gap:12px;padding:14px 16px;border-radius:14px;background:var(--accent-soft);color:var(--ink);font-size:15px;margin-bottom:18px}
+  .steps{display:flex;flex-direction:column;gap:14px;counter-reset:st}
+  .step{display:grid;grid-template-columns:44px minmax(0,1fr);gap:14px}
+  .step .n{width:44px;height:44px;border-radius:14px;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;
+           font:700 18px var(--display)}
+  .step h3{font-size:20px}
+  .goal{font-size:15px;color:var(--good);font-weight:600;margin:4px 0 8px}
+  .step p,.step li{color:var(--muted)}
+  .step p b,.step li b{color:var(--ink)}
+  .tipbox{display:flex;gap:10px;padding:11px 13px;border-radius:12px;background:var(--warn-soft);font-size:14.5px;margin:10px 0 0}
+  .algs{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin-top:14px}
+  .alg{display:flex;flex-direction:column;gap:8px;padding:14px;border-radius:16px;background:var(--surface-2);border:1px solid var(--line)}
+  .alg h4{font-size:16px}
+  .seq{display:flex;flex-wrap:wrap;gap:5px}
+  .seq span{font:700 15px var(--mono);padding:4px 8px;border-radius:8px;background:var(--surface);border:1px solid var(--line);min-width:32px;text-align:center}
+  .alg p{margin:0;font-size:14px;color:var(--muted)}
+  .alg .row{display:flex;gap:8px;flex-wrap:wrap}
+  .player{border-radius:14px;overflow:hidden;background:var(--surface);border:1px solid var(--line);min-height:0}
+  .player twisty-player{width:100%;height:240px}
+  .player .msg{padding:14px;font-size:14px;color:var(--muted)}
+
+  table{width:100%;border-collapse:collapse;font-size:15px;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+  th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:12.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);background:var(--surface-2)}
+  tr:last-child td{border-bottom:0}
+  .tablewrap{overflow-x:auto;border-radius:16px}
+  .sources li{margin:4px 0}
+  .faq{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+  .qa h3{font-size:17px;margin-bottom:6px}
+  .qa p{margin:0}
+  @media (max-width:760px){ .faq{grid-template-columns:minmax(0,1fr)} }
+  footer{border-top:1px solid var(--line);padding:24px 0 40px;color:var(--muted);font-size:14px}
+
+  @media (max-width:960px){
+    .picker{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .layout{grid-template-columns:minmax(0,1fr)}
+    .toc{display:none}
+    .chips{display:flex;gap:8px;overflow-x:auto;position:sticky;top:var(--barH, 64px);z-index:10;padding:10px 0;
+           background:var(--bg);scrollbar-width:none}
+    .chips a{flex:none;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);
+             text-decoration:none;color:var(--ink);font-weight:600;font-size:14px}
+    .moves{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .grid3{grid-template-columns:minmax(0,1fr)}
+  }
+  @media (max-width:960px){ html{scroll-padding-top:128px} }
+  @media (max-width:640px){
+    html{scroll-padding-top:120px}
+    :root{--barH:56px}
+    .topbar{padding:0 12px 0 16px;height:56px}
+    .brand > span:not(.logo){display:none}
+    .wrap{padding:0 16px}
+    .hero{padding:28px 0 18px}
+    .picker,.grid2{grid-template-columns:minmax(0,1fr)}
+    .pieces{grid-template-columns:minmax(0,1fr)}
+    .pieces svg{margin:0 auto;width:180px}
+    .step{grid-template-columns:minmax(0,1fr)}
+    .step .n{width:38px;height:38px;border-radius:12px;font-size:16px}
+    .algs{grid-template-columns:minmax(0,1fr)}
+    section.block > h2{font-size:26px}
+    #themeBtn .lbl,#openSolver .lbl,#openTimer .lbl{display:none}
+  }
+</style>
+<style>
+  .ref td code{white-space:nowrap}
+  .ref td:first-child{font:700 16px var(--mono);white-space:nowrap}
+  .prose p,.prose li{color:var(--muted);max-width:780px}
+  .prose p b,.prose li b{color:var(--ink)}
+  .prose h3{font-size:20px;margin:26px 0 6px}
+  .next{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+  .crumbs{font-size:14px;color:var(--muted);margin-bottom:10px}
+  .crumbs a{color:var(--muted)}
+  .alg .seq{cursor:text}
+  @media (max-width:640px){ #openGuide .lbl{display:none} }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="/">
+    <span class="logo" aria-hidden="true">
+      <i style="background:#e5383b"></i><i style="background:#f4f5f7"></i><i style="background:#22b04b"></i>
+      <i style="background:#ffd60a"></i><i style="background:#1e6fe0"></i><i style="background:#e5383b"></i>
+      <i style="background:#ff8a1f"></i><i style="background:#22b04b"></i><i style="background:#ffd60a"></i>
+    </span>
+    <b>Cube Solver</b><span>· Algorithms</span>
+  </a>
+  <a class="btn sm" id="openGuide" href="/guide"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2zM4 19V5M8 7h6"/></svg><span class="lbl">Guide</span></a>
+  <a class="btn sm primary" id="openSolver" href="/"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z"/></svg><span class="lbl">Open the solver</span></a>
+  <button class="btn sm" id="themeBtn" aria-label="Switch light or dark">◐ <span class="lbl">Theme</span></button>
+</header>
+
+<div class="wrap">
+  <div class="hero">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Cube Solver</a> › <a href="/guide">Solving guide</a> › Algorithms</nav>
+    <div class="kicker">Algorithms</div>
+    <h1>Rubik's cube algorithms: the cheat sheet</h1>
+    <p class="lead">All the move sequences for solving a 3×3 Rubik's cube, in the order you use them: the 7 beginner algorithms, the last layer step by step, then the 16 algorithms of 2-look OLL and PLL. Every one is checked on this site's cube engine.</p>
+  </div>
+</div>
+
+<div class="wrap">
+  <nav class="chips" aria-label="Jump to"><a href="#before">How to use it</a><a href="#beginner">Beginner</a><a href="#last-layer">Last layer</a><a href="#oll">2-look OLL</a><a href="#pll">2-look PLL</a><a href="#next">Next steps</a></nav>
+  <div class="layout">
+    <nav class="toc" id="toc" aria-label="Contents"><a href="#before" data-id="before">How to use it</a><a href="#beginner" data-id="beginner">Beginner</a><a href="#last-layer" data-id="last-layer">Last layer</a><a href="#oll" data-id="oll">2-look OLL</a><a href="#pll" data-id="pll">2-look PLL</a><a href="#next" data-id="next">Next steps</a><a href="#faq" data-id="faq">FAQ</a><a href="#sources" data-id="sources">Sources</a></nav>
+    <main id="content">
+
+      <section class="block prose" id="before">
+        <div class="kicker">Before you start</div>
+        <h2>How to use this cheat sheet</h2>
+        <p>Every algorithm is written in standard notation: a letter is a quarter turn of that face clockwise as you look at it,
+        <code>'</code> is anticlockwise and <code>2</code> is a half turn. If that is new, read the <a href="/notation">Rubik's cube notation guide</a> first.
+        Hold the cube the way each card says and keep that grip until the algorithm ends. Press <b>Watch</b> to see the case and the algorithm on a 3D cube.</p>
+        <p>For the full explanation of each step, with what to look for before you use it, see the <a href="/guide">step-by-step solving guide</a>.</p>
+      </section>
+
+      <section class="block" id="beginner">
+        <div class="kicker">7 algorithms</div>
+        <h2>Beginner method algorithms</h2>
+        <p class="lead2">The layer-by-layer method needs no algorithm for the white cross (make a daisy around the yellow centre, then
+        bring each petal down with a half turn). These are the seven for everything after it. Hold <b>white on the bottom</b> and yellow on top unless a card says otherwise.</p>
+        <h3 style="font-size:20px;margin:0 0 4px">First layer: the white corners</h3>
+        <div class="algs">
+            <div class="alg" data-alg="R U R' U'" data-check="order6">
+              <h4>Put in a white corner</h4>
+              <div class="seq" aria-label="R U R' U'"><span>R</span><span>U</span><span>R'</span><span>U'</span></div>
+              <p>Corner above its spot at the front-right. Repeat 1, 3 or 5 times until it drops in with white facing down.</p>
+              <div class="row">
+                <button class="btn sm watch" data-alg="R U R' U'" data-st="F2L" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"/></svg>Watch</button>
+                <button class="btn sm copy" data-alg="R U R' U'">Copy</button>
+              </div>
+              <div class="player" hidden></div>
+            </div>
+          </div>
+        <h3 style="font-size:20px;margin:22px 0 4px">Second layer: the middle edges</h3>
+        <div class="algs">
+            <div class="alg" data-alg="U R U' R' U' F' U F" data-check="midRight">
+              <h4>Middle edge to the right</h4>
+              <div class="seq" aria-label="U R U' R' U' F' U F"><span>U</span><span>R</span><span>U'</span><span>R'</span><span>U'</span><span>F'</span><span>U</span><span>F</span></div>
+              <p>Front sticker matches the front centre, top sticker matches the right centre.</p>
+              <div class="row">
+                <button class="btn sm watch" data-alg="U R U' R' U' F' U F" data-st="F2L" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"/></svg>Watch</button>
+                <button class="btn sm copy" data-alg="U R U' R' U' F' U F">Copy</button>
+              </div>
+              <div class="player" hidden></div>
+            </div>
+            <div class="alg" data-alg="U' L' U L U F U' F'" data-check="midLeft">
+              <h4>Middle edge to the left</h4>
+              <div class="seq" aria-label="U' L' U L U F U' F'"><span>U'</span><span>L'</span><span>U</span><span>L</span><span>U</span><span>F</span><span>U'</span><span>F'</span></div>
+              <p>Front sticker matches the front centre, top sticker matches the left centre.</p>
+              <div class="row">
+                <button class="btn sm watch" data-alg="U' L' U L U F U' F'" data-st="F2L" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"/></svg>Watch</button>
+                <button class="btn sm copy" data-alg="U' L' U L U F U' F'">Copy</button>
+              </div>
+              <div class="player" hidden></div>
+            </div>
+          </div>
+      </section>
+
+      <section class="block" id="last-layer">
+        <div class="kicker">4 steps</div>
+        <h2>How to solve the last layer, step by step</h2>
+        <p class="lead2">The last (yellow) layer of the beginner method is four steps with one algorithm each. Do them in this order.</p>
+        <h3 style="font-size:20px;margin:0 0 4px">1. Make the yellow cross</h3>
+        <div class="algs">
+            <div class="alg" data-alg="F R U R' U' F'" data-check="f2l">
+              <h4>Dot → L → line → cross</h4>
+              <div class="seq" aria-label="F R U R' U' F'"><span>F</span><span>R</span><span>U</span><span>R'</span><span>U'</span><span>F'</span></div>
+              <p>Hold an L shape at the back-left and a line left to right. From a dot, do it once and look again: each go moves one shape along.</p>
+              <div class="row">
+                <button class="btn sm watch" data-alg="F R U R' U' F'" data-st="OLL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"/></svg>Watch</button>
+                <button class="btn sm copy" data-alg="F R U R' U' F'">Copy</button>
+              </div>
+              <div class="player" hidden></div>
+            </div>
+          </div>
+        <h3 style="font-size:20px;margin:22px 0 4px">2. Line up the yellow edges</h3>
+        <div class="algs">
+            <div class="alg" data-alg="R U R' U R U2 R' U" data-check="swapFrontLeft">
+              <h4>Swap two yellow edges</h4>
+              <div class="seq" aria-label="R U R' U R U2 R' U"><span>R</span><span>U</span><span>R'</span><span>U</span><span>R</span><span>U2</span><span>R'</span><span>U</span></div>
+              <p>Turn the top until two edges match. Neighbours matching: hold them at the back and right. Opposites matching: do it once from anywhere, then again.</p>
+              <div class="row">
+                <button class="btn sm watch" data-alg="R U R' U R U2 R' U" data-st="LL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"/></svg>Watch</button>
+                <button class="btn sm copy" data-alg="R U R' U R U2 R' U">Copy</button>
+              </div>
+              <div class="player" hidden></div>
+            </div>
+          </div>
+        <h3 style="font-size:20px;margin:22px 0 4px">3. Put the yellow corners in place</h3>
+        <div class="algs">
+            <div class="alg" data-alg="U R U' L' U R' U' L" data-check="cornerCycle">
+              <h4>Cycle three corners</h4>
+              <div class="seq" aria-label="U R U' L' U R' U' L"><span>U</span><span>R</span><span>U'</span><span>L'</span><span>U</span><span>R'</span><span>U'</span><span>L</span></div>
+              <p>Hold a corner that is already in its spot (even if twisted) at the front-right; it stays put while the other three cycle. None in place: do it once from anywhere.</p>
+              <div class="row">
+                <button class="btn sm watch" data-alg="U R U' L' U R' U' L" data-st="LL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"/></svg>Watch</button>
+                <button class="btn sm copy" data-alg="U R U' L' U R' U' L">Copy</button>
+              </div>
+              <div class="player" hidden></div>
+            </div>
+          </div>
+        <h3 style="font-size:20px;margin:22px 0 4px">4. Twist the yellow corners</h3>
+        <div class="algs">
+            <div class="alg" data-alg="R' D' R D" data-check="order6">
+              <h4>Twist a corner</h4>
+              <div class="seq" aria-label="R' D' R D"><span>R'</span><span>D'</span><span>R</span><span>D</span></div>
+              <p>Yellow on the bottom now. Repeat 2 or 4 times until the front-right-bottom corner shows yellow underneath, then turn only the bottom layer (D) to bring the next one there. The cube looks scrambled until the last corner: keep going.</p>
+              <div class="row">
+                <button class="btn sm watch" data-alg="R' D' R D" data-st="full" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"/></svg>Watch</button>
+                <button class="btn sm copy" data-alg="R' D' R D">Copy</button>
+              </div>
+              <div class="player" hidden></div>
+            </div>
+          </div>
+      </section>
+
+      <section class="block" id="oll">
+        <div class="kicker">CFOP · 10 algorithms</div>
+        <h2>2-look OLL: make the top one colour</h2>
+        <p class="lead2">The first half of CFOP's last layer, once the first two layers are solved. Look 1 makes the yellow cross; look 2 turns the corners.</p>
+        <h3 style="font-size:20px;margin:0 0 4px">Look 1: the yellow edges</h3>
+        <div class="algs">
+            <div class="alg" data-alg="F R U R' U' F' f R U R' U' f'" data-check="dot">
+              <h4>Dot</h4>
+              <div class="seq" aria-label="F R U R' U' F' f R U R' U' f'"><span>F</span><span>R</span><span>U</span><span>R'</span><span>U'</span><span>F'</span><span>f</span><span>R</span><span>U</span><span>R'</span><span>U'</span><span>f'</span></div>
+              <p>No yellow edges on top: this flips all four at once. <code>f</code> is a wide front turn (front face and the slice behind it).</p>
+              <div class="row">
+                <button class="btn sm watch" data-alg="F R U R' U' F' f R U R' U' f'" data-st="OLL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"/></svg>Watch</button>
+                <button class="btn sm copy" data-alg="F R U R' U' F' f R U R' U' f'">Copy</button>
+              </div>
+              <div class="player" hidden></div>
+            </div>
+            <div class="alg" data-alg="F U R U' R' F'" data-check="f2l">
+              <h4>L shape</h4>
+              <div class="seq" aria-label="F U R U' R' F'"><span>F</span><span>U</span><span>R</span><span>U'</span><span>R'</span><span>F'</span></div>
+              <p>Hold the L at the back-left (its arms pointing back and left).</p>
+              <div class="row">
+                <button class="btn sm watch" data-alg="F U R U' R' F'" data-st="OLL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"/></svg>Watch</button>
+                <button class="btn sm copy" data-alg="F U R U' R' F'">Copy</button>
+              </div>
+              <div class="player" hidden></div>
+            </div>
+            <div class="alg" data-alg="F R U R' U' F'" data-check="f2l">
+              <h4>Line</h4>
+              <div class="seq" aria-label="F R U R' U' F'"><span>F</span><span>R</span><span>U</span><span>R'</span><span>U'</span><span>F'</span></div>
+              <p>Hold the line left to right.</p>
+              <div class="row">
+                <button class="btn sm watch" data-alg="F R U R' U' F'" data-st="OLL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"/></svg>Watch</button>
+                <button class="btn sm copy" data-alg="F R U R' U' F'">Copy</button>
+              </div>
+              <div class="player" hidden></div>
+            </div>
+          </div>
+        <h3 style="font-size:20px;margin:22px 0 4px">Look 2: the yellow corners</h3>
+        <div class="algs">
+            <div class="alg" data-alg="R U R' U R U2 R'" data-check="f2l">
+              <h4>Sune</h4>
+              <div class="seq" aria-label="R U R' U R U2 R'"><span>R</span><span>U</span><span>R'</span><span>U</span><span>R</span><span>U2</span><span>R'</span></div>
+              <p>One yellow corner on top: hold it at the front-left.</p>
+              <div class="row">
+                <button class="btn sm watch" data-alg="R U R' U R U2 R'" data-st="OLL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"/></svg>Watch</button>
+                <button class="btn sm copy" data-alg="R U R' U R U2 R'">Copy</button>
+              </div>
+              <div class="player" hidden></div>
+            </div>
+            <div class="alg" data-alg="R U2 R' U' R U' R'" data-check="f2l">
+              <h4>Anti-Sune</h4>
+              <div class="seq" aria-label="R U2 R' U' R U' R'"><span>R</span><span>U2</span><span>R'</span><span>U'</span><span>R</span><span>U'</span><span>R'</span></div>
+              <p>One yellow corner on top: hold it at the back-right.</p>
+              <div class="row">
+                <button class="btn sm watch" data-alg="R U2 R' U' R U' R'" data-st="OLL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"/></svg>Watch</button>
+                <button class="btn sm copy" data-alg="R U2 R' U' R U' R'">Copy</button>
+              </div>
+              <div class="player" hidden></div>
+            </div>
+            <div class="alg" data-alg="R U R' U R U' R' U R U2 R'" data-check="f2l">
+              <h4>H</h4>
+              <div class="seq" aria-label="R U R' U R U' R' U R U2 R'"><span>R</span><span>U</span><span>R'</span><span>U</span><span>R</span><span>U'</span><span>R'</span><span>U</span><span>R</span><span>U2</span><span>R'</span></div>
+              <p>No yellow corners on top; the left and right sides show two yellows each.</p>
+              <div class="row">
+                <button class="btn sm watch" data-alg="R U R' U R U' R' U R U2 R'" data-st="OLL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"/></svg>Watch</button>
+                <button class="btn sm copy" data-alg="R U R' U R U' R' U R U2 R'">Copy</button>
+              </div>
+              <div class="player" hidden></div>
+            </div>
+            <div class="alg" data-alg="R U2 R2 U' R2 U' R2 U2 R" data-check="f2l">
+              <h4>Pi</h4>
+              <div class="seq" aria-label="R U2 R2 U' R2 U' R2 U2 R"><span>R</span><span>U2</span><span>R2</span><span>U'</span><span>R2</span><span>U'</span><span>R2</span><span>U2</span><span>R</span></div>
+              <p>No yellow corners on top; the yellows on the left side face left.</p>
+              <div class="row">
+                <button class="btn sm watch" data-alg="R U2 R2 U' R2 U' R2 U2 R" data-st="OLL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"/></svg>Watch</button>
+                <button class="btn sm copy" data-alg="R U2 R2 U' R2 U' R2 U2 R">Copy</button>
+              </div>
+              <div class="player" hidden></div>
+            </div>
+            <div class="alg" data-alg="R2 D R' U2 R D' R' U2 R'" data-check="f2l">
+              <h4>Headlights</h4>
+              <div class="seq" aria-label="R2 D R' U2 R D' R' U2 R'"><span>R2</span><span>D</span><span>R'</span><span>U2</span><span>R</span><span>D'</span><span>R'</span><span>U2</span><span>R'</span></div>
+              <p>Two yellow corners at the back; two yellows facing you.</p>
+              <div class="row">
+                <button class="btn sm watch" data-alg="R2 D R' U2 R D' R' U2 R'" data-st="OLL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"/></svg>Watch</button>
+                <button class="btn sm copy" data-alg="R2 D R' U2 R D' R' U2 R'">Copy</button>
+              </div>
+              <div class="player" hidden></div>
+            </div>
+            <div class="alg" data-alg="r U R' U' r' F R F'" data-check="f2l">
+              <h4>Chameleon</h4>
+              <div class="seq" aria-label="r U R' U' r' F R F'"><span>r</span><span>U</span><span>R'</span><span>U'</span><span>r'</span><span>F</span><span>R</span><span>F'</span></div>
+              <p>Two yellow corners on top, both on the right; the other two show yellow at the front and back.</p>
+              <div class="row">
+                <button class="btn sm watch" data-alg="r U R' U' r' F R F'" data-st="OLL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"/></svg>Watch</button>
+                <button class="btn sm copy" data-alg="r U R' U' r' F R F'">Copy</button>
+              </div>
+              <div class="player" hidden></div>
+            </div>
+            <div class="alg" data-alg="F' r U R' U' r' F R" data-check="f2l">
+              <h4>Bowtie</h4>
+              <div class="seq" aria-label="F' r U R' U' r' F R"><span>F'</span><span>r</span><span>U</span><span>R'</span><span>U'</span><span>r'</span><span>F</span><span>R</span></div>
+              <p>Two yellow corners on top, diagonal: back-right and front-left.</p>
+              <div class="row">
+                <button class="btn sm watch" data-alg="F' r U R' U' r' F R" data-st="OLL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"/></svg>Watch</button>
+                <button class="btn sm copy" data-alg="F' r U R' U' r' F R">Copy</button>
+              </div>
+              <div class="player" hidden></div>
+            </div>
+          </div>
+      </section>
+
+      <section class="block" id="pll">
+        <div class="kicker">CFOP · 6 algorithms</div>
+        <h2>2-look PLL: move the top pieces home</h2>
+        <p class="lead2">With the top one colour, look 1 puts the corners in place and look 2 the edges.</p>
+        <h3 style="font-size:20px;margin:0 0 4px">Look 1: the corners</h3>
+        <div class="algs">
+            <div class="alg" data-alg="R U R' U' R' F R2 U' R' U' R U R' F'" data-check="pll">
+              <h4>T-perm</h4>
+              <div class="seq" aria-label="R U R' U' R' F R2 U' R' U' R U R' F'"><span>R</span><span>U</span><span>R'</span><span>U'</span><span>R'</span><span>F</span><span>R2</span><span>U'</span><span>R'</span><span>U'</span><span>R</span><span>U</span><span>R'</span><span>F'</span></div>
+              <p>A side with matching “headlights” (two corners of the same colour): hold it on the left.</p>
+              <div class="row">
+                <button class="btn sm watch" data-alg="R U R' U' R' F R2 U' R' U' R U R' F'" data-st="PLL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"/></svg>Watch</button>
+                <button class="btn sm copy" data-alg="R U R' U' R' F R2 U' R' U' R U R' F'">Copy</button>
+              </div>
+              <div class="player" hidden></div>
+            </div>
+            <div class="alg" data-alg="F R U' R' U' R U R' F' R U R' U' R' F R F'" data-check="pll">
+              <h4>Y-perm</h4>
+              <div class="seq" aria-label="F R U' R' U' R U R' F' R U R' U' R' F R F'"><span>F</span><span>R</span><span>U'</span><span>R'</span><span>U'</span><span>R</span><span>U</span><span>R'</span><span>F'</span><span>R</span><span>U</span><span>R'</span><span>U'</span><span>R'</span><span>F</span><span>R</span><span>F'</span></div>
+              <p>No headlights on any side: it swaps two diagonal corners.</p>
+              <div class="row">
+                <button class="btn sm watch" data-alg="F R U' R' U' R U R' F' R U R' U' R' F R F'" data-st="PLL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"/></svg>Watch</button>
+                <button class="btn sm copy" data-alg="F R U' R' U' R U R' F' R U R' U' R' F R F'">Copy</button>
+              </div>
+              <div class="player" hidden></div>
+            </div>
+          </div>
+        <h3 style="font-size:20px;margin:22px 0 4px">Look 2: the edges</h3>
+        <div class="algs">
+            <div class="alg" data-alg="R U' R U R U R U' R' U' R2" data-check="edgesOnly">
+              <h4>Ua-perm</h4>
+              <div class="seq" aria-label="R U' R U R U R U' R' U' R2"><span>R</span><span>U'</span><span>R</span><span>U</span><span>R</span><span>U</span><span>R</span><span>U'</span><span>R'</span><span>U'</span><span>R2</span></div>
+              <p>One side fully solved: hold it at the back. Ua and Ub cycle the other three edges in opposite directions.</p>
+              <div class="row">
+                <button class="btn sm watch" data-alg="R U' R U R U R U' R' U' R2" data-st="PLL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"/></svg>Watch</button>
+                <button class="btn sm copy" data-alg="R U' R U R U R U' R' U' R2">Copy</button>
+              </div>
+              <div class="player" hidden></div>
+            </div>
+            <div class="alg" data-alg="R2 U R U R' U' R' U' R' U R'" data-check="edgesOnly">
+              <h4>Ub-perm</h4>
+              <div class="seq" aria-label="R2 U R U R' U' R' U' R' U R'"><span>R2</span><span>U</span><span>R</span><span>U</span><span>R'</span><span>U'</span><span>R'</span><span>U'</span><span>R'</span><span>U</span><span>R'</span></div>
+              <p>Solved side at the back. If Ua made it worse, this is the one you needed.</p>
+              <div class="row">
+                <button class="btn sm watch" data-alg="R2 U R U R' U' R' U' R' U R'" data-st="PLL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"/></svg>Watch</button>
+                <button class="btn sm copy" data-alg="R2 U R U R' U' R' U' R' U R'">Copy</button>
+              </div>
+              <div class="player" hidden></div>
+            </div>
+            <div class="alg" data-alg="M2 U M2 U2 M2 U M2" data-check="edgesOnly">
+              <h4>H-perm</h4>
+              <div class="seq" aria-label="M2 U M2 U2 M2 U M2"><span>M2</span><span>U</span><span>M2</span><span>U2</span><span>M2</span><span>U</span><span>M2</span></div>
+              <p>Every side shows a stripe of the opposite colour: swaps opposite edges.</p>
+              <div class="row">
+                <button class="btn sm watch" data-alg="M2 U M2 U2 M2 U M2" data-st="PLL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"/></svg>Watch</button>
+                <button class="btn sm copy" data-alg="M2 U M2 U2 M2 U M2">Copy</button>
+              </div>
+              <div class="player" hidden></div>
+            </div>
+            <div class="alg" data-alg="M' U M2 U M2 U M' U2 M2 U'" data-check="edgesOnly">
+              <h4>Z-perm</h4>
+              <div class="seq" aria-label="M' U M2 U M2 U M' U2 M2 U'"><span>M'</span><span>U</span><span>M2</span><span>U</span><span>M2</span><span>U</span><span>M'</span><span>U2</span><span>M2</span><span>U'</span></div>
+              <p>Swaps two pairs of neighbouring edges.</p>
+              <div class="row">
+                <button class="btn sm watch" data-alg="M' U M2 U M2 U M' U2 M2 U'" data-st="PLL" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z" fill="currentColor"/></svg>Watch</button>
+                <button class="btn sm copy" data-alg="M' U M2 U M2 U M' U2 M2 U'">Copy</button>
+              </div>
+              <div class="player" hidden></div>
+            </div>
+          </div>
+      </section>
+
+      <section class="block prose" id="next">
+        <div class="kicker">After this</div>
+        <h2>Where to go next</h2>
+        <p>Once 2-look is comfortable, the next step is full PLL (21 algorithms, each case in one look), then full OLL (57). Many cubers
+        also learn F2L cases to make the first two layers smoother. The <a href="/guide#cfop">CFOP section of the guide</a> explains each step,
+        and the <a href="/guide#roux">Roux</a> and <a href="/guide#zz">ZZ</a> sections show two other ways to solve.</p>
+        <p>Stuck on a real cube right now? The <a href="/">Rubik's cube solver</a> scans it with your camera and shows every turn, and its
+        <b>Beginner</b> and <b>CFOP</b> modes use the same steps as this page. Practise with a fresh scramble from the <a href="/timer">cube timer</a>.</p>
+        <div class="next">
+          <a class="btn primary" href="/">Solve my cube</a>
+          <a class="btn" href="/notation">Notation guide</a>
+        </div>
+      </section>
+
+      <section class="block" id="faq">
+        <div class="kicker">Quick answers</div>
+        <h2>Questions people ask</h2>
+        <div class="faq">
+          <div class="card qa"><h3>How many algorithms do you need to solve a Rubik's cube?</h3><p>Seven for the beginner layer-by-layer method on this page. The 2-look last layer used by new speedcubers needs 16 (10 for OLL and 6 for PLL), and full CFOP uses 78: 57 OLL cases and 21 PLL cases, plus F2L, which is mostly solved without memorised algorithms.</p></div>
+          <div class="card qa"><h3>How do you solve the last layer of a Rubik's cube?</h3><p>With the beginner method it takes four steps, each with one algorithm: make the yellow cross with <code>F R U R' U' F'</code>, line up the yellow edges with <code>R U R' U R U2 R' U</code>, put the corners in place with <code>U R U' L' U R' U' L</code>, then twist them with <code>R' D' R D</code>, turning only the bottom layer between corners.</p></div>
+          <div class="card qa"><h3>What is the easiest Rubik's cube algorithm?</h3><p><code>R U R' U'</code>, often called the “sexy move”. It is only four moves, it puts the white corners in during the beginner method, and it is part of many longer algorithms.</p></div>
+          <div class="card qa"><h3>What is 2-look OLL and PLL?</h3><p>A shorter way into CFOP's last layer. Instead of learning all 57 OLL and 21 PLL cases, you solve each part in two looks: 2-look OLL makes the top one colour with 10 algorithms (3 for the edges, 7 for the corners), and 2-look PLL moves the pieces home with 6 (2 for the corners, 4 for the edges).</p></div>
+          <div class="card qa"><h3>What is the T-perm?</h3><p>A PLL algorithm, <code>R U R' U' R' F R2 U' R' U' R U R' F'</code>, that swaps two neighbouring top corners and two top edges without disturbing the rest of the cube. In 2-look PLL it is used to fix the corners when one side shows matching “headlights”.</p></div>
+          <div class="card qa"><h3>Why does my algorithm not work?</h3><p>Usually the cube was held the wrong way round for the case, or one move was read in the wrong direction. Check the hold described under each algorithm, keep the same face towards you all the way through, and remember that every turn is clockwise as you look at that face. Press Watch to see it done on a 3D cube.</p></div>
+        </div>
+      </section>
+
+      <section class="block" id="sources">
+        <div class="kicker">Further reading</div>
+        <h2>Sources</h2>
+        <p class="lead2" style="font-size:16px">Written in our own words. The move sequences are the standard ones cubers share, and every one on this page is checked on this site's own cube engine. These pages go further:</p>
+        <ul class="sources">
+          <li><a href="https://jperm.net/algs/2lookoll" target="_blank" rel="noopener">J Perm — 2-look OLL</a></li>
+          <li><a href="https://jperm.net/algs/2lookpll" target="_blank" rel="noopener">J Perm — 2-look PLL</a></li>
+          <li><a href="https://www.cubeskills.com/uploads/pdf/tutorials/4-look-last-layer.pdf" target="_blank" rel="noopener">CubeSkills — 4-look last layer (PDF)</a></li>
+          <li><a href="https://rubiks.com/solve-guide" target="_blank" rel="noopener">Rubik's official 3×3 solve guide</a></li>
+          <li><a href="https://en.wikipedia.org/wiki/CFOP_method" target="_blank" rel="noopener">CFOP method (Wikipedia)</a></li>
+        </ul>
+      </section>
+    </main>
+  </div>
+</div>
+<footer><div class="wrap">Cube Solver · <a href="/">Rubik's cube solver</a> · <a href="/guide">Solving guide</a> · <a href="/notation">Notation</a> · <a href="/algorithms">Algorithms</a> · <a href="/timer">Timer</a> · <a href="/support">Support &amp; requests</a> · Made by <a href="https://niranjand.in/" rel="author">Niranjan D</a> · Updated <time datetime="2026-11-08">8 November 2026</time></div></footer>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
+function applyTheme(t){
+  if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+  else delete document.documentElement.dataset.theme;
+}
+const store = {get: k => { try { return localStorage.getItem("cube." + k); } catch { return null; } },
+               set: (k, v) => { try { localStorage.setItem("cube." + k, v); } catch {} }};
+applyTheme(store.get("theme"));
+$("themeBtn").onclick = () => {
+  const order = [null, "light", "dark"], cur = store.get("theme");
+  const next = order[(order.indexOf(cur === "light" || cur === "dark" ? cur : null) + 1) % 3];
+  store.set("theme", next || ""); applyTheme(next);
+};
+let twistyReady = null;
+function loadTwisty(){
+  if (!twistyReady) twistyReady = (async () => {
+    const srcs = ["https://cdn.cubing.net/v0/js/cubing/twisty",
+                  "https://cdn.jsdelivr.net/npm/cubing@0.63.6/dist/lib/cubing/twisty/index.js"];
+    let err;
+    for (const s of srcs) { try { await import(s); return; } catch (e) { err = e; } }
+    throw err;
+  })();
+  return twistyReady;
+}
+document.addEventListener("click", async e => {
+  const w = e.target.closest(".watch"), c = e.target.closest(".copy");
+  if (c){
+    try { await navigator.clipboard.writeText(c.dataset.alg); c.textContent = "Copied"; }
+    catch { c.textContent = "Select and copy"; }
+    setTimeout(() => c.textContent = "Copy", 1500);
+    return;
+  }
+  if (!w) return;
+  const box = w.closest(".alg").querySelector(".player");
+  const open = box.hidden;
+  box.hidden = !open;
+  w.setAttribute("aria-expanded", open);
+  if (!open || box.dataset.ready) return;
+  box.innerHTML = '<div class="msg">Loading the 3D cube…</div>';
+  try {
+    await loadTwisty();
+    const tp = document.createElement("twisty-player");
+    tp.puzzle = "3x3x3";
+    tp.alg = w.dataset.alg;
+    tp.experimentalSetupAnchor = "end";
+    try { tp.experimentalStickering = w.dataset.st; } catch {}
+    tp.background = "none";
+    tp.controlPanel = "bottom-row";
+    tp.hintFacelets = "floating";
+    box.innerHTML = ""; box.appendChild(tp); box.dataset.ready = "1";
+    [100, 500, 1200, 2500].forEach(ms => setTimeout(() => dispatchEvent(new Event("resize")), ms));
+    setTimeout(() => { try { tp.play(); } catch {} }, 600);
+  } catch (err) {
+    box.innerHTML = '<div class="msg">Could not load the 3D player (it needs an internet connection). Do the moves on your cube: <code>' + esc(w.dataset.alg) + '</code></div>';
+  }
+});
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) setTimeout(() => dispatchEvent(new Event("resize")), 60);
+});
+const links = [...document.querySelectorAll("#toc a")];
+if ("IntersectionObserver" in window){
+  const io = new IntersectionObserver(es => es.forEach(en => {
+    if (en.isIntersecting) links.forEach(a => a.classList.toggle("on", a.dataset.id === en.target.id));
+  }), {rootMargin: "-30% 0px -60% 0px"});
+  links.forEach(a => { const el = $(a.dataset.id); if (el) io.observe(el); });
+}
+</script>
+</body>
+</html>
