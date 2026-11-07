@@ -21,10 +21,10 @@
 - Full notation reference: https://cube.niranjand.in/notation
 - The timer's scrambles are random-move scrambles (15, 20 or 25 face turns, never the same face twice in a row), shown with a picture of the scrambled cube; they are not the random-state scrambles used in official WCA competitions.
 - Free to use, no account, works on phones and computers in a web browser (the 3D view needs JavaScript and WebGL).
-- Made by Niranjan D (https://niranjand.in/).
+- Made by Niranjan D (https://www.niranjand.in/).
 
 ## Optional
 
 - [Support: report a bug or request a puzzle](https://cube.niranjand.in/support)
-- [Maker: Niranjan D](https://niranjand.in/)
+- [Maker: Niranjan D](https://www.niranjand.in/)
 - [Sitemap](https://cube.niranjand.in/sitemap.xml)
