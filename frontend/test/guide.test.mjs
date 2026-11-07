@@ -16,7 +16,11 @@
  *   midLeft      only the top layer and the front-left middle edge change
  *   blocks       Roux: the left and right 1x2x3 blocks are untouched
  *   order6       doing it six times puts everything back
+ *   dot          as f2l, and flips all four top edges (2-look OLL's dot case)
  *   none         a short building block; only checked that it parses
+ *
+ * The algorithms on notation.html and algorithms.html are checked the same
+ * way: each card there carries data-alg and data-check attributes.
  */
 import fs from "fs";
 import path from "path";
@@ -74,6 +78,8 @@ const CHECKS = {
     for (let i = 0; i < 6; i++) x = E.applyAll(x, moves);
     return x === E.SOLVED || "six repeats do not return to solved";
   },
+  dot: (s) => !same(s, LOWER) ? "disturbs the first two layers"
+            : [1, 3, 5, 7].every((i) => s[i] !== "U") || "does not flip all four top edges",
   none: () => true,
 };
 
@@ -88,6 +94,24 @@ for (const m of G.METHODS) for (const st of m.steps) for (const a of st.algs) {
     const verdict = CHECKS[a.check](s, moves);
     results.push([verdict === true ? "PASS" : "FAIL", label, verdict === true ? a.check : verdict]);
   } catch (e) { results.push(["FAIL", label, e.message]); }
+}
+
+// the algorithm cards on the notation and algorithms pages
+const unesc = (t) => t.replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+for (const page of ["notation.html", "algorithms.html"]) {
+  const html = fs.readFileSync(path.join(ROOT, page), "utf8");
+  const cards = [...html.matchAll(/data-alg="([^"]+)" data-check="(\w+)"/g)];
+  if (!cards.length) results.push(["FAIL", `${page}: has algorithm cards`, "none found"]);
+  for (const [, raw, check] of cards) {
+    count++;
+    const a = unesc(raw), label = `${page} · [${a}]`;
+    try {
+      if (!CHECKS[check]) throw new Error("unknown check " + check);
+      const moves = plain(a);
+      const verdict = CHECKS[check](E.applyAll(E.SOLVED, moves), moves);
+      results.push([verdict === true ? "PASS" : "FAIL", label, verdict === true ? check : verdict]);
+    } catch (e) { results.push(["FAIL", label, e.message]); }
+  }
 }
 
 // every method has steps and every step says what it achieves

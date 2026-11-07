@@ -1,22 +1,25 @@
 # Cube Solver
 
-> Cube Solver (https://cube.niranjand.in) is a free web app that solves a 3×3 Rubik's cube. You show each side of the cube to your phone or computer camera (or upload photos, or enter the colours by hand), and it shows every turn as a 3D animation with an arrow, usually about 20 moves and never more than 22 in its Shortest mode. The site also has a step-by-step solving guide (beginner, CFOP, Roux and ZZ methods) and a speedcubing timer. No account or sign-up is needed.
+> Cube Solver (https://cube.niranjand.in) is a free web app that solves a 3×3 Rubik's cube. You show each side of the cube to your phone or computer camera (or upload photos, or enter the colours by hand), and it shows every turn as a 3D animation with an arrow, usually about 20 moves and never more than 22 in its Shortest mode. The site also has a step-by-step solving guide (beginner, CFOP, Roux and ZZ methods) and a speedcubing timer with a scramble generator. No account or sign-up is needed.
 
 ## Pages
 
 - [Rubik's cube solver](https://cube.niranjand.in/): scan the cube with a camera, check the colours, then follow the 3D arrow turn by turn. Three modes: Shortest (about 20 moves, two-phase algorithm), Beginner (layer by layer, every stage named) and CFOP (the method speedcubers use).
 - [How to solve a Rubik's cube step by step: the guide](https://cube.niranjand.in/guide): written for people who have never solved a cube. It starts with the pieces and the move notation, then teaches the beginner layer-by-layer method, CFOP, Roux and ZZ step by step, with each move sequence playable on a 3D cube and checked on the site's own cube engine.
+- [Rubik's cube notation](https://cube.niranjand.in/notation): how to read cube moves and algorithms. The six face turns (R, L, U, D, F, B), prime (') for anticlockwise and 2 for a half turn, wide moves (r = Rw), slice moves (M follows L, E follows D, S follows F), whole-cube rotations (x follows R, y follows U, z follows F), reversing an algorithm, and how moves are counted (half-turn and quarter-turn metrics).
+- [Rubik's cube algorithms cheat sheet](https://cube.niranjand.in/algorithms): every algorithm for the beginner method (7), how to solve the last layer step by step, 2-look OLL (10) and 2-look PLL (6), each with when to use it and a 3D player. Every sequence is checked on the site's own cube engine.
 - [Rubik's cube timer](https://cube.niranjand.in/timer): a free online speedcubing timer with a random scramble for each solve, optional 15-second WCA inspection, +2 and DNF penalties, Ao5 / Ao12 / Ao50 / Ao100 averages, and charts of times over solves, average per day and the spread of times. Solve times are stored only in the user's browser.
 
 ## Facts
 
-- Any position of a 3×3 Rubik's cube can be solved in 20 moves or fewer (God's number, proven in 2010). The Shortest mode typically finds solutions of about 20 moves.
+- Any position of a 3×3 Rubik's cube can be solved in 20 moves or fewer in the half-turn metric (God's number, proven in 2010), or 26 in the quarter-turn metric (proven in 2014). The solver counts in the half-turn metric. The Shortest mode typically finds solutions of about 20 moves.
 - Camera scanning works in any order and any orientation; the colours are read in the browser from the live camera picture. The video is not uploaded; only the 54 colour readings are sent to the server to double-check them. Photos uploaded instead of using the camera are sent to the server so it can find the stickers.
 - The solver runs both in the browser and on the server and keeps the shorter answer.
 - Turn playback speed can be set from 0.01× to 2×; the 3D arrow shows the direction of each turn.
 - Move notation: R, L, U, D, F, B are the right, left, up, down, front and back faces; a letter alone is a clockwise quarter turn as you look at that face, an apostrophe (R') is anticlockwise, and a 2 (R2) is a half turn.
 - Solves the standard 3×3 cube with the usual colour layout (white opposite yellow, green opposite blue, red opposite orange). Other puzzles such as the 2×2 are not supported yet.
-- The guide's move notation section: https://cube.niranjand.in/guide#notation
+- Full notation reference: https://cube.niranjand.in/notation
+- The timer's scrambles are random-move scrambles (15, 20 or 25 face turns, never the same face twice in a row), shown with a picture of the scrambled cube; they are not the random-state scrambles used in official WCA competitions.
 - Free to use, no account, works on phones and computers in a web browser (the 3D view needs JavaScript and WebGL).
 - Made by Niranjan D (https://niranjand.in/).
 

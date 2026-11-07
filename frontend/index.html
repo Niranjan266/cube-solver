@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Rubik's Cube Solver Online – Scan with Your Camera | Cube Solver</title>
-<meta name="description" content="Free online Rubik's cube solver. Show each side to your camera or enter the colours, then follow the 3D arrow: solved in about 20 moves. Beginner and CFOP modes.">
+<title>Rubik's Cube Solver Online – Free 3x3 Solver with Camera Scan</title>
+<meta name="description" content="Free online Rubik's cube solver for the 3x3. Scan each side with your camera or enter the colours, then follow the solution step by step in 3D, in about 20 moves.">
 <link rel="canonical" href="https://cube.niranjand.in/">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Cube Solver">
-<meta property="og:title" content="Rubik's Cube Solver Online – Scan with Your Camera | Cube Solver">
-<meta property="og:description" content="Free online Rubik's cube solver. Show each side to your camera or enter the colours, then follow the 3D arrow: solved in about 20 moves. Beginner and CFOP modes.">
+<meta property="og:title" content="Rubik's Cube Solver Online – Free 3x3 Solver with Camera Scan">
+<meta property="og:description" content="Free online Rubik's cube solver for the 3x3. Scan each side with your camera or enter the colours, then follow the solution step by step in 3D, in about 20 moves.">
 <meta property="og:url" content="https://cube.niranjand.in/">
 <meta property="og:image" content="https://cube.niranjand.in/static/icons/og-image.png">
 <meta property="og:image:width" content="1200">
@@ -18,8 +18,8 @@
 <meta property="og:image:alt" content="Cube Solver: a Rubik's cube solver that reads your cube with the camera">
 <meta property="og:locale" content="en_US">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Rubik's Cube Solver Online – Scan with Your Camera | Cube Solver">
-<meta name="twitter:description" content="Free online Rubik's cube solver. Show each side to your camera or enter the colours, then follow the 3D arrow: solved in about 20 moves. Beginner and CFOP modes.">
+<meta name="twitter:title" content="Rubik's Cube Solver Online – Free 3x3 Solver with Camera Scan">
+<meta name="twitter:description" content="Free online Rubik's cube solver for the 3x3. Scan each side with your camera or enter the colours, then follow the solution step by step in 3D, in about 20 moves.">
 <meta name="twitter:image" content="https://cube.niranjand.in/static/icons/og-image.png">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
@@ -68,6 +68,7 @@
     "Adjustable speed from 0.01x to 2x",
     "Light and dark themes"
    ],
+   "keywords": "Rubik's cube solver, 3x3 solver, solve Rubik's cube online, Rubik's cube solver with camera, Rubik's cube solution step by step",
    "screenshot": "https://cube.niranjand.in/static/icons/og-image.png",
    "@id": "https://cube.niranjand.in/#app",
    "creator": {
@@ -150,6 +151,22 @@
       "@type": "Answer",
       "text": "Read the step-by-step solving guide at cube.niranjand.in/guide. It starts with the pieces and the move notation, teaches the beginner layer-by-layer method, then CFOP, Roux and ZZ, with every move shown on a 3D cube."
      }
+    },
+    {
+     "@type": "Question",
+     "name": "Can it show the solution to my Rubik's cube step by step?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Yes. After you scan the cube or enter its colours, the solver shows the solution one turn at a time on a 3D cube, with an arrow for the direction of each turn and the move written in standard notation (R, U, F and so on). You can step back, drag through the turns or slow playback down to 0.01×."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Can I solve a Rubik's cube with my phone camera?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Yes. Open cube.niranjand.in in your phone's browser, allow the camera, and hold each of the six sides up to it in any order. Nothing needs to be installed. If the camera is not available you can upload photos or tap in the colours instead."
+     }
     }
    ]
   }
@@ -226,6 +243,7 @@
   svg.i{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2;
         stroke-linecap:round;stroke-linejoin:round}
 
+  .vh{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
   .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
        min-height:44px;padding:0 16px;border-radius:var(--r-md);background:var(--surface);
        border:1px solid var(--line);font-weight:600;font-size:14.5px;
@@ -639,7 +657,7 @@
       <i style="background:#ff8a1f"></i><i style="background:#22b04b"></i><i style="background:#ffd60a"></i>
     </div>
     <div style="min-width:0">
-      <h1>Cube Solver</h1>
+      <h1>Cube Solver<span class="vh"> – Rubik's cube solver online</span></h1>
       <div class="sub">Show it your cube. Follow the arrow. Done.</div>
     </div>
   </div>
@@ -906,7 +924,9 @@
       with the one in your hands.</p>
 
       <p style="margin-top:14px"><a href="/guide"><b>Want to solve it yourself? Read the full guide →</b></a>
-      Four methods, step by step, with every move shown on a 3D cube.</p>
+      Four methods, step by step, with every move shown on a 3D cube.
+      There is also a full <a href="/notation">notation guide</a> (wide, slice and rotation moves) and an
+      <a href="/algorithms">algorithms cheat sheet</a>.</p>
       <p><a href="/support">Found a bug, or want a 2×2 or mirror cube solver? Tell us →</a></p>
 
       <h3>7. Three ways to solve</h3>
@@ -936,6 +956,11 @@
       <p>Usually one sticker was read as the wrong colour, often red and orange under warm light. Use <b>Fix a colour</b> to correct it. If a piece was taken out and put back the wrong way, or a corner was twisted by hand, the cube really cannot be solved until that piece is put back correctly.</p>
       <h4>How can I learn to solve a Rubik's cube myself?</h4>
       <p>Read the step-by-step solving guide at <a href="/guide">cube.niranjand.in/guide</a>. It starts with the pieces and the move notation, teaches the beginner layer-by-layer method, then CFOP, Roux and ZZ, with every move shown on a 3D cube.</p>
+      <h4>Can it show the solution to my Rubik's cube step by step?</h4>
+      <p>Yes. After you scan the cube or enter its colours, the solver shows the solution one turn at a time on a 3D cube, with an arrow for the direction of each turn and the move written in standard notation (R, U, F and so on). You can step back, drag through the turns or slow playback down to <b>0.01×</b>.</p>
+      <h4>Can I solve a Rubik's cube with my phone camera?</h4>
+      <p>Yes. Open cube.niranjand.in in your phone's browser, allow the camera, and hold each of the six sides up to it in any order. Nothing needs to be installed. If the camera is not available you can upload photos or tap in the colours instead.</p>
+      <p>More: <a href="/notation">what every cube move means</a> · <a href="/algorithms">Rubik's cube algorithms cheat sheet</a> · <a href="/timer">cube timer</a></p>
 
       <p class="credit">Made by <a href="https://niranjand.in/" rel="author">Niranjan D</a></p>
     </div>
