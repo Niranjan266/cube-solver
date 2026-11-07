@@ -22,7 +22,6 @@
 
 ## Optional
 
-- [Source code on GitHub](https://github.com/Niranjan266/cube-solver)
 - [Support: report a bug or request a puzzle](https://cube.niranjand.in/support)
 - [Maker: Niranjan D](https://niranjand.in/)
 - [Sitemap](https://cube.niranjand.in/sitemap.xml)

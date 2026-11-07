@@ -266,17 +266,18 @@ def scramble(body: ScrambleIn) -> Dict:
 # --------------------------------------------------------------------------- #
 
 if os.path.isdir(FRONTEND):
+    # pages answer HEAD as well as GET: link checkers and some crawlers ask HEAD first
     app.mount("/static", StaticFiles(directory=FRONTEND), name="static")
 
-    @app.get("/")
+    @app.api_route("/", methods=["GET", "HEAD"])
     def index():
         return FileResponse(os.path.join(FRONTEND, "index.html"))
 
-    @app.get("/manual")
+    @app.api_route("/manual", methods=["GET", "HEAD"])
     def manual():
         return FileResponse(os.path.join(FRONTEND, "index.html"))
 
-    @app.get("/robots.txt", include_in_schema=False)
+    @app.api_route("/robots.txt", include_in_schema=False, methods=["GET", "HEAD"])
     def robots():
         # AI assistants' crawlers are welcome too: being quoted by them is the point
         ai = ["GPTBot", "OAI-SearchBot", "ChatGPT-User", "ClaudeBot", "Claude-User",
@@ -287,17 +288,17 @@ if os.path.isdir(FRONTEND):
             + "".join(f"User-agent: {b}\nAllow: /\nDisallow: /api/\n\n" for b in ai)
             + f"Sitemap: {SITE}/sitemap.xml\n")
 
-    @app.get("/llms.txt", include_in_schema=False)
+    @app.api_route("/llms.txt", include_in_schema=False, methods=["GET", "HEAD"])
     def llms():
         with open(os.path.join(FRONTEND, "llms.txt"), encoding="utf-8") as f:
             return PlainTextResponse(f.read(), media_type="text/markdown; charset=utf-8")
 
-    @app.get(f"/{INDEXNOW_KEY}.txt", include_in_schema=False)
+    @app.api_route(f"/{INDEXNOW_KEY}.txt", include_in_schema=False, methods=["GET", "HEAD"])
     def indexnow_key():
         # proves to Bing / IndexNow that this site asked for its pages to be re-read
         return PlainTextResponse(INDEXNOW_KEY)
 
-    @app.get("/sitemap.xml", include_in_schema=False)
+    @app.api_route("/sitemap.xml", include_in_schema=False, methods=["GET", "HEAD"])
     def sitemap():
         # no <lastmod>: on Vercel every file carries the same made-up date, and
         # a wrong date is worse than none
@@ -307,7 +308,7 @@ if os.path.isdir(FRONTEND):
             f'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{urls}</urlset>',
             media_type="application/xml")
 
-    @app.get("/site.webmanifest", include_in_schema=False)
+    @app.api_route("/site.webmanifest", include_in_schema=False, methods=["GET", "HEAD"])
     def manifest():
         return JSONResponse({
             "name": "Cube Solver", "short_name": "Cube Solver",
@@ -322,21 +323,21 @@ if os.path.isdir(FRONTEND):
             ],
         }, media_type="application/manifest+json")
 
-    @app.get("/favicon.ico", include_in_schema=False)
+    @app.api_route("/favicon.ico", include_in_schema=False, methods=["GET", "HEAD"])
     def favicon():
         return FileResponse(os.path.join(FRONTEND, "favicon.ico"), media_type="image/x-icon")
 
-    @app.get("/guide")
+    @app.api_route("/guide", methods=["GET", "HEAD"])
     def guide():
         # the pre-rendered copy has the whole guide in its HTML, for crawlers
         # that do not run JavaScript (tools/prerender-guide.mjs)
         static = os.path.join(FRONTEND, "guide.static.html")
         return FileResponse(static if os.path.exists(static) else os.path.join(FRONTEND, "guide.html"))
 
-    @app.get("/support")
+    @app.api_route("/support", methods=["GET", "HEAD"])
     def support_page():
         return FileResponse(os.path.join(FRONTEND, "support.html"))
 
-    @app.get("/timer")
+    @app.api_route("/timer", methods=["GET", "HEAD"])
     def timer():
         return FileResponse(os.path.join(FRONTEND, "timer.html"))
