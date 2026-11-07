@@ -34,7 +34,13 @@
    "@id": "https://cube.niranjand.in/#website",
    "name": "Cube Solver",
    "url": "https://cube.niranjand.in/",
-   "inLanguage": "en"
+   "inLanguage": "en",
+   "publisher": {
+    "@id": "https://niranjand.in/#person"
+   },
+   "author": {
+    "@id": "https://niranjand.in/#person"
+   }
   },
   {
    "@type": "WebApplication",
@@ -48,9 +54,7 @@
     "priceCurrency": "USD"
    },
    "author": {
-    "@type": "Person",
-    "name": "Niranjan D",
-    "url": "https://cube.niranjand.in/"
+    "@id": "https://niranjand.in/#person"
    },
    "name": "Cube Timer – Rubik's Cube Speedcubing Timer",
    "url": "https://cube.niranjand.in/timer",
@@ -61,7 +65,16 @@
     "+2 and DNF penalties",
     "Ao5, Ao12, Ao50 and Ao100",
     "Time-over-time, daily average and distribution charts"
-   ]
+   ],
+   "@id": "https://cube.niranjand.in/timer#app",
+   "creator": {
+    "@id": "https://niranjand.in/#person"
+   },
+   "inLanguage": "en",
+   "image": "https://cube.niranjand.in/static/icons/icon-512.png",
+   "isPartOf": {
+    "@id": "https://cube.niranjand.in/#website"
+   }
   },
   {
    "@type": "BreadcrumbList",
@@ -77,6 +90,64 @@
      "position": 2,
      "name": "Timer",
      "item": "https://cube.niranjand.in/timer"
+    }
+   ]
+  },
+  {
+   "@type": "Person",
+   "@id": "https://niranjand.in/#person",
+   "name": "Niranjan D",
+   "url": "https://niranjand.in/",
+   "sameAs": [
+    "https://github.com/Niranjan266",
+    "https://www.linkedin.com/in/niranjan-d-54a7a3313/",
+    "https://x.com/Niranjan4407"
+   ]
+  },
+  {
+   "@type": "FAQPage",
+   "@id": "https://cube.niranjand.in/timer#faq",
+   "url": "https://cube.niranjand.in/timer",
+   "mainEntity": [
+    {
+     "@type": "Question",
+     "name": "What is this Rubik's cube timer?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "A free online speedcubing timer. It shows a random scramble for every solve (15, 20 or 25 turns), times you with the space bar or a tap, and keeps your best times, Ao5, Ao12, Ao50 and Ao100 averages and charts of your progress."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "How do I start and stop the timer?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Press Space (or tap) to start and any key to stop. With Hold to start on, hold until the time turns green, then let go, like a real speedcubing timer. Esc cancels a solve or inspection and N gives a new scramble."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "What do Ao5 and Ao12 mean?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "AoN is the average of your last N solves with the best and worst taken off (5% at each end from Ao50 up), the way official competitions count it. A +2 adds two seconds; one DNF is trimmed, two make the average a DNF."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Does it have WCA inspection?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Yes. Turn on 15-second inspection in the settings: going over 15 seconds is a +2 and over 17 seconds is a DNF, like in a competition."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Where are my solve times saved?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Only in your own browser, on this device. There is no account, and Clear every solve in the settings deletes the log."
+     }
     }
    ]
   }
@@ -248,6 +319,12 @@
   .setting div{flex:1}
   .setting b{display:block;font-size:15px}
   .setting small{color:var(--muted);font-size:13px}
+  .vh{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+  .about h2{font-size:15.5px;margin:0 0 4px}
+  .about h3{font-size:14px;margin:12px 0 2px}
+  .about p{font-size:13px;color:var(--muted);margin:0}
+  .about p b{color:var(--ink)}
+  .about .credit{margin-top:14px;padding-top:10px;border-top:1px solid var(--line)}
   .switch{position:relative;width:46px;height:28px;flex:none;border-radius:999px;background:var(--surface-3);border:1px solid var(--line-strong);transition:.15s}
   .switch::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.3);transition:.15s}
   .switch[aria-checked="true"]{background:var(--accent);border-color:var(--accent)}
@@ -294,6 +371,7 @@
 
 <div class="body">
   <main class="stage" id="stage" tabindex="-1">
+    <h1 class="vh">Rubik's cube timer: online speedcubing timer with scrambles, Ao5 and Ao12</h1>
     <div class="scramble">
       <p class="scr" id="scr" aria-live="polite"></p>
       <div class="scrtools">
@@ -411,6 +489,21 @@
           <b style="color:var(--ink)">Keys</b><br>
           <kbd>Space</kbd> starts (hold until green if “Hold to start” is on) · any key stops · <b>Restart</b> for the next solve<br>
           <kbd>Esc</kbd> cancel a solve or inspection · <kbd>N</kbd> new scramble
+        </div>
+        <div class="card about" id="faq">
+          <h2>About this cube timer</h2>
+          <h3>What is this Rubik's cube timer?</h3>
+          <p>A free online speedcubing timer. It shows a random scramble for every solve (15, 20 or 25 turns), times you with the space bar or a tap, and keeps your best times, Ao5, Ao12, Ao50 and Ao100 averages and charts of your progress.</p>
+          <h3>How do I start and stop the timer?</h3>
+          <p>Press Space (or tap) to start and any key to stop. With <b>Hold to start</b> on, hold until the time turns green, then let go, like a real speedcubing timer. Esc cancels a solve or inspection and N gives a new scramble.</p>
+          <h3>What do Ao5 and Ao12 mean?</h3>
+          <p>AoN is the average of your last N solves with the best and worst taken off (5% at each end from Ao50 up), the way official competitions count it. A +2 adds two seconds; one DNF is trimmed, two make the average a DNF.</p>
+          <h3>Does it have WCA inspection?</h3>
+          <p>Yes. Turn on <b>15-second inspection</b> in the settings: going over 15 seconds is a +2 and over 17 seconds is a DNF, like in a competition.</p>
+          <h3>Where are my solve times saved?</h3>
+          <p>Only in your own browser, on this device. There is no account, and <b>Clear every solve</b> in the settings deletes the log.</p>
+          <p style="margin-top:10px">Want to learn to solve it? Read the <a href="/guide">step-by-step solving guide</a>, or let the <a href="/">Rubik's cube solver</a> show you every turn.</p>
+          <p class="credit">Made by <a href="https://niranjand.in/" rel="author">Niranjan D</a></p>
         </div>
       </section>
     </div>

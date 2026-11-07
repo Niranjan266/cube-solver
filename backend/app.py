@@ -279,8 +279,9 @@ if os.path.isdir(FRONTEND):
     @app.get("/robots.txt", include_in_schema=False)
     def robots():
         # AI assistants' crawlers are welcome too: being quoted by them is the point
-        ai = ["GPTBot", "OAI-SearchBot", "ChatGPT-User", "ClaudeBot", "Claude-SearchBot",
-              "PerplexityBot", "Google-Extended", "Applebot-Extended", "Bingbot"]
+        ai = ["GPTBot", "OAI-SearchBot", "ChatGPT-User", "ClaudeBot", "Claude-User",
+              "Claude-SearchBot", "PerplexityBot", "Perplexity-User", "Google-Extended",
+              "Applebot-Extended", "Bingbot"]
         return PlainTextResponse(
             "User-agent: *\nAllow: /\nDisallow: /api/\n\n"
             + "".join(f"User-agent: {b}\nAllow: /\nDisallow: /api/\n\n" for b in ai)

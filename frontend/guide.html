@@ -34,7 +34,13 @@
    "@id": "https://cube.niranjand.in/#website",
    "name": "Cube Solver",
    "url": "https://cube.niranjand.in/",
-   "inLanguage": "en"
+   "inLanguage": "en",
+   "publisher": {
+    "@id": "https://niranjand.in/#person"
+   },
+   "author": {
+    "@id": "https://niranjand.in/#person"
+   }
   },
   {
    "@type": "Article",
@@ -44,14 +50,10 @@
    "image": "https://cube.niranjand.in/static/icons/og-image.png",
    "inLanguage": "en",
    "author": {
-    "@type": "Person",
-    "name": "Niranjan D",
-    "url": "https://cube.niranjand.in/"
+    "@id": "https://niranjand.in/#person"
    },
    "publisher": {
-    "@type": "Person",
-    "name": "Niranjan D",
-    "url": "https://cube.niranjand.in/"
+    "@id": "https://niranjand.in/#person"
    },
    "isPartOf": {
     "@id": "https://cube.niranjand.in/#website"
@@ -72,8 +74,18 @@
     {
      "@type": "Thing",
      "name": "ZZ method"
+    },
+    {
+     "@type": "Thing",
+     "name": "Beginner layer-by-layer method"
+    },
+    {
+     "@type": "Thing",
+     "name": "Rubik's cube notation"
     }
-   ]
+   ],
+   "@id": "https://cube.niranjand.in/guide#article",
+   "mainEntityOfPage": "https://cube.niranjand.in/guide"
   },
   {
    "@type": "BreadcrumbList",
@@ -90,6 +102,17 @@
      "name": "Solving guide",
      "item": "https://cube.niranjand.in/guide"
     }
+   ]
+  },
+  {
+   "@type": "Person",
+   "@id": "https://niranjand.in/#person",
+   "name": "Niranjan D",
+   "url": "https://niranjand.in/",
+   "sameAs": [
+    "https://github.com/Niranjan266",
+    "https://www.linkedin.com/in/niranjan-d-54a7a3313/",
+    "https://x.com/Niranjan4407"
    ]
   }
  ]
@@ -336,7 +359,7 @@
           </div>
         </div>
 
-        <h3 style="margin:28px 0 8px;font-size:21px">Reading the moves</h3>
+        <h3 id="notation" style="margin:28px 0 8px;font-size:21px">Reading the moves: Rubik's cube notation</h3>
         <p class="lead2" style="font-size:16px">Each letter is a side, seen from where you are:
         <b>U</b>p, <b>D</b>own, <b>R</b>ight, <b>L</b>eft, <b>F</b>ront, <b>B</b>ack. A letter alone
         means a quarter turn <b>clockwise, as if you were looking straight at that side</b>.
@@ -395,7 +418,7 @@
     </main>
   </div>
 </div>
-<footer><div class="wrap">Cube Solver · <a href="/">Open the solver</a> · <a href="/timer">Timer</a> · <a href="/support">Support &amp; requests</a></div></footer>
+<footer><div class="wrap">Cube Solver · <a href="/">Open the solver</a> · <a href="/timer">Timer</a> · <a href="/support">Support &amp; requests</a> · Made by <a href="https://niranjand.in/" rel="author">Niranjan D</a></div></footer>
 
 <script src="/static/js/guide-data.js"></script>
 <script>
