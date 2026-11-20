@@ -1,18 +1,42 @@
 # Cube Solver
 
-**Try it: [cube.niranjand.in](https://cube.niranjand.in)**, with the [solving guide](https://cube.niranjand.in/guide) and a [speedcubing timer](https://cube.niranjand.in/timer).
+**Show it your cube. Follow the arrow. Done.** A camera-based Rubik's cube solver for people who have never solved one.
 
-Hold your cube up to the camera. It reads each face on its own — no button to
-press — fills the 3D cube in as it goes, and then walks you through **about 20
-turns and never more than 22**, one arrow at a time.
+[Live app](https://cube.niranjand.in) · [Solving guide](https://cube.niranjand.in/guide) · [Speedcubing timer](https://cube.niranjand.in/timer) · [Manual](MANUAL.md) · [Case study](https://www.niranjand.in/projects/cube-solver)
 
-Built for people who have never solved a cube. Nothing here assumes you know
-what "R U R' U'" means. If you want that explained, it is in
-[MANUAL.md](MANUAL.md) and behind the *What do R and U mean?* button in the app.
+<p align="center">
+  <img src="docs/screenshots/solver.png" alt="Cube Solver: the scanned cube on the left, a 3D cube with a turn arrow in the middle, and the current turn explained on the right" width="900">
+</p>
+
+## What it is
+
+Most cube solvers expect you to type in all 54 stickers and already know notation like `R U R' U'`. This one doesn't. Hold your cube up to the camera: it reads each side on its own — no button to press — fills in a 3D model as it goes, checks the cube is physically possible, and then walks you to solved in **about 20 turns, never more than 22**, one arrow at a time. It works in any modern browser, on a laptop or a phone.
+
+Nothing here assumes you know what "R U R' U'" means. If you want that explained, it is in [MANUAL.md](MANUAL.md) and behind the *What do R and U mean?* button in the app.
+
+## Features
+
+- **Hands-free scanning** — colours are read in the browser about ten times a second; a side is captured the moment the reading holds steady, in any order, held any way up.
+- **Photo upload and manual entry** — for when there is no webcam, or to fix a sticker by hand.
+- **Mistakes caught before solving** — an impossible cube gets a specific message ("one corner is twisted in place") instead of a wrong answer.
+- **Three solving methods** — Shortest (about 20 turns), Beginner (layer by layer, about 140 turns) and CFOP (about 65 turns), each with named stages.
+- **Follow-along 3D cube** — the layer about to move is outlined, an arrow shows which way, and each turn is spelled out in plain words. Slow, Normal and Fast playback, keyboard controls and read-aloud.
+- **Phone-first layout** — Scan, Check and Solve screens behind a bottom tab bar, with every control at least 44 px tall.
+- **A solving guide** — Beginner, CFOP, Roux and ZZ, every sequence playable on a 3D cube and checked against the app's own engine.
+- **A speedcubing timer** — scrambles, inspection, +2 / DNF, Ao5 to Ao100 and progress charts, stored only on your device.
+
+## Screenshots
+
+| Solving guide | Notation | Timer |
+|---|---|---|
+| ![Step-by-step solving guide with Beginner, CFOP, Roux and ZZ](docs/screenshots/guide.png) | ![Notation reference page](docs/screenshots/notation.png) | ![Speedcubing timer with a scramble](docs/screenshots/timer.png) |
 
 ---
 
 ## Run it
+
+**Prerequisites:** Python 3.12 or newer (Node.js only for the front-end tests).
+
 
 **Windows** — double-click `run.bat`
 **macOS / Linux** — `./run.sh`
@@ -69,6 +93,10 @@ the controls and the speed stay on screen, and *All turns* slides the full
 list up from the bottom. Every control is at least 44 px tall, and the layout
 respects the notch and home bar.
 
+**On a desktop** the screen is in three columns: **your cube goes in on the
+left, the 3D model sits in the middle, and the turns you have to make are
+listed on the right.**
+
 **The 3D cube** fills in live while you scan. The side you are holding up is
 painted onto it as the camera reads it, and the cube swings round to show that
 side. On a phone a small live cube sits in the corner of the camera view.
@@ -80,13 +108,6 @@ lifting slightly as they go, with a light haptic click on phones.
 **Speed** is three buttons: *Slow*, *Normal* and *Fast*. They set how quickly
 the 3D cube turns and how long *Play* pauses between turns (Slow leaves time
 to copy each turn by hand). The choice is remembered.
-
-The design for both layouts is kept as a design canvas (phone Scan, Check,
-Solve and turn list, plus the desktop view), and the app follows it.
-
-
-The screen is in three columns: **your cube goes in on the left, the 3D model
-sits in the middle, and the turns you have to make are listed on the right.**
 
 The right-hand panel shows one turn at a time — a big arrow for what your hand
 does, the face name, and the same thing spelled out in words:
@@ -137,8 +158,28 @@ down, Shortest and CFOP still work; only the camera and Beginner need it.
 ## How it works
 
 ```
+   Browser (no build step)                         FastAPI (backend/app.py)
+ ┌───────────────────────────────┐               ┌─────────────────────────────┐
+ │ scanner.js  camera → 9 colour │  six sides,   │ vision/  grid · colour ·    │
+ │   samples, centre names side, │  rotated  ──▶ │   cubie_resolver (two reads,│
+ │   which-way-up resolution     │  samples      │   the cube arbitrates)      │
+ │                               │ ◀── stickers ─│ cube/validate  possible?    │
+ │ engine.js  cube model + min2- │               │ cube/twophase  ≤22 turns    │
+ │   phase (~10 ms) + CFOP       │ ── solve ───▶ │ cube/solver_beginner        │
+ │ Three.js / cubing.js viewer   │ ◀── shorter? ─│ cube/explain  arrow + words │
+ └───────────────────────────────┘               └─────────────────────────────┘
+   every answer is replayed on the browser's own engine before it is shown
+```
+
+### Layout
+
+```
 frontend/index.html      the page: live scanner, flat-map editor, Three.js cube,
                          cubing.js view, arrows, narration, manual. No build step.
+frontend/guide.html, timer.html, notation.html, algorithms.html, support.html
+                         the other pages (guide.static.html is the pre-rendered guide)
+frontend/js/guide-data.js, timer-stats.js, shorter-worker.js
+                         guide content, timer statistics, background solver worker
 frontend/js/scanner.js   the live scanner: sampling, naming a side by its centre,
                          lighting-corrected colours, which-way-up resolution
 frontend/js/engine.js    model.py + explain.py ported to JS, plus the glue that
@@ -147,7 +188,8 @@ frontend/vendor/         min2phase.js and rubiks-cube-solver.js (both MIT, see
                          vendor/LICENSES.md)
 backend/
   app.py                 FastAPI: /api/scan/live /api/scan/face /api/scan/cube
-                         /api/classify /api/solve /api/scramble /api/health
+                         /api/classify /api/solve /api/scramble /api/support
+                         /api/health
   cube/model.py          the cube itself (facelets + geometry)
   cube/cubie.py          the other view: which piece is where, which way up
   cube/twophase.py       the built-in ~21-turn solver
@@ -563,9 +605,20 @@ with the wording.
 
 Everything in there is also in [MANUAL.md](MANUAL.md) as plain text.
 
+## Tech stack
+
+| Layer | Choices |
+|---|---|
+| Frontend | Plain HTML, CSS and JavaScript (no build step), Three.js, cubing.js twisty-player (loaded on demand), Web Speech for read-aloud |
+| Solvers | Built-in Kociemba two-phase (Python), layer-by-layer teaching solver, min2phase.js and rubiks-cube-solver.js in the browser |
+| Backend | Python 3.12, FastAPI, Uvicorn, Pydantic |
+| Vision | OpenCV, NumPy, SciPy (optimal colour assignment), optional Ultralytics YOLO |
+| Tests | Python unit tests / pytest, Node with jsdom for headless page tests |
+| Hosting | Vercel Python function (`main.py` re-exports `backend/app.py`), Resend for support email |
+
 ## Credit
 
-The colour work stands on two open-source projects, both worth reading:
+The colour work stands on two projects, both worth reading:
 
 - **[dwalton76/rubiks-color-resolver][dw]** — resolving colours per *piece*
   rather than per sticker, matching each corner and edge against the pieces a
@@ -601,3 +654,7 @@ arbitrate is also new.
 `R'` = the same turn anticlockwise. `R2` = a half turn.
 `U` `D` `L` `R` `F` `B` = up, down, left, right, front, back.
 The app shows this in the Notation panel, but you never need to read it.
+
+## Author
+
+Built by Niranjan D — [niranjand.in](https://www.niranjand.in) · [GitHub](https://github.com/Niranjan266) · [LinkedIn](https://www.linkedin.com/in/niranjan266)
