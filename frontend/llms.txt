@@ -21,7 +21,12 @@
 - Full notation reference: https://cube.niranjand.in/notation
 - The timer's scrambles are random-move scrambles (15, 20 or 25 face turns, never the same face twice in a row), shown with a picture of the scrambled cube; they are not the random-state scrambles used in official WCA competitions.
 - Free to use, no account, works on phones and computers in a web browser (the 3D view needs JavaScript and WebGL).
+- The camera scanner works with a phone camera (back or front), a laptop webcam or a USB webcam, in any browser that allows camera access. Nothing has to be downloaded or installed.
 - Made by Niranjan D (https://www.niranjand.in/).
+
+## Also searched as
+
+- Rubik's cube solver with camera, Rubik's cube solver camera, cube solver camera, Rubik's cube scanner, scan Rubik's cube, Rubik's cube solver webcam, solve a Rubik's cube with a phone camera, Rubik's cube solver online, 3x3 cube solver, Rubik's cube solver no download
 
 ## Optional
 
