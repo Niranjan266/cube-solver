@@ -376,6 +376,8 @@ const SOURCES = [
  * plain, self-contained statement; <b> and <code> are the only markup.
  */
 const FAQ = [
+  {q: "How do I start speedcubing?",
+   a: "First learn the beginner layer-by-layer method until you can solve the cube without help. Then move to CFOP, starting with the 2-look last layer (16 sequences), and later learn full CFOP. Practise turning smoothly without pauses, drill your slowest step on its own, and time your solves: watch your average of 5 and of 12 (<b>Ao5</b>, <b>Ao12</b>) on the timer rather than single times."},
   {q: "What is the fewest number of moves needed to solve a Rubik's cube?",
    a: "Every position of a 3×3 Rubik's cube can be solved in 20 moves or fewer (counting a half turn as one move). This limit, known as God's number, was proven in 2010. The <b>Shortest</b> mode of Cube Solver uses the two-phase algorithm and usually finds a solution of about 20 moves."},
   {q: "How long does it take to learn to solve a Rubik's cube?",
